@@ -31,6 +31,27 @@ function json(data, status) {
   });
 }
 
+// Convierte "Bar Nou" en "bar-nou-x7k2": esto es lo que se usará en la URL
+// de las placas NFC de ese local (taplink.es/go/bar-nou-x7k2). El sufijo
+// aleatorio evita choques si dos negocios se llaman igual.
+function slugify(str) {
+  const base = (str || 'local')
+    .toString()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'local';
+  const suffix = Math.random().toString(36).slice(2, 6);
+  return base + '-' + suffix;
+}
+
+function normalizeUrl(url) {
+  const u = (url || '').trim();
+  if (!u) return '';
+  return /^https?:\/\//i.test(u) ? u : 'https://' + u;
+}
+
 export async function onRequest(context) {
   const { request } = context;
   if (request.method !== 'POST') {
@@ -57,6 +78,8 @@ async function handlePost(context) {
   const plan = payload && payload.plan;
   const email = payload && payload.email;
   const negocio = payload && payload.negocio;
+  const reviewUrl = normalizeUrl(payload && payload.glink);
+  const slug = slugify(negocio);
 
   if (!Array.isArray(cart) || cart.length === 0) {
     return json({ error: 'El carrito está vacío.' }, 400);
@@ -97,6 +120,13 @@ async function handlePost(context) {
   body.set('allow_promotion_codes', 'true');
   body.set('metadata[negocio]', negocio || '');
   body.set('metadata[plan]', chosenPlan);
+  body.set('metadata[slug]', slug);
+  body.set('metadata[review_url]', reviewUrl);
+  // Esto mismo se copia a la suscripción (no solo a la sesión), porque el
+  // webhook de pagos fallidos recibe la suscripción, no la sesión original.
+  body.set('subscription_data[metadata][negocio]', negocio || '');
+  body.set('subscription_data[metadata][slug]', slug);
+  body.set('subscription_data[metadata][review_url]', reviewUrl);
 
   // Line item 1: placas (pago único, importe agregado)
   body.set('line_items[0][price_data][currency]', 'eur');
@@ -133,7 +163,7 @@ async function handlePost(context) {
       return json({ error: msg }, 500);
     }
 
-    return json({ url: data.url });
+    return json({ url: data.url, slug: slug });
   } catch (err) {
     return json({ error: 'No se pudo conectar con Stripe.' }, 500);
   }
