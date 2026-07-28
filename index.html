@@ -45,6 +45,39 @@ a:hover{color:var(--color-accent-800)}
 @keyframes tpRing{0%{transform:scale(.85);opacity:.75}70%{transform:scale(2.1);opacity:0}100%{opacity:0}}
 @keyframes tpSweep{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 @media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}[data-rv]{opacity:1;transform:none}}
+
+/* — responsive fixes: mobile nav + step rows — */
+.nav-toggle-input{display:none}
+.nav-links{display:flex;align-items:center;gap:var(--space-4,28px)}
+.step-row{display:grid;grid-template-columns:96px minmax(0,340px) minmax(0,1fr);gap:14px clamp(20px,4vw,72px);align-items:baseline}
+.nav-burger{display:none;cursor:pointer;flex:0 0 auto;width:34px;height:34px;align-items:center;justify-content:center;position:relative}
+.nav-burger span,.nav-burger span::before,.nav-burger span::after{content:'';display:block;width:20px;height:2px;background:var(--color-text);transition:transform .25s ease,opacity .25s ease}
+.nav-burger span{position:relative}
+.nav-burger span::before{position:absolute;top:-6px;left:0}
+.nav-burger span::after{position:absolute;top:6px;left:0}
+.nav-toggle-input:checked ~ .nav-burger span{background:transparent}
+.nav-toggle-input:checked ~ .nav-burger span::before{transform:translateY(6px) rotate(45deg)}
+.nav-toggle-input:checked ~ .nav-burger span::after{transform:translateY(-6px) rotate(-45deg)}
+
+@media (max-width:860px){
+  .nav{flex-wrap:wrap;row-gap:0}
+  .nav-burger{display:flex}
+  .nav-links{
+    display:none;order:5;flex-basis:100%;width:100%;
+    flex-direction:column;align-items:stretch;gap:0;
+    margin:8px calc(-1 * max(clamp(20px,5vw,64px),calc((100% - 1280px) / 2 + clamp(20px,5vw,64px)))) 0;
+    padding:4px max(clamp(20px,5vw,64px),calc((100% - 1280px) / 2 + clamp(20px,5vw,64px))) 16px;
+    border-top:2px solid var(--color-divider);
+  }
+  .nav-toggle-input:checked ~ .nav-links{display:flex}
+  .nav-links a{padding:14px 0;border-bottom:1px solid var(--color-divider);font-size:15px}
+  .nav-links .btn{width:100%;justify-content:center;margin-top:14px}
+}
+
+@media (max-width:640px){
+  .step-row{grid-template-columns:1fr;gap:6px}
+  .step-row h3{font-size:22px}
+}
 </style>
 </helmet>
 
@@ -52,14 +85,18 @@ a:hover{color:var(--color-accent-800)}
   <span class="nav-brand" onClick="{{ goHome }}" style="cursor:pointer;letter-spacing:.02em;display:flex;align-items:center;gap:10px;font-size:17px">
     <span style="position: relative; width: 11px; height: 11px; background: var(--color-accent); display: block;"><span style="position: absolute; inset: 0px; background: var(--color-accent); animation: 2.6s ease-out 0s infinite normal none running tpRing;"></span></span>TAPLINK
   </span>
-  <a onClick="{{ jumpTienda }}" style="cursor:pointer;color:inherit;letter-spacing:.04em">Tienda</a>
-  <a onClick="{{ jumpComo }}" style="cursor:pointer;color:inherit;letter-spacing:.04em">Cómo funciona</a>
-  <a onClick="{{ jumpPrecios }}" style="cursor:pointer;color:inherit;letter-spacing:.04em">El plan</a>
-  <a onClick="{{ jumpFaq }}" style="cursor:pointer;color:inherit;letter-spacing:.04em">FAQ</a>
+  <input type="checkbox" id="nav-toggle" class="nav-toggle-input">
+  <div class="nav-links">
+    <a onClick="{{ jumpTienda }}" style="cursor:pointer;color:inherit;letter-spacing:.04em">Tienda</a>
+    <a onClick="{{ jumpComo }}" style="cursor:pointer;color:inherit;letter-spacing:.04em">Cómo funciona</a>
+    <a onClick="{{ jumpPrecios }}" style="cursor:pointer;color:inherit;letter-spacing:.04em">El plan</a>
+    <a onClick="{{ jumpFaq }}" style="cursor:pointer;color:inherit;letter-spacing:.04em">FAQ</a>
+    <button type="button" class="btn btn-ghost" onClick="{{ goPanel }}" style="gap:9px;letter-spacing:.1em;text-transform:uppercase;font-size:12px;color:var(--color-accent-700);border:2px solid color-mix(in srgb,var(--color-accent) 55%,transparent);padding:9px 14px" style-hover="background:color-mix(in srgb,var(--color-accent) 16%,transparent)">
+      <span style="width:7px;height:7px;background:var(--color-accent);display:block"></span>Mi Taplink
+    </button>
+  </div>
   <span ref="{{ progRef }}" style="position:absolute;left:0;right:0;bottom:-2px;height:2px;background:var(--color-accent);transform:scaleX(0);transform-origin:left;pointer-events:none"></span>
-  <button type="button" class="btn btn-ghost" onClick="{{ goPanel }}" style="gap:9px;letter-spacing:.1em;text-transform:uppercase;font-size:12px;color:var(--color-accent-700);border:2px solid color-mix(in srgb,var(--color-accent) 55%,transparent);padding:9px 14px" style-hover="background:color-mix(in srgb,var(--color-accent) 16%,transparent)">
-    <span style="width:7px;height:7px;background:var(--color-accent);display:block"></span>Mi Taplink
-  </button>
+  <label for="nav-toggle" class="nav-burger" aria-label="Abrir menú"><span></span></label>
   <button type="button" class="btn btn-secondary" onClick="{{ openCart }}" style="gap:9px;letter-spacing:.04em">Carrito
     <sc-if value="{{ hasItems }}"><span style="display:inline-flex;align-items:center;justify-content:center;min-width:21px;height:21px;padding:0 6px;background:var(--color-accent);color:#fff;font-size:12px">{{ cartCount }}</span></sc-if>
   </button>
@@ -205,7 +242,7 @@ a:hover{color:var(--color-accent-800)}
     </div>
     <div style="border-top:2px solid var(--color-divider)">
       <sc-for list="{{ steps }}" as="s" hint-placeholder-count="3">
-        <div data-rv="" style="display:grid;grid-template-columns:96px minmax(0,340px) minmax(0,1fr);gap:14px clamp(20px,4vw,72px);align-items:baseline;padding:38px 0;border-bottom:2px solid var(--color-divider);transition:padding-left .5s ease" style-hover="padding-left:14px">
+        <div data-rv="" class="step-row" style="padding:38px 0;border-bottom:2px solid var(--color-divider);transition:padding-left .5s ease" style-hover="padding-left:14px">
           <p style="font-family:var(--font-heading);font-weight:800;font-size:14px;letter-spacing:.16em;margin:0;color:var(--color-accent-700)">{{ s.n }}</p>
           <h3 style="font-size:29px;margin:0;letter-spacing:-.025em;text-transform:uppercase">{{ s.title }}</h3>
           <p style="margin:0;font-size:16px;line-height:1.65;max-width:52ch;color:color-mix(in srgb,var(--color-text) 68%,transparent)">{{ s.copy }}</p>
