@@ -1,0 +1,1916 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-debf95e9-95cf-4a72-bf3c-265db6ac6b3c/styles.css">
+<script src="_ds/modernist-debf95e9-95cf-4a72-bf3c-265db6ac6b3c/_ds_bundle.js"></script>
+<script src="./image-slot.js"></script>
+<style>
+/* Modernist tokens re-tuned: ink ground, electric-blue accent. Same ramp structure, one lightness scale. */
+:root{
+  --color-bg:#08090f;--color-surface:#101320;--color-text:#f2f3f7;
+  --color-divider:color-mix(in srgb,#f2f3f7 26%,transparent);
+  --color-accent:#2b4bff;--color-accent-2:#5a72ff;
+  --color-accent-100:#0b1130;--color-accent-200:#101a4d;--color-accent-300:#16257a;
+  --color-accent-400:#8fa1ff;--color-accent-500:#4f6bff;--color-accent-600:#1e3cf0;
+  --color-accent-700:#7f92ff;--color-accent-800:#c3cdff;--color-accent-900:#e6ebff;
+  --color-accent-2-100:#0b1130;--color-accent-2-200:#101a4d;--color-accent-2-300:#16257a;
+  --color-accent-2-400:#8fa1ff;--color-accent-2-500:#4f6bff;--color-accent-2-600:#1e3cf0;
+  --color-accent-2-700:#7f92ff;--color-accent-2-800:#c3cdff;--color-accent-2-900:#e6ebff;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.5);--shadow-md:0 8px 26px rgba(0,0,0,.55);--shadow-lg:0 24px 70px rgba(0,0,0,.7);
+}
+html{scroll-behavior:smooth;background:#08090f}
+body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);font-size:16px;text-wrap:pretty;-webkit-font-smoothing:antialiased}
+a{color:var(--color-accent-700);text-underline-offset:3px}
+a:hover{color:var(--color-accent-800)}
+::selection{background:color-mix(in srgb,var(--color-accent) 45%,transparent)}
+.tag-neutral{background:color-mix(in srgb,#f2f3f7 12%,transparent);color:var(--color-text)}
+.tag-accent{background:color-mix(in srgb,var(--color-accent) 22%,transparent);color:var(--color-accent-800)}
+.input{background:#0d1020;color:var(--color-text)}
+.table th,.table td{border-color:var(--color-divider)}
+.table tbody tr:hover{background:color-mix(in srgb,#f2f3f7 5%,transparent)}
+.btn-secondary:hover{background:color-mix(in srgb,#f2f3f7 9%,transparent)}
+[data-rv]{opacity:0;transform:translateY(22px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1)}
+[data-rv].rv-in{opacity:1;transform:none}
+@keyframes tpUp{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+@keyframes tpSlide{from{transform:translateX(32px);opacity:.3}to{transform:translateX(0);opacity:1}}
+@keyframes tpFade{from{opacity:0}to{opacity:1}}
+@keyframes tpMarq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes tpRing{0%{transform:scale(.85);opacity:.75}70%{transform:scale(2.1);opacity:0}100%{opacity:0}}
+@keyframes tpSweep{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}[data-rv]{opacity:1;transform:none}}
+</style>
+</helmet>
+
+<nav class="nav" style="position:sticky;top:0;z-index:60;background:color-mix(in srgb,#08090f 82%,transparent);backdrop-filter:blur(14px);border-bottom:2px solid var(--color-divider);padding-inline:max(clamp(20px,5vw,64px),calc((100% - 1280px) / 2 + clamp(20px,5vw,64px)))">
+  <span class="nav-brand" onClick="{{ goHome }}" style="cursor:pointer;letter-spacing:.02em;display:flex;align-items:center;gap:10px;font-size:17px">
+    <span style="position: relative; width: 11px; height: 11px; background: var(--color-accent); display: block;"><span style="position: absolute; inset: 0px; background: var(--color-accent); animation: 2.6s ease-out 0s infinite normal none running tpRing;"></span></span>TAPLINK
+  </span>
+  <a onClick="{{ jumpTienda }}" style="cursor:pointer;color:inherit;letter-spacing:.04em">Tienda</a>
+  <a onClick="{{ jumpComo }}" style="cursor:pointer;color:inherit;letter-spacing:.04em">Cómo funciona</a>
+  <a onClick="{{ jumpPrecios }}" style="cursor:pointer;color:inherit;letter-spacing:.04em">El plan</a>
+  <a onClick="{{ jumpFaq }}" style="cursor:pointer;color:inherit;letter-spacing:.04em">FAQ</a>
+  <span ref="{{ progRef }}" style="position:absolute;left:0;right:0;bottom:-2px;height:2px;background:var(--color-accent);transform:scaleX(0);transform-origin:left;pointer-events:none"></span>
+  <button type="button" class="btn btn-ghost" onClick="{{ goPanel }}" style="gap:9px;letter-spacing:.1em;text-transform:uppercase;font-size:12px;color:var(--color-accent-700);border:2px solid color-mix(in srgb,var(--color-accent) 55%,transparent);padding:9px 14px" style-hover="background:color-mix(in srgb,var(--color-accent) 16%,transparent)">
+    <span style="width:7px;height:7px;background:var(--color-accent);display:block"></span>Mi Taplink
+  </button>
+  <button type="button" class="btn btn-secondary" onClick="{{ openCart }}" style="gap:9px;letter-spacing:.04em">Carrito
+    <sc-if value="{{ hasItems }}"><span style="display:inline-flex;align-items:center;justify-content:center;min-width:21px;height:21px;padding:0 6px;background:var(--color-accent);color:#fff;font-size:12px">{{ cartCount }}</span></sc-if>
+  </button>
+</nav>
+
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+<main>
+  <section style="position:relative;overflow:hidden;border-bottom:2px solid var(--color-divider)">
+    <div style="position:absolute;top:-24vw;right:-14vw;width:60vw;height:60vw;background:radial-gradient(circle at center,rgba(43,75,255,.5),rgba(43,75,255,0) 62%);pointer-events:none"></div>
+    <div style="max-width:1280px;margin:0 auto;padding:clamp(56px,9vw,132px) clamp(20px,5vw,64px) clamp(44px,6vw,80px);position:relative;display:flex;gap:clamp(32px,5vw,88px);flex-wrap:wrap;align-items:flex-end">
+      <div style="flex:1 1 560px;min-width:0">
+        
+        <h1 style="font-family:var(--font-heading);font-weight:800;font-size:clamp(46px,7.4vw,112px);line-height:.94;letter-spacing:-.045em;margin:0 0 0 -.05em;text-transform:uppercase">
+          <span style="display:block;animation:tpUp .9s cubic-bezier(.2,.7,.2,1) .06s both">Reseñas</span>
+          <span style="display:block;animation:tpUp .9s cubic-bezier(.2,.7,.2,1) .16s both">de cinco</span>
+          <span style="display:block;color:var(--color-accent-700);animation:tpUp .9s cubic-bezier(.2,.7,.2,1) .26s both">estrellas.</span>
+          <span style="display:block;animation:tpUp .9s cubic-bezier(.2,.7,.2,1) .36s both">Sin pedirlas.</span>
+        </h1>
+        <p style="font-size:19px;line-height:1.62;max-width:50ch;margin:36px 0 0;color:color-mix(in srgb,var(--color-text) 74%,transparent);animation:tpUp .9s cubic-bezier(.2,.7,.2,1) .44s both">Una placa Taplink en el mostrador o en la mesa convierte a cada cliente contento en una reseña real de Google. Acerca el móvil, deja la reseña, se va. Sin apps. Sin fricción.</p>
+        <div style="display:flex;gap:12px 22px;flex-wrap:wrap;align-items:center;margin-top:34px;animation:tpUp .9s cubic-bezier(.2,.7,.2,1) .48s both">
+          <span style="display:inline-flex;align-items:center;gap:10px;border:2px solid var(--color-divider);padding:9px 14px;font:600 11px/1 var(--font-body);letter-spacing:.14em;text-transform:uppercase">
+            <span style="position:relative;width:8px;height:8px;background:var(--color-accent);display:block"><span style="position:absolute;inset:0;background:var(--color-accent);animation:tpRing 2.4s ease-out infinite"></span></span>
+            {{ cutoffLead }} {{ cutoffTxt }} {{ cutoffNote }}
+          </span>
+          
+        </div>
+        <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:26px;animation:tpUp .9s cubic-bezier(.2,.7,.2,1) .52s both">
+          <button type="button" class="btn btn-primary" onClick="{{ jumpTienda }}" style="padding:17px 26px;font-size:15px;letter-spacing:.06em;text-transform:uppercase;box-shadow:0 0 0 0 rgba(43,75,255,.5)" style-hover="box-shadow:0 12px 40px rgba(43,75,255,.55);transform:translateY(-2px)">Comprar mi placa</button>
+          <button type="button" class="btn btn-secondary" onClick="{{ jumpComo }}" style="padding:17px 26px;font-size:15px;letter-spacing:.06em;text-transform:uppercase">Ver cómo funciona</button>
+        </div>
+      </div>
+      <figure style="flex:0 1 400px;min-width:270px;margin:0;animation:tpUp 1s cubic-bezier(.2,.7,.2,1) .3s both">
+        <img src="assets/placa-premium-hero.png" alt="Placa Premium Taplink con logo de Google, estrellas y código QR" style="display:block;width:100%;height:auto">
+      </figure>
+    </div>
+  </section>
+
+  <div style="overflow:hidden;border-bottom:2px solid var(--color-divider);background:var(--color-accent);color:#fff">
+    <div style="display:flex;width:max-content;animation:tpMarq 26s linear infinite">
+      <span style="display:flex;gap:44px;padding:15px 22px;font:600 11px/1 var(--font-body);letter-spacing:.24em;text-transform:uppercase;white-space:nowrap"><span>Envío gratis</span><span>·</span><span>Entrega 24–48 h</span><span>·</span><span>Llega configurada</span><span>·</span><span>30 días de garantía</span><span>·</span><span>Soporte en español</span><span>·</span><span>Envío gratis</span><span>·</span><span>Entrega 24–48 h</span><span>·</span><span>Llega configurada</span><span>·</span><span>30 días de garantía</span><span>·</span><span>Soporte en español</span><span>·</span></span>
+      <span style="display:flex;gap:44px;padding:15px 22px;font:600 11px/1 var(--font-body);letter-spacing:.24em;text-transform:uppercase;white-space:nowrap"><span>Envío gratis</span><span>·</span><span>Entrega 24–48 h</span><span>·</span><span>Llega configurada</span><span>·</span><span>30 días de garantía</span><span>·</span><span>Soporte en español</span><span>·</span><span>Envío gratis</span><span>·</span><span>Entrega 24–48 h</span><span>·</span><span>Llega configurada</span><span>·</span><span>30 días de garantía</span><span>·</span><span>Soporte en español</span><span>·</span></span>
+    </div>
+  </div>
+
+  <section id="tienda" style="max-width:1280px;margin:0 auto;padding:clamp(56px,7vw,104px) clamp(20px,5vw,64px)">
+    <div data-rv="" style="display:flex;justify-content:space-between;align-items:flex-end;gap:28px;flex-wrap:wrap;margin-bottom:52px">
+      <div>
+        
+        <h2 style="font-family:var(--font-heading);font-weight:800;font-size:clamp(32px,4.4vw,62px);line-height:1.02;letter-spacing:-.035em;text-transform:uppercase;margin:0">Dos formatos.<br>Un solo gesto.</h2>
+      </div>
+      <p style="font-size:15px;max-width:32ch;margin:0;color:color-mix(in srgb,var(--color-text) 62%,transparent)">Metacrilato grabado de fábrica apuntando a tu ficha de Google. Una placa para el mostrador, o el pack que cubre mostrador y mesa.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(292px,1fr));gap:2px;background:transparent;border:2px solid var(--color-divider)">
+      <sc-for list="{{ products }}" as="p" hint-placeholder-count="3">
+        <article data-rv="" style="box-shadow:0 0 0 1px var(--color-divider);background:var(--color-bg);padding:26px;display:flex;flex-direction:column;gap:20px;transition:background .5s ease" style-hover="background:var(--color-surface)">
+          <div style="position:relative;width:100%;aspect-ratio:4 / 5;background:#fff;overflow:hidden">
+            <sc-if value="{{ p.img }}" hint-placeholder-val="{{ false }}"><img data-src="{{ p.img }}" alt="{{ p.name }}" style="position:absolute;inset:0;width:100%;height:100%;display:block;background:#fff;transition:transform 1.1s cubic-bezier(.2,.7,.2,1);object-fit:{{ p.fit }};object-position:{{ p.pos }}" style-hover="transform:scale(1.035)"></sc-if>
+            <sc-if value="{{ p.noImg }}"><div style="position:absolute;inset:0;background:var(--color-surface);display:flex;align-items:flex-end;padding:22px"><p style="margin:0;font:600 10px/1.4 var(--font-body);letter-spacing:.2em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 45%,transparent)">Fotografía<br>en camino</p></div></sc-if>
+            <sc-if value="{{ p.badge }}"><span style="position:absolute;top:0;left:0;background:var(--color-accent);color:#fff;font:600 10px/1 var(--font-body);letter-spacing:.2em;text-transform:uppercase;padding:9px 12px">{{ p.badge }}</span></sc-if>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px">
+            <h3 style="font-size:26px;margin:0;letter-spacing:-.025em;text-transform:uppercase">{{ p.name }}</h3>
+            <span style="font:600 10px/1 var(--font-body);letter-spacing:.18em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 55%,transparent)">{{ p.kicker }}</span>
+          </div>
+          <p style="margin:0;font-size:15px;line-height:1.6;color:color-mix(in srgb,var(--color-text) 68%,transparent);flex:1">{{ p.desc }}</p>
+          <div style="display:flex;align-items:baseline;gap:12px;padding-top:18px;border-top:2px solid var(--color-divider)">
+            <span style="font-family:var(--font-heading);font-weight:800;font-size:34px;letter-spacing:-.03em">{{ p.price }}</span>
+            <span style="font-size:14px;text-decoration:line-through;color:color-mix(in srgb,var(--color-text) 45%,transparent)">{{ p.was }}</span>
+            <span class="tag tag-accent" style="letter-spacing:.1em">{{ p.off }}</span>
+          </div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <button type="button" class="btn btn-primary" onClick="{{ p.add }}" style="padding:14px 22px;font-size:13px;letter-spacing:.1em;text-transform:uppercase" style-hover="box-shadow:0 10px 30px rgba(43,75,255,.5);transform:translateY(-2px)">Añadir</button>
+            <button type="button" class="btn btn-ghost" onClick="{{ p.view }}" style="font-size:13px;letter-spacing:.1em;text-transform:uppercase">Detalles →</button>
+          </div>
+        </article>
+      </sc-for>
+    </div>
+    <div data-rv="" style="margin-top:44px;border:2px solid var(--color-divider)">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;padding:22px 26px;border-bottom:2px solid var(--color-divider)">
+        <p style="margin:0;font-family:var(--font-heading);font-weight:800;font-size:18px;text-transform:uppercase;letter-spacing:-.015em">Cuál te conviene</p>
+        <p style="margin:0;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 52%,transparent)">8 de cada 10 negocios eligen el pack</p>
+      </div>
+      <table class="table" style="margin:0">
+        <thead><tr><th></th><th>Placa Premium</th><th>Pack Doble</th></tr></thead>
+        <tbody>
+          <tr><td style="color:color-mix(in srgb,var(--color-text) 60%,transparent)">Formato</td><td>1 placa de mostrador</td><td style="color:var(--color-accent-700)">2 placas: mostrador + segundo punto</td></tr>
+          <tr><td style="color:color-mix(in srgb,var(--color-text) 60%,transparent)">Material</td><td>Metacrilato 98 × 98 mm</td><td style="color:var(--color-accent-700)">Metacrilato 98 × 98 mm</td></tr>
+          <tr><td style="color:color-mix(in srgb,var(--color-text) 60%,transparent)">Lectura</td><td>NFC + QR de respaldo</td><td style="color:var(--color-accent-700)">NFC + QR de respaldo</td></tr>
+          <tr><td style="color:color-mix(in srgb,var(--color-text) 60%,transparent)">Cobertura</td><td>Barra o recepción</td><td style="color:var(--color-accent-700)">Barra y punto de pago o terraza</td></tr>
+          <tr><td style="color:color-mix(in srgb,var(--color-text) 60%,transparent)">Reseñas / mes (media)</td><td>≈ 74</td><td style="color:var(--color-accent-700)">≈ 126</td></tr>
+          <tr><td style="color:color-mix(in srgb,var(--color-text) 60%,transparent)">Precio por placa</td><td>49,99 €</td><td style="color:var(--color-accent-700)">37,49 €</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin:22px 0 0;font-size:13px;letter-spacing:.06em;color:color-mix(in srgb,var(--color-text) 58%,transparent)">IVA incluido · El plan de gestión se suma en el carrito y se ve antes de pagar — <a onClick="{{ jumpPrecios }}" style="cursor:pointer">cómo funciona</a></p>
+  </section>
+
+  <section style="border-top:2px solid var(--color-divider);border-bottom:2px solid var(--color-divider);background:var(--color-surface)">
+    <div style="max-width:1280px;margin:0 auto;padding:clamp(52px,6vw,88px) clamp(20px,5vw,64px)">
+      
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:44px 36px">
+        <sc-for list="{{ stats }}" as="s" hint-placeholder-count="4">
+          <div data-rv="">
+            <p style="font-family:var(--font-heading);font-weight:800;font-size:clamp(44px,5.4vw,74px);line-height:.9;letter-spacing:-.045em;margin:0;color:var(--color-accent-700)" data-count="{{ s.n }}" data-pre="{{ s.pre }}" data-suf="{{ s.suf }}">{{ s.full }}</p>
+            <p style="margin:20px 0 0;font-size:14px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 66%,transparent)">{{ s.label }}</p>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <sc-if value="{{ showBeforeAfter }}" hint-placeholder-val="{{ true }}">
+  <section style="max-width:1280px;margin:0 auto;padding:clamp(56px,7vw,104px) clamp(20px,5vw,64px)">
+    <div data-rv="" style="margin-bottom:48px">
+      
+      <h2 style="font-family:var(--font-heading);font-weight:800;font-size:clamp(30px,4vw,56px);line-height:1.02;letter-spacing:-.035em;text-transform:uppercase;margin:0;max-width:22ch">Cuatro meses<br>de placa en la barra.</h2>
+    </div>
+    <div data-rv="" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:2px;background:transparent;border:2px solid var(--color-divider)">
+      <div style="box-shadow:0 0 0 1px var(--color-divider);background:var(--color-bg);padding:34px">
+        <p style="margin:0 0 24px;font:600 10px/1 var(--font-body);letter-spacing:.22em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 52%,transparent)">Antes · marzo</p>
+        <p style="font-family:var(--font-heading);font-weight:800;font-size:76px;line-height:.86;letter-spacing:-.05em;margin:0;color:color-mix(in srgb,var(--color-text) 70%,transparent)">3,4</p>
+        <div style="height:6px;background:color-mix(in srgb,var(--color-text) 14%,transparent);margin:26px 0 16px"><div data-bar="68" style="height:6px;width:0;background:color-mix(in srgb,var(--color-text) 55%,transparent);transition:width 1.4s cubic-bezier(.2,.7,.2,1)"></div></div>
+        <p style="margin:0;font-size:14px;letter-spacing:.04em;color:color-mix(in srgb,var(--color-text) 62%,transparent)">12 reseñas en 3 años</p>
+      </div>
+      <div style="box-shadow:0 0 0 1px var(--color-divider);background:var(--color-bg);padding:34px">
+        <p style="margin:0 0 24px;font:600 10px/1 var(--font-body);letter-spacing:.22em;text-transform:uppercase;color:var(--color-accent-700)">Después · julio</p>
+        <p style="font-family:var(--font-heading);font-weight:800;font-size:76px;line-height:.86;letter-spacing:-.05em;margin:0;color:var(--color-accent-700)">4,8</p>
+        <div style="height:6px;background:color-mix(in srgb,var(--color-text) 14%,transparent);margin:26px 0 16px"><div data-bar="96" style="height:6px;width:0;background:var(--color-accent);transition:width 1.4s cubic-bezier(.2,.7,.2,1) .2s"></div></div>
+        <p style="margin:0;font-size:14px;letter-spacing:.04em;color:color-mix(in srgb,var(--color-text) 62%,transparent)">187 reseñas · +175 en 4 meses</p>
+      </div>
+      <div style="box-shadow:0 0 0 1px var(--color-divider);background:var(--color-surface);padding:34px;display:flex;flex-direction:column;justify-content:space-between;gap:24px">
+        <p style="margin:0;font-family:var(--font-heading);font-weight:800;font-size:20px;line-height:1.3;letter-spacing:-.015em">Una sola placa en la barra. Cero reseñas pedidas de viva voz.</p>
+        <p style="margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 52%,transparent)">Bar Nou · Gràcia<br>Negocio piloto</p>
+      </div>
+    </div>
+  </section>
+  </sc-if>
+
+  <section id="como-funciona" style="max-width:1280px;margin:0 auto;padding:0 clamp(20px,5vw,64px) clamp(56px,7vw,104px)">
+    <div data-rv="" style="margin-bottom:20px">
+      
+      <h2 style="font-family:var(--font-heading);font-weight:800;font-size:clamp(30px,4vw,56px);line-height:1.02;letter-spacing:-.035em;text-transform:uppercase;margin:0">Tres pasos. Cero fricción.</h2>
+    </div>
+    <div style="border-top:2px solid var(--color-divider)">
+      <sc-for list="{{ steps }}" as="s" hint-placeholder-count="3">
+        <div data-rv="" style="display:grid;grid-template-columns:96px minmax(0,340px) minmax(0,1fr);gap:14px clamp(20px,4vw,72px);align-items:baseline;padding:38px 0;border-bottom:2px solid var(--color-divider);transition:padding-left .5s ease" style-hover="padding-left:14px">
+          <p style="font-family:var(--font-heading);font-weight:800;font-size:14px;letter-spacing:.16em;margin:0;color:var(--color-accent-700)">{{ s.n }}</p>
+          <h3 style="font-size:29px;margin:0;letter-spacing:-.025em;text-transform:uppercase">{{ s.title }}</h3>
+          <p style="margin:0;font-size:16px;line-height:1.65;max-width:52ch;color:color-mix(in srgb,var(--color-text) 68%,transparent)">{{ s.copy }}</p>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section id="precios" style="max-width:1280px;margin:0 auto;padding:0 clamp(20px,5vw,64px) clamp(56px,7vw,104px)">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:clamp(28px,4vw,72px);align-items:start">
+      <div data-rv="">
+        
+        <h2 style="font-family:var(--font-heading);font-weight:800;font-size:clamp(30px,4vw,56px);line-height:1.02;letter-spacing:-.035em;text-transform:uppercase;margin:0 0 26px;max-width:20ch">Precio claro,<br>dicho antes.</h2>
+        <p style="font-size:16px;line-height:1.65;margin:0 0 16px;color:color-mix(in srgb,var(--color-text) 74%,transparent)">Toda placa lleva plan de gestión y no es opcional: mantiene el enlace vivo, te deja cambiarlo cuando quieras y te cubre con soporte y un recambio gratis cada 2 meses.</p>
+        <p style="font-size:16px;line-height:1.65;margin:0;color:color-mix(in srgb,var(--color-text) 74%,transparent)">Se paga aparte del precio de la placa, lo verás sumado en el carrito y no hay letra pequeña. Cancelas cuando quieras: la placa se queda contigo.</p>
+        <table class="table" style="margin-top:34px">
+          <thead><tr><th>Placas activas</th><th>Mensual</th><th>Anual</th></tr></thead>
+          <tbody>
+            <tr><td>De 1 a 10</td><td>7,99 € / mes</td><td><span style="text-decoration:line-through;text-decoration-thickness:2px;color:color-mix(in srgb,var(--color-text) 42%,transparent)">95,88 €</span> 79 €</td></tr>
+            <tr><td>Más de 10 placas</td><td colspan="2">Precio a medida — te lo damos por WhatsApp</td></tr>
+          </tbody>
+        </table>
+        <div style="margin-top:28px;padding:26px;background:var(--color-surface);border:2px solid var(--color-divider);display:flex;gap:22px;align-items:center;flex-wrap:wrap">
+          <div style="flex:1 1 260px;min-width:0">
+            <p style="margin:0 0 8px;font-family:var(--font-heading);font-weight:800;font-size:20px;letter-spacing:-.015em;text-transform:uppercase">¿Más de 10 placas?</p>
+            <p style="margin:0;font-size:15px;line-height:1.6;color:color-mix(in srgb,var(--color-text) 70%,transparent)">Escríbenos por WhatsApp y te pasamos el precio a medida. <strong style="color:var(--color-text)">Respondemos al momento.</strong></p>
+          </div>
+          <a href="https://wa.me/34686485535" target="_blank" rel="noopener" class="btn btn-primary" style="padding:15px 22px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;gap:12px;text-decoration:none;background:#25d366;color:#08090f;border-color:#25d366" style-hover="box-shadow:0 12px 34px rgba(37,211,102,.45);transform:translateY(-2px)">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.79.97-.97 1.17-.18.2-.36.22-.66.07-.3-.15-1.27-.47-2.42-1.49-.9-.8-1.5-1.79-1.68-2.09-.18-.3-.02-.46.13-.61.15-.15.3-.35.45-.53.15-.18.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.92-2.21-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.03 1-1.03 2.44s1.05 2.83 1.2 3.03c.15.2 2.07 3.16 5.02 4.43.7.3 1.25.48 1.68.62.71.22 1.35.19 1.86.12.57-.09 1.76-.72 2.01-1.41.25-.7.25-1.29.17-1.42-.07-.12-.27-.2-.57-.35zM12.04 21.5h-.01a9.4 9.4 0 0 1-4.79-1.31l-.34-.2-3.56.93.95-3.47-.22-.36a9.36 9.36 0 0 1-1.44-5.01c0-5.18 4.23-9.4 9.42-9.4a9.35 9.35 0 0 1 6.65 2.76 9.32 9.32 0 0 1 2.76 6.65c0 5.18-4.23 9.41-9.42 9.41zM20.11 3.9A11.31 11.31 0 0 0 12.04.56C5.82.56.76 5.61.76 11.82c0 1.99.52 3.93 1.5 5.64L.63 23.44l6.13-1.6a11.3 11.3 0 0 0 5.28 1.34h.01c6.22 0 11.28-5.05 11.28-11.26 0-3.01-1.17-5.84-3.22-7.99z"></path></svg>
+            Escribir por WhatsApp
+          </a>
+        </div>
+      </div>
+      <div data-rv="" style="background:var(--color-surface);padding:clamp(26px,3vw,40px);border:2px solid var(--color-divider);box-shadow:var(--shadow-md)">
+        <p style="margin:0 0 24px;font:600 10px/1 var(--font-body);letter-spacing:.22em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 55%,transparent)">Elige cadencia</p>
+        <div class="seg" style="margin-bottom:32px">
+          <label class="seg-opt" style="letter-spacing:.08em;text-transform:uppercase;font-size:12px"><input type="radio" name="cadencia" checked="{{ planMensual }}" onChange="{{ setMensual }}">Mensual</label>
+          <label class="seg-opt" style="letter-spacing:.08em;text-transform:uppercase;font-size:12px"><input type="radio" name="cadencia" checked="{{ planAnual }}" onChange="{{ setAnual }}">Anual · −18 %</label>
+        </div>
+        <sc-if value="{{ planIsAnual }}">
+          <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin:0 0 14px">
+            <span style="font-family:var(--font-heading);font-weight:800;font-size:26px;letter-spacing:-.03em;text-decoration:line-through;text-decoration-thickness:3px;color:color-mix(in srgb,var(--color-text) 42%,transparent)">{{ planWas }}</span>
+            
+          </div>
+        </sc-if>
+        <p style="font-family:var(--font-heading);font-weight:800;font-size:clamp(44px,5vw,66px);line-height:.92;letter-spacing:-.045em;margin:0">{{ planBigPrice }}</p>
+        <p style="margin:18px 0 0;font-size:15px;color:color-mix(in srgb,var(--color-text) 68%,transparent)">{{ planBigNote }}</p>
+        <div style="margin:24px 0 0;padding:22px 24px;background:var(--color-accent);color:#fff;display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;box-shadow:0 14px 40px rgba(43,75,255,.42)">
+          <span style="font-family:var(--font-heading);font-weight:800;font-size:clamp(38px,4.4vw,54px);line-height:.9;letter-spacing:-.045em">{{ weekPrice }}</span>
+          <span style="font:600 11px/1.5 var(--font-body);letter-spacing:.22em;text-transform:uppercase;padding-bottom:4px">por semana<br><span style="opacity:.78">{{ weekNote }}</span></span>
+        </div>
+        <hr class="hr" style="margin:30px 0">
+        <ul style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:14px;font-size:15px">
+          <li style="display:flex;gap:14px"><span style="width:8px;height:8px;background:var(--color-accent);flex:none;margin-top:8px"></span>Cambia el enlace de destino cuando quieras</li>
+          <li style="display:flex;gap:14px"><span style="width:8px;height:8px;background:var(--color-accent);flex:none;margin-top:8px"></span>Recambio gratis cada 2 meses si una placa falla</li>
+          <li style="display:flex;gap:14px"><span style="width:8px;height:8px;background:var(--color-accent);flex:none;margin-top:8px"></span>Soporte por WhatsApp y correo, en español</li>
+          <li style="display:flex;gap:14px"><span style="width:8px;height:8px;background:var(--color-accent);flex:none;margin-top:8px"></span>Escala por tramos si abres más locales</li>
+        </ul>
+        <button type="button" class="btn btn-primary btn-block" onClick="{{ jumpTienda }}" style="margin-top:30px;padding:16px 22px;font-size:13px;letter-spacing:.1em;text-transform:uppercase">Elegir mi placa</button>
+      </div>
+    </div>
+  </section>
+
+  <section style="border-top:2px solid var(--color-divider)">
+    <div style="max-width:1280px;margin:0 auto;padding:clamp(56px,7vw,104px) clamp(20px,5vw,64px)">
+      <div data-rv="" style="display:flex;justify-content:space-between;align-items:flex-end;gap:28px;flex-wrap:wrap;margin-bottom:48px">
+        <div>
+          
+          <h2 style="font-family:var(--font-heading);font-weight:800;font-size:clamp(30px,4vw,56px);line-height:1.02;letter-spacing:-.035em;text-transform:uppercase;margin:0;max-width:24ch">No compras un plástico.<br>Compras reputación.</h2>
+        </div>
+        <p style="font-size:15px;max-width:34ch;margin:0;color:color-mix(in srgb,var(--color-text) 62%,transparent)">Una placa sin nada detrás es un adorno. Lo que sostiene el sistema —y tus reseñas— es esto.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2px;background:transparent;border:2px solid var(--color-divider)">
+        <sc-for list="{{ benefits }}" as="b" hint-placeholder-count="6">
+          <div data-rv="" style="box-shadow:0 0 0 1px var(--color-divider);background:var(--color-bg);padding:32px;display:flex;flex-direction:column;gap:14px;transition:background .45s ease" style-hover="background:var(--color-surface)">
+            <p style="margin:0;font:600 10px/1 var(--font-body);letter-spacing:.22em;text-transform:uppercase;color:var(--color-accent-700)">{{ b.n }}</p>
+            <h3 style="margin:0;font-size:23px;letter-spacing:-.02em;text-transform:uppercase;line-height:1.1">{{ b.title }}</h3>
+            <p style="margin:0;font-size:15px;line-height:1.65;color:color-mix(in srgb,var(--color-text) 70%,transparent)">{{ b.copy }}</p>
+          </div>
+        </sc-for>
+      </div>
+      <div data-rv="" style="margin-top:2px;border:2px solid var(--color-divider);border-top:0;background:var(--color-surface);padding:32px;display:flex;gap:32px;flex-wrap:wrap;align-items:center;justify-content:space-between">
+        <p style="margin:0;font-family:var(--font-heading);font-weight:800;font-size:clamp(20px,2.2vw,28px);line-height:1.25;letter-spacing:-.025em;max-width:38ch">Un cliente nuevo al mes ya paga el plan de todo el año.</p>
+        <button type="button" class="btn btn-primary" onClick="{{ jumpTienda }}" style="padding:16px 26px;font-size:13px;letter-spacing:.1em;text-transform:uppercase" style-hover="box-shadow:0 12px 36px rgba(43,75,255,.5);transform:translateY(-2px)">Empezar por 79 € / año</button>
+      </div>
+    </div>
+  </section>
+
+  <section style="border-top:2px solid var(--color-divider)">
+    <div style="max-width:1280px;margin:0 auto;padding:clamp(56px,7vw,104px) clamp(20px,5vw,64px)">
+      <div data-rv="" style="margin-bottom:44px">
+        
+        <h2 style="font-family:var(--font-heading);font-weight:800;font-size:clamp(30px,4vw,56px);line-height:1.02;letter-spacing:-.035em;text-transform:uppercase;margin:0;max-width:24ch">Cuánto vale subir<br>de estrellas.</h2>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:clamp(24px,3vw,56px);align-items:start">
+        <div data-rv="" style="border:2px solid var(--color-divider);padding:clamp(24px,3vw,34px);background:var(--color-surface)">
+          <div style="margin-bottom:30px">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-bottom:14px">
+              <label style="font:600 10px/1 var(--font-body);letter-spacing:.2em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 58%,transparent)">Tu facturación al mes</label>
+              <span style="font-family:var(--font-heading);font-weight:800;font-size:20px;letter-spacing:-.02em">{{ roiRevStr }}</span>
+            </div>
+            <input type="range" min="0" max="{{ roiRevMax }}" step="1" value="{{ roiRevIdx }}" onChange="{{ onRoiRev }}" style="width:100%;accent-color:var(--color-accent)">
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-bottom:14px">
+              <label style="font:600 10px/1 var(--font-body);letter-spacing:.2em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 58%,transparent)">Placas en el local</label>
+              <span style="font-family:var(--font-heading);font-weight:800;font-size:20px;letter-spacing:-.02em">{{ roiPlatesStr }}</span>
+            </div>
+            <div style="display:flex;gap:14px;align-items:center">
+              <input type="range" min="0" max="{{ roiPlatesMax }}" step="1" value="{{ roiPlatesIdx }}" onChange="{{ onRoiPlates }}" style="flex:1;accent-color:var(--color-accent)">
+              <input class="input" type="number" min="1" max="500" value="{{ roiPlates }}" onChange="{{ onRoiPlatesNum }}" style="width:88px;min-height:40px;font-size:15px;text-align:center">
+            </div>
+          </div>
+          <hr class="hr" style="margin:28px 0">
+          <p style="margin:0;font-size:13px;line-height:1.6;color:color-mix(in srgb,var(--color-text) 58%,transparent)">Estimación basada en la media de nuestros clientes y en los estudios de reputación local: cada estrella suma entre un 5 y un 9 % de ingresos, y salir en el top 3 del mapa multiplica las visitas.</p>
+        </div>
+        <div data-rv="" style="display:flex;flex-direction:column;gap:2px">
+          <div style="border:2px solid var(--color-divider);padding:28px;background:var(--color-bg)">
+            <p style="margin:0 0 12px;font:600 10px/1 var(--font-body);letter-spacing:.2em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 55%,transparent)">Reseñas nuevas al mes</p>
+            <p style="margin:0;font-family:var(--font-heading);font-weight:800;font-size:clamp(34px,4vw,48px);line-height:.92;letter-spacing:-.04em">{{ roiReviews }}</p>
+            <p style="margin:12px 0 0;font-size:14px;color:color-mix(in srgb,var(--color-text) 62%,transparent)">Nota media estimada: {{ roiStars }} estrellas</p>
+            <sc-if value="{{ roiOverPlates }}"><p style="margin:12px 0 0;font-size:13px;line-height:1.5;color:var(--color-accent-700)">{{ roiOverNote }}</p></sc-if>
+          </div>
+          <div style="border:2px solid var(--color-accent);padding:28px;background:var(--color-accent);color:#fff;box-shadow:0 16px 44px rgba(43,75,255,.38)">
+            <p style="margin:0 0 12px;font:600 10px/1 var(--font-body);letter-spacing:.2em;text-transform:uppercase;opacity:.82">Facturación extra estimada · {{ roiUpliftPct }}</p>
+            <p style="margin:0;font-family:var(--font-heading);font-weight:800;font-size:clamp(38px,4.6vw,58px);line-height:.9;letter-spacing:-.045em">{{ roiUplift }}<span style="font-size:.42em;letter-spacing:.12em;text-transform:uppercase"> / mes</span></p>
+            <p style="margin:12px 0 0;font-family:var(--font-heading);font-weight:800;font-size:19px;letter-spacing:-.02em;opacity:.92">{{ roiUpliftYear }} al año</p>
+            <p style="margin:14px 0 0;font-size:14px;opacity:.86">Inversión: {{ roiCost }} hoy · se paga en {{ roiPayback }}</p>
+            <p style="margin:8px 0 0;font-size:13px;opacity:.72">{{ roiPlanNote }}</p>
+          </div>
+          <sc-if value="{{ roiBig }}">
+            <a href="https://wa.me/34686485535" target="_blank" rel="noopener" class="btn" style="margin-top:2px;padding:16px 22px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;background:#25d366;color:#08090f;border-color:#25d366;justify-content:flex-start">Más de 50 placas · precio a medida por WhatsApp</a>
+          </sc-if>
+          <button type="button" class="btn btn-primary" onClick="{{ jumpTienda }}" style="padding:17px 24px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;margin-top:20px" style-hover="box-shadow:0 12px 36px rgba(43,75,255,.5);transform:translateY(-2px)">Quiero esas reseñas</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="border-top:2px solid var(--color-divider);background:var(--color-surface)">
+    <div style="max-width:1280px;margin:0 auto;padding:clamp(52px,6vw,88px) clamp(20px,5vw,64px)">
+      <div data-rv="" style="display:flex;justify-content:space-between;align-items:baseline;gap:20px;flex-wrap:wrap;margin:0 0 40px">
+        <span style="font:600 11px/1.2 var(--font-body);letter-spacing:.28em;text-transform:uppercase;color:var(--color-accent-700)">Lo dicen ellos</span>
+        <span style="font:600 11px/1 var(--font-body);letter-spacing:.16em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 55%,transparent)">{{ liveCount }} reseñas generadas con Taplink</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:2px;background:transparent;border:2px solid var(--color-divider)">
+        <sc-for list="{{ quotes }}" as="q" hint-placeholder-count="3">
+          <figure data-rv="" style="box-shadow:0 0 0 1px var(--color-divider);margin:0;padding:34px;background:var(--color-surface)">
+            <p style="margin:0 0 26px;font-size:17px;letter-spacing:.34em;color:var(--color-accent-700)">★★★★★</p>
+            <blockquote style="margin:0;font-family:var(--font-heading);font-weight:800;font-size:20px;line-height:1.34;letter-spacing:-.02em">{{ q.text }}</blockquote>
+            <figcaption style="margin-top:28px;font-size:13px;display:flex;gap:14px;align-items:center;color:color-mix(in srgb,var(--color-text) 62%,transparent)"><span style="width:38px;height:38px;background:var(--color-accent);color:#fff;display:grid;place-items:center;font-family:var(--font-heading);font-weight:800;font-size:13px;flex:none">{{ q.ini }}</span><span>{{ q.who }}<br>{{ q.where }}</span></figcaption>
+          </figure>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq" style="max-width:1280px;margin:0 auto;padding:clamp(56px,7vw,104px) clamp(20px,5vw,64px)">
+    <div data-rv="" style="margin-bottom:40px">
+      <span style="display:block;font:600 11px/1.2 var(--font-body);letter-spacing:.28em;text-transform:uppercase;color:var(--color-accent-700);margin:0 0 20px">Dudas frecuentes</span>
+      <h2 style="font-family:var(--font-heading);font-weight:800;font-size:clamp(30px,4vw,56px);line-height:1.02;letter-spacing:-.035em;text-transform:uppercase;margin:0">Lo que suelen preguntarnos</h2>
+    </div>
+    <div style="border-top:2px solid var(--color-divider);max-width:960px">
+      <sc-for list="{{ faqs }}" as="f" hint-placeholder-count="6">
+        <div style="border-bottom:2px solid var(--color-divider)">
+          <button type="button" onClick="{{ f.toggle }}" style="width:100%;display:flex;justify-content:space-between;gap:24px;align-items:baseline;background:none;border:0;padding:26px 0;cursor:pointer;text-align:left;font-family:var(--font-heading);font-weight:800;font-size:20px;letter-spacing:-.015em;color:var(--color-text);transition:color .3s ease" style-hover="color:var(--color-accent-700)">{{ f.q }}<span style="color:var(--color-accent-700);font-size:24px;line-height:1;flex:none">{{ f.mark }}</span></button>
+          <sc-if value="{{ f.open }}"><p style="margin:0;padding:0 0 28px;font-size:16px;line-height:1.68;max-width:66ch;color:color-mix(in srgb,var(--color-text) 70%,transparent);animation:tpFade .4s ease-out">{{ f.a }}</p></sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="border-top:2px solid var(--color-divider)">
+    <div style="max-width:1280px;margin:0 auto;padding:34px clamp(20px,5vw,64px);display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:26px 32px">
+      <div><p style="margin:0 0 8px;font-family:var(--font-heading);font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.02em">Envío gratis 24–48 h</p><p style="margin:0;font-size:13px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 58%,transparent)">Sale de Girona ya grabada.</p></div>
+      <div><p style="margin:0 0 8px;font-family:var(--font-heading);font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.02em">30 días de garantía</p><p style="margin:0;font-size:13px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 58%,transparent)">Devolución del importe si te arrepientes, sin preguntas.</p></div>
+      <div><p style="margin:0 0 8px;font-family:var(--font-heading);font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.02em">Pago cifrado</p><p style="margin:0;font-size:13px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 58%,transparent)">No guardamos datos de tarjeta.</p></div>
+      <div><p style="margin:0 0 8px;font-family:var(--font-heading);font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.02em">Soporte en minutos</p><p style="margin:0;font-size:13px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 58%,transparent)">WhatsApp directo, en español.</p></div>
+    </div>
+  </section>
+
+  <section onMouseMove="{{ onSpot }}" style="position:relative;overflow:hidden;background:var(--color-accent);color:#fff;border-top:2px solid var(--color-divider)">
+    <div ref="{{ spotRef }}" style="position:absolute;width:760px;height:760px;left:-380px;top:-380px;background:radial-gradient(circle at center,rgba(255,255,255,.28),rgba(255,255,255,0) 62%);pointer-events:none;transition:transform .18s ease-out"></div>
+    <div style="position:relative;max-width:1280px;margin:0 auto;padding:clamp(64px,9vw,128px) clamp(20px,5vw,64px)">
+      <h2 style="font-family:var(--font-heading);font-weight:800;font-size:clamp(38px,6.4vw,96px);line-height:.94;letter-spacing:-.045em;text-transform:uppercase;margin:0 0 0 -.05em"><span style="display:block">Tus clientes</span><span style="display:block">contentos ya están.</span><span style="display:block">Que se vea en Google.</span></h2>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:46px">
+        <button type="button" class="btn" onClick="{{ jumpTienda }}" style="background:#fff;color:var(--color-accent);padding:18px 28px;font-size:14px;letter-spacing:.1em;text-transform:uppercase" style-hover="transform:translateY(-2px)">Comprar mi placa</button>
+        <button type="button" class="btn btn-ghost" onClick="{{ openCart }}" style="color:#fff;border-color:#fff;padding:18px 28px;font-size:14px;letter-spacing:.1em;text-transform:uppercase">Ver mi carrito</button>
+      </div>
+    </div>
+  </section>
+</main>
+</sc-if>
+
+<sc-if value="{{ buyBarOn }}">
+<div style="position:fixed;left:0;right:0;bottom:0;z-index:70;background:color-mix(in srgb,#08090f 90%,transparent);backdrop-filter:blur(16px);border-top:2px solid var(--color-divider);animation:tpUp .35s cubic-bezier(.2,.7,.2,1) both">
+  <div style="max-width:1280px;margin:0 auto;padding:14px clamp(20px,5vw,64px);display:flex;gap:18px;align-items:center;justify-content:space-between;flex-wrap:wrap">
+    <div style="display:flex;gap:16px;align-items:center;min-width:0">
+      <span style="font-family:var(--font-heading);font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:-.01em">Pack Doble · {{ buyBarPrice }}</span>
+      <span style="font:600 10px/1 var(--font-body);letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">{{ cutoffLead }} {{ cutoffTxt }} {{ cutoffNote }}</span>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button type="button" class="btn btn-secondary" onClick="{{ viewPack }}" style="padding:12px 18px;font-size:11px;letter-spacing:.1em;text-transform:uppercase">Ver detalles</button>
+      <button type="button" class="btn btn-primary" onClick="{{ addPackNow }}" style="padding:12px 22px;font-size:11px;letter-spacing:.1em;text-transform:uppercase">Añadir al carrito</button>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ proofOn }}">
+<div style="position:fixed;left:clamp(16px,3vw,32px);bottom:clamp(84px,10vw,104px);z-index:65;max-width:310px;background:var(--color-surface);border:2px solid var(--color-divider);box-shadow:var(--shadow-lg);padding:16px 18px;display:flex;gap:14px;align-items:flex-start;animation:tpUp .5s cubic-bezier(.2,.7,.2,1) both">
+  <span style="position:relative;width:8px;height:8px;background:var(--color-accent);flex:none;margin-top:6px"><span style="position:absolute;inset:0;background:var(--color-accent);animation:tpRing 2.6s ease-out infinite"></span></span>
+  <div style="min-width:0">
+    <p style="margin:0;font-size:13px;line-height:1.5">{{ proofWho }} compró <strong>{{ proofWhat }}</strong></p>
+    <p style="margin:6px 0 0;font:600 10px/1 var(--font-body);letter-spacing:.16em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 50%,transparent)">{{ proofWhen }}</p>
+  </div>
+  <button type="button" onClick="{{ proofClose }}" style="background:none;border:0;color:color-mix(in srgb,var(--color-text) 55%,transparent);cursor:pointer;font-size:16px;line-height:1;padding:0">×</button>
+</div>
+</sc-if>
+
+<sc-if value="{{ isProduct }}">
+<main style="max-width:1280px;margin:0 auto;padding:34px clamp(20px,5vw,64px) 0;animation:tpFade .4s ease-out">
+  <p style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;margin:0 0 32px;color:color-mix(in srgb,var(--color-text) 55%,transparent)"><a onClick="{{ goHome }}" style="cursor:pointer">Tienda</a> / {{ pName }}</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:clamp(28px,4vw,72px);align-items:start">
+    <div>
+      <div style="position:relative;width:100%;aspect-ratio:4 / 5;background:#fff;border:2px solid var(--color-divider)">
+        <sc-if value="{{ pImg }}" hint-placeholder-val="{{ false }}"><img data-src="{{ pImg }}" alt="{{ pName }}" style="position:absolute;inset:0;width:100%;height:100%;display:block;background:#fff;object-fit:{{ pFit }};object-position:{{ pPos }}"></sc-if>
+        <sc-if value="{{ pNoImg }}"><div style="position:absolute;inset:0;background:var(--color-surface);display:flex;align-items:flex-end;padding:26px"><p style="margin:0;font:600 10px/1.4 var(--font-body);letter-spacing:.2em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 45%,transparent)">Fotografía<br>en camino</p></div></sc-if>
+      </div>
+      <p style="margin:14px 0 0;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 55%,transparent)">{{ pSpec }}</p>
+    </div>
+    <div>
+      <span style="font:600 10px/1 var(--font-body);letter-spacing:.22em;text-transform:uppercase;color:var(--color-accent-700)">{{ pKicker }}</span>
+      <h1 style="font-family:var(--font-heading);font-weight:800;font-size:clamp(34px,4.6vw,60px);line-height:.98;letter-spacing:-.04em;text-transform:uppercase;margin:20px 0 0">{{ pName }}</h1>
+      <p style="font-size:17px;line-height:1.65;margin:22px 0 0;max-width:46ch;color:color-mix(in srgb,var(--color-text) 72%,transparent)">{{ pDesc }}</p>
+      <div style="display:flex;align-items:baseline;gap:14px;margin:30px 0 0">
+        <span style="font-family:var(--font-heading);font-weight:800;font-size:44px;letter-spacing:-.04em">{{ pPrice }}</span>
+        <span style="font-size:16px;text-decoration:line-through;color:color-mix(in srgb,var(--color-text) 45%,transparent)">{{ pWas }}</span>
+        <span class="tag tag-accent" style="letter-spacing:.1em">{{ pOff }}</span>
+      </div>
+      <hr class="hr" style="margin:30px 0">
+      <p style="margin:0 0 16px;font:600 10px/1 var(--font-body);letter-spacing:.22em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 55%,transparent)">Plan de gestión · obligatorio</p>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <label class="radio" style="gap:14px;font-size:16px;align-items:flex-start"><input type="radio" name="plan" checked="{{ planMensual }}" onChange="{{ setMensual }}"><span class="dot" style="margin-top:4px"></span><span>Mensual — 7,99 € / mes<br><span style="font-size:14px;color:color-mix(in srgb,var(--color-text) 58%,transparent)">Sale a 1,84 € por semana · cancelas cuando quieras</span></span></label>
+        <label class="radio" style="gap:14px;font-size:16px;align-items:flex-start"><input type="radio" name="plan" checked="{{ planAnual }}" onChange="{{ setAnual }}"><span class="dot" style="margin-top:4px"></span><span>Anual — <span style="text-decoration:line-through;text-decoration-thickness:2px;color:color-mix(in srgb,var(--color-text) 45%,transparent)">95,88 €</span> <strong>79 € / año</strong> <span class="tag tag-accent" style="margin-left:8px;letter-spacing:.1em">−18 %</span><br><span style="font-size:14px;color:color-mix(in srgb,var(--color-text) 58%,transparent)">Sale a 1,52 € por semana</span></span></label>
+      </div>
+      <div style="background:var(--color-surface);border:2px solid var(--color-divider);padding:24px;margin-top:28px;display:flex;flex-direction:column;gap:12px;font-size:15px">
+        <div style="display:flex;justify-content:space-between;gap:16px"><span>{{ pName }} × {{ qty }}</span><span>{{ pLine }}</span></div>
+        <div style="display:flex;justify-content:space-between;gap:16px"><span>{{ planLabel }}</span><span>{{ planPrice }}</span></div>
+        <div style="display:flex;justify-content:space-between;gap:16px;color:color-mix(in srgb,var(--color-text) 58%,transparent)"><span>Envío</span><span>Gratis</span></div>
+        <hr class="hr" style="margin:8px 0">
+        <div style="display:flex;justify-content:space-between;gap:16px;font-family:var(--font-heading);font-weight:800;font-size:20px"><span>Hoy pagas</span><span>{{ pToday }}</span></div>
+        <p style="margin:0;font-size:13px;color:color-mix(in srgb,var(--color-text) 58%,transparent)">{{ afterNote }}</p>
+      </div>
+      <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:28px">
+        <div style="display:flex;align-items:center;border:2px solid var(--color-divider)">
+          <button type="button" class="btn" onClick="{{ decQty }}" style="width:46px;height:48px;padding:0;font-size:18px">−</button>
+          <span style="min-width:42px;text-align:center;font-family:var(--font-heading);font-weight:800;font-size:16px">{{ qty }}</span>
+          <button type="button" class="btn" onClick="{{ incQty }}" style="width:46px;height:48px;padding:0;font-size:18px">+</button>
+        </div>
+        <button type="button" class="btn btn-primary" onClick="{{ addCurrent }}" style="padding:17px 28px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;flex:1;min-width:240px;justify-content:flex-start" style-hover="box-shadow:0 12px 36px rgba(43,75,255,.5)">Añadir al carrito — {{ pToday }}</button>
+      </div>
+      <ul style="margin:32px 0 0;padding:28px 0 0;list-style:none;display:flex;flex-direction:column;gap:14px;font-size:16px;border-top:2px solid var(--color-divider)">
+        <sc-for list="{{ pFeats }}" as="f" hint-placeholder-count="4">
+          <li style="display:flex;gap:14px"><span style="width:8px;height:8px;background:var(--color-accent);flex:none;margin-top:8px"></span>{{ f }}</li>
+        </sc-for>
+      </ul>
+      <p style="margin:26px 0 0;font-size:13px;letter-spacing:.06em;color:color-mix(in srgb,var(--color-text) 58%,transparent)">Envío gratis 24–48 h · 30 días para devolverla · Llega grabada apuntando a tu ficha de Google.</p>
+      <p style="margin:12px 0 0;font:600 11px/1.4 var(--font-body);letter-spacing:.14em;text-transform:uppercase;color:var(--color-accent-700)">{{ cutoffLead }} {{ cutoffTxt }} {{ cutoffNote }} · {{ stockNote }}</p>
+    </div>
+  </div>
+  <div style="position:sticky;bottom:0;margin-top:56px;background:color-mix(in srgb,#08090f 88%,transparent);backdrop-filter:blur(14px);border-top:2px solid var(--color-divider);padding:16px 0;display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap">
+    <span style="font-family:var(--font-heading);font-weight:800;font-size:17px;letter-spacing:-.01em">{{ pName }} · {{ pToday }} hoy</span>
+    <div style="display:flex;gap:12px">
+      <button type="button" class="btn btn-secondary" onClick="{{ goHome }}" style="padding:13px 20px;font-size:12px;letter-spacing:.1em;text-transform:uppercase">Seguir viendo</button>
+      <button type="button" class="btn btn-primary" onClick="{{ addCurrent }}" style="padding:13px 24px;font-size:12px;letter-spacing:.1em;text-transform:uppercase">Añadir al carrito</button>
+    </div>
+  </div>
+</main>
+</sc-if>
+
+<sc-if value="{{ isCheckout }}">
+<main style="max-width:1280px;margin:0 auto;padding:44px clamp(20px,5vw,64px) 96px;animation:tpFade .4s ease-out">
+  <h1 style="font-family:var(--font-heading);font-weight:800;font-size:clamp(30px,4vw,52px);line-height:1;letter-spacing:-.04em;text-transform:uppercase;margin:0 0 36px">Finalizar compra</h1>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-bottom:42px;max-width:800px">
+    <sc-for list="{{ stepsUi }}" as="s" hint-placeholder-count="3">
+      <div>
+        <div style="height:5px;background:color-mix(in srgb,var(--color-text) 16%,transparent);overflow:hidden"><div style="height:5px;background:var(--color-accent);transform-origin:left;animation:tpSweep .6s cubic-bezier(.2,.7,.2,1) both;width:{{ s.w }}"></div></div>
+        <p style="margin:12px 0 0;font:600 10px/1.3 var(--font-body);letter-spacing:.18em;text-transform:uppercase;color:{{ s.color }}">{{ s.label }}</p>
+      </div>
+    </sc-for>
+  </div>
+  <div style="display:grid;grid-template-columns:minmax(0,1.35fr) minmax(300px,.85fr);gap:clamp(28px,4vw,72px);align-items:start">
+    <div>
+      <sc-if value="{{ hasErrs }}">
+        <p style="margin:0 0 26px;padding:16px 18px;background:color-mix(in srgb,var(--color-accent) 16%,transparent);border-left:5px solid var(--color-accent);font-size:15px;color:var(--color-accent-800);animation:tpUp .35s ease-out both">{{ errs }}</p>
+      </sc-if>
+      <sc-if value="{{ isStep1 }}">
+        <div style="display:flex;flex-direction:column;gap:20px;max-width:540px;animation:tpUp .45s cubic-bezier(.2,.7,.2,1) both">
+          <div class="field"><label>Email</label><input class="input" name="email" value="{{ form.email }}" onChange="{{ onField }}" placeholder="hola@minegocio.com" style="min-height:48px;font-size:16px"></div>
+          <div class="field"><label>Nombre del negocio</label><input class="input" name="negocio" value="{{ form.negocio }}" onChange="{{ onField }}" placeholder="Bar Nou" style="min-height:48px;font-size:16px"></div>
+          <div class="field"><label>Enlace de tu ficha de Google</label><input class="input" name="glink" value="{{ form.glink }}" onChange="{{ onField }}" placeholder="g.page/mi-negocio" style="min-height:48px;font-size:16px"></div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ isStep2 }}">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;max-width:580px;animation:tpUp .45s cubic-bezier(.2,.7,.2,1) both">
+          <div class="field" style="grid-column:1 / -1"><label>Nombre y apellidos</label><input class="input" name="nombre" value="{{ form.nombre }}" onChange="{{ onField }}" style="min-height:48px;font-size:16px"></div>
+          <div class="field"><label>NIF / DNI de facturación</label><input class="input" name="nif" value="{{ form.nif }}" onChange="{{ onField }}" placeholder="12345678A" style="min-height:48px;font-size:16px"></div>
+          <div class="field"><label>Razón social (opcional)</label><input class="input" name="razonSocial" value="{{ form.razonSocial }}" onChange="{{ onField }}" placeholder="Solo si facturas a nombre de una empresa" style="min-height:48px;font-size:16px"></div>
+          <div class="field" style="grid-column:1 / -1"><label>Dirección</label><input class="input" name="dir" value="{{ form.dir }}" onChange="{{ onField }}" placeholder="Calle, número, piso" style="min-height:48px;font-size:16px"></div>
+          <div class="field"><label>Código postal</label><input class="input" name="cp" value="{{ form.cp }}" onChange="{{ onField }}" placeholder="08012" style="min-height:48px;font-size:16px"></div>
+          <div class="field"><label>Ciudad</label><input class="input" name="ciudad" value="{{ form.ciudad }}" onChange="{{ onField }}" style="min-height:48px;font-size:16px"></div>
+          <div class="field" style="grid-column:1 / -1"><label>Teléfono</label><input class="input" name="tel" value="{{ form.tel }}" onChange="{{ onField }}" placeholder="600 000 000" style="min-height:48px;font-size:16px"></div>
+        </div>
+        <p style="margin:22px 0 0;font-size:14px;color:color-mix(in srgb,var(--color-text) 62%,transparent)">Envío gratis por mensajería. Entrega estimada en 24–48 h laborables.</p>
+      </sc-if>
+      <sc-if value="{{ isStep3 }}">
+        <div style="max-width:540px;animation:tpUp .45s cubic-bezier(.2,.7,.2,1) both">
+          <div style="display:flex;align-items:center;gap:12px;padding:16px 18px;border:2px solid var(--color-divider);background:var(--color-surface)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-700)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="10" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            <span style="font-size:14px;line-height:1.5;color:color-mix(in srgb,var(--color-text) 75%,transparent)">El pago se procesa de forma segura con <strong>Stripe</strong>. Introducirás la tarjeta en el siguiente paso, fuera de esta página.</span>
+          </div>
+        </div>
+        <sc-if value="{{ payError }}">
+          <p style="margin:20px 0 0;padding:14px 16px;background:color-mix(in srgb,var(--color-accent) 16%,transparent);border-left:5px solid var(--color-accent);font-size:14px;color:var(--color-accent-800);max-width:540px">{{ payError }}</p>
+        </sc-if>
+        <div style="margin-top:26px;padding:20px;background:var(--color-surface);border:2px solid var(--color-divider);font-size:15px;line-height:1.65;max-width:540px">
+          <p style="margin:0 0 10px;font-family:var(--font-heading);font-weight:800;letter-spacing:-.01em">Qué se cobra exactamente</p>
+          <p style="margin:0;color:color-mix(in srgb,var(--color-text) 72%,transparent)">{{ chargeNote }}</p>
+        </div>
+        <label style="display:flex;gap:12px;align-items:flex-start;margin-top:22px;max-width:540px;font-size:14px;line-height:1.55;cursor:pointer;color:color-mix(in srgb,var(--color-text) 80%,transparent)">
+          <input type="checkbox" checked="{{ acceptTerms }}" onChange="{{ toggleTerms }}" style="margin-top:3px;width:18px;height:18px;flex:none;accent-color:var(--color-accent)">
+          <span>He leído y acepto las <a onClick="{{ goCondiciones }}" style="cursor:pointer;color:var(--color-accent-700)">condiciones de venta</a> y la <a onClick="{{ goPrivacidad }}" style="cursor:pointer;color:var(--color-accent-700)">política de privacidad</a>.</span>
+        </label>
+      </sc-if>
+      <div style="display:flex;gap:14px;margin-top:36px;flex-wrap:wrap">
+        <sc-if value="{{ canBack }}"><button type="button" class="btn btn-secondary" onClick="{{ back }}" style="padding:15px 24px;font-size:12px;letter-spacing:.1em;text-transform:uppercase">Atrás</button></sc-if>
+        <sc-if value="{{ notLast }}"><button type="button" class="btn btn-primary" onClick="{{ next }}" style="padding:15px 26px;font-size:12px;letter-spacing:.1em;text-transform:uppercase">Continuar</button></sc-if>
+        <sc-if value="{{ isStep3 }}"><button type="button" class="btn btn-primary" disabled="{{ paying }}" onClick="{{ submitOrder }}" style="padding:15px 26px;font-size:12px;letter-spacing:.1em;text-transform:uppercase" style-hover="box-shadow:0 12px 36px rgba(43,75,255,.5)">{{ payLabel }}</button></sc-if>
+      </div>
+    </div>
+    <aside style="background:var(--color-surface);border:2px solid var(--color-divider);padding:28px;position:sticky;top:100px;box-shadow:var(--shadow-md)">
+      <p style="margin:0 0 22px;font:600 10px/1 var(--font-body);letter-spacing:.22em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 55%,transparent)">Tu pedido</p>
+      <div style="display:flex;flex-direction:column;gap:16px;font-size:15px">
+        <sc-for list="{{ lines }}" as="l" hint-placeholder-count="0">
+          <div style="display:flex;justify-content:space-between;gap:16px"><span>{{ l.label }}</span><span>{{ l.total }}</span></div>
+        </sc-for>
+        <sc-if value="{{ couponOk }}"><div style="display:flex;justify-content:space-between;gap:16px;color:var(--color-accent-700)"><span>Descuento TAPLINK10</span><span>{{ discountStr }}</span></div></sc-if>
+        <div style="display:flex;justify-content:space-between;gap:16px"><span>{{ planLabel }}</span><span>{{ planPrice }}</span></div>
+        <div style="display:flex;justify-content:space-between;gap:16px;color:color-mix(in srgb,var(--color-text) 58%,transparent)"><span>Envío</span><span>Gratis</span></div>
+      </div>
+      <hr class="hr" style="margin:22px 0">
+      <div style="display:flex;justify-content:space-between;gap:16px;font-family:var(--font-heading);font-weight:800;font-size:24px;letter-spacing:-.02em"><span>Hoy</span><span>{{ todayStr }}</span></div>
+      <p style="margin:14px 0 0;font-size:13px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 60%,transparent)">{{ afterNote }} · IVA incluido</p>
+      <button type="button" class="btn btn-ghost" onClick="{{ openCart }}" style="margin-top:18px;padding-left:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase">Editar carrito</button>
+    </aside>
+  </div>
+</main>
+</sc-if>
+
+<sc-if value="{{ isDone }}">
+<main style="max-width:1280px;margin:0 auto;padding:clamp(56px,8vw,112px) clamp(20px,5vw,64px) 104px;animation:tpFade .5s ease-out">
+  <span style="display:block;font:600 11px/1.2 var(--font-body);letter-spacing:.28em;text-transform:uppercase;color:var(--color-accent-700);margin:0 0 26px">Pedido confirmado</span>
+  <h1 style="font-family:var(--font-heading);font-weight:800;font-size:clamp(36px,5.6vw,84px);line-height:.94;letter-spacing:-.045em;text-transform:uppercase;margin:0 0 0 -.05em;max-width:20ch;animation:tpUp .8s cubic-bezier(.2,.7,.2,1) both">Tu placa ya está en producción.</h1>
+  <p style="font-size:18px;line-height:1.65;margin:30px 0 0;max-width:50ch;color:color-mix(in srgb,var(--color-text) 72%,transparent)">Pedido <strong>{{ orderNo }}</strong>. Confirmación enviada a {{ orderEmail }}. La grabamos apuntando a tu ficha de Google y sale de Girona en menos de 24 h.</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:2px;background:transparent;border:2px solid var(--color-divider);margin-top:52px">
+    <div style="box-shadow:0 0 0 1px var(--color-divider);background:var(--color-bg);padding:30px"><p style="margin:0 0 14px;font:600 10px/1 var(--font-body);letter-spacing:.2em;text-transform:uppercase;color:var(--color-accent-700)">Hoy</p><p style="margin:0;font-size:15px;line-height:1.6;color:color-mix(in srgb,var(--color-text) 68%,transparent)">Grabamos tu enlace y preparamos el envío.</p></div>
+    <div style="box-shadow:0 0 0 1px var(--color-divider);background:var(--color-bg);padding:30px"><p style="margin:0 0 14px;font:600 10px/1 var(--font-body);letter-spacing:.2em;text-transform:uppercase;color:var(--color-accent-700)">En 24–48 h</p><p style="margin:0;font-size:15px;line-height:1.6;color:color-mix(in srgb,var(--color-text) 68%,transparent)">Recibes la placa lista para colocar.</p></div>
+    <div style="box-shadow:0 0 0 1px var(--color-divider);background:var(--color-bg);padding:30px"><p style="margin:0 0 14px;font:600 10px/1 var(--font-body);letter-spacing:.2em;text-transform:uppercase;color:var(--color-accent-700)">Después</p><p style="margin:0;font-size:15px;line-height:1.6;color:color-mix(in srgb,var(--color-text) 68%,transparent)">{{ afterNote }}.</p></div>
+  </div>
+  <div style="margin-top:44px;border:2px solid color-mix(in srgb,var(--color-accent) 55%,transparent);padding:28px;display:flex;gap:26px;flex-wrap:wrap;align-items:center;justify-content:space-between">
+    <div>
+      <p style="margin:0 0 10px;font:600 10px/1 var(--font-body);letter-spacing:.22em;text-transform:uppercase;color:var(--color-accent-700)">Tu código de acceso al panel</p>
+      <p style="margin:0 0 8px;font-family:var(--font-heading);font-weight:800;font-size:30px;letter-spacing:-.02em">{{ orderNo }}</p>
+      <p style="margin:0;font-size:14px;line-height:1.6;max-width:46ch;color:color-mix(in srgb,var(--color-text) 68%,transparent)">Con este código creas tu cuenta en Mi Taplink y configuras tu panel: ficha de Google, placas y objetivo mensual.</p>
+    </div>
+    <button type="button" class="btn btn-primary" onClick="{{ goSignup }}" style="padding:16px 24px;font-size:12px;letter-spacing:.1em;text-transform:uppercase">Crear mi cuenta</button>
+  </div>
+  <button type="button" class="btn btn-ghost" onClick="{{ goHome }}" style="margin-top:24px;padding:14px 0;font-size:13px;letter-spacing:.1em;text-transform:uppercase">Volver a la tienda</button>
+</main>
+</sc-if>
+
+<sc-if value="{{ isAuth }}">
+<main style="max-width:1280px;margin:0 auto;padding:clamp(40px,6vw,88px) clamp(20px,5vw,64px) 96px;display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:clamp(28px,4vw,72px);align-items:center;animation:tpFade .4s ease-out">
+  <div>
+    <span style="display:block;font:600 11px/1.2 var(--font-body);letter-spacing:.28em;text-transform:uppercase;color:var(--color-accent-700);margin:0 0 22px">Mi Taplink · Panel de control</span>
+    <h1 style="font-family:var(--font-heading);font-weight:800;font-size:clamp(34px,5vw,68px);line-height:.96;letter-spacing:-.04em;text-transform:uppercase;margin:0 0 0 -.04em">Tus reseñas,<br>en tiempo real.</h1>
+    <p style="font-size:17px;line-height:1.65;margin:26px 0 0;max-width:44ch;color:color-mix(in srgb,var(--color-text) 72%,transparent)">Incluido en el plan de gestión, sin coste extra. Mira cuántas reseñas trae cada placa, cómo evoluciona tu nota media y qué hacer esta semana para subirla.</p>
+    <ul style="margin:32px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:14px;font-size:15px">
+      <sc-for list="{{ authPerks }}" as="k" hint-placeholder-count="4">
+        <li style="display:flex;gap:14px"><span style="width:8px;height:8px;background:var(--color-accent);flex:none;margin-top:8px"></span>{{ k }}</li>
+      </sc-for>
+    </ul>
+  </div>
+  <div style="background:var(--color-surface);border:2px solid var(--color-divider);padding:clamp(26px,3vw,40px);box-shadow:var(--shadow-md)">
+    <div class="seg" style="margin-bottom:30px">
+      <label class="seg-opt" style="letter-spacing:.08em;text-transform:uppercase;font-size:12px"><input type="radio" name="authmode" checked="{{ isLogin }}" onChange="{{ setLogin }}">Entrar</label>
+      <label class="seg-opt" style="letter-spacing:.08em;text-transform:uppercase;font-size:12px"><input type="radio" name="authmode" checked="{{ isSignup }}" onChange="{{ setSignup }}">Crear cuenta</label>
+    </div>
+    <sc-if value="{{ authErr }}">
+      <p style="margin:0 0 20px;padding:14px 16px;background:color-mix(in srgb,var(--color-accent) 16%,transparent);border-left:5px solid var(--color-accent);font-size:14px;color:var(--color-accent-800)">{{ authErrMsg }}</p>
+    </sc-if>
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <sc-if value="{{ isSignup }}">
+        <div class="field"><label>Nombre del negocio</label><input class="input" name="negocio" value="{{ auth.negocio }}" onChange="{{ onAuthField }}" placeholder="Bar Nou" style="min-height:48px;font-size:16px"></div>
+      </sc-if>
+      <div class="field"><label>Email</label><input class="input" name="email" value="{{ auth.email }}" onChange="{{ onAuthField }}" placeholder="hola@minegocio.com" style="min-height:48px;font-size:16px"></div>
+      <div class="field"><label>Contraseña</label><input class="input" type="password" name="pass" value="{{ auth.pass }}" onChange="{{ onAuthField }}" placeholder="Mínimo 6 caracteres" style="min-height:48px;font-size:16px"></div>
+      <sc-if value="{{ isSignup }}">
+        <div class="field"><label>Código de tu plan</label><input class="input" name="code" value="{{ auth.code }}" onChange="{{ onAuthField }}" placeholder="TPK-000000" style="min-height:48px;font-size:16px"><p style="margin:10px 0 0;font-size:13px;color:color-mix(in srgb,var(--color-text) 58%,transparent)">Lo recibes por email al confirmar tu pedido. Es lo que activa el panel.</p></div>
+      </sc-if>
+    </div>
+    <button type="button" class="btn btn-primary btn-block" onClick="{{ submitAuth }}" style="margin-top:26px;padding:16px 22px;font-size:13px;letter-spacing:.1em;text-transform:uppercase">{{ authCta }}</button>
+    <button type="button" class="btn btn-ghost btn-block" onClick="{{ demoLogin }}" style="margin-top:12px;padding:12px;font-size:12px;letter-spacing:.1em;text-transform:uppercase">Ver una demo del panel</button>
+    <p style="margin:22px 0 0;font-size:13px;line-height:1.6;color:color-mix(in srgb,var(--color-text) 55%,transparent)">El panel está incluido mientras el plan de gestión esté activo. Si lo cancelas, la placa sigue funcionando pero pierdes el acceso.</p>
+  </div>
+</main>
+</sc-if>
+
+<sc-if value="{{ isOnboarding }}">
+<main style="max-width:900px;margin:0 auto;padding:clamp(36px,6vw,72px) clamp(20px,5vw,64px) 96px;animation:tpFade .4s ease-out">
+  <span style="display:block;font:600 11px/1.2 var(--font-body);letter-spacing:.28em;text-transform:uppercase;color:var(--color-accent-700);margin:0 0 20px">Configura tu panel · paso {{ onbStep }} de 3</span>
+  <h1 style="font-family:var(--font-heading);font-weight:800;font-size:clamp(28px,4vw,52px);line-height:1;letter-spacing:-.04em;text-transform:uppercase;margin:0 0 34px">{{ bizName }}</h1>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-bottom:36px">
+    <div style="height:5px;background:var(--color-accent)"></div>
+    <div style="height:5px;background:{{ onbBar2 }}"></div>
+    <div style="height:5px;background:{{ onbBar3 }}"></div>
+  </div>
+  <sc-if value="{{ onbErr }}">
+    <p style="margin:0 0 24px;padding:14px 16px;background:color-mix(in srgb,var(--color-accent) 16%,transparent);border-left:5px solid var(--color-accent);font-size:14px;color:var(--color-accent-800)">{{ onbErrMsg }}</p>
+  </sc-if>
+
+  <sc-if value="{{ onbStep1 }}">
+    <div style="border:2px solid var(--color-divider);padding:clamp(22px,3vw,34px);background:var(--color-surface);animation:tpUp .4s cubic-bezier(.2,.7,.2,1) both">
+      <p style="margin:0 0 10px;font-family:var(--font-heading);font-weight:800;font-size:22px;text-transform:uppercase;letter-spacing:-.02em">Conecta tu ficha de Google</p>
+      <p style="margin:0 0 24px;font-size:15px;line-height:1.65;max-width:60ch;color:color-mix(in srgb,var(--color-text) 70%,transparent)">Es el destino al que apuntarán todas tus placas. Puedes cambiarlo cuando quieras sin volver a comprar nada.</p>
+      <div class="field"><label>Enlace o nombre en Google Maps</label><input class="input" value="{{ panelLink }}" onChange="{{ onPanelLink }}" placeholder="g.page/mi-negocio" style="min-height:48px;font-size:16px"></div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ onbStep2 }}">
+    <div style="border:2px solid var(--color-divider);padding:clamp(22px,3vw,34px);background:var(--color-surface);animation:tpUp .4s cubic-bezier(.2,.7,.2,1) both">
+      <p style="margin:0 0 10px;font-family:var(--font-heading);font-weight:800;font-size:22px;text-transform:uppercase;letter-spacing:-.02em">Da de alta tus placas</p>
+      <p style="margin:0 0 24px;font-size:15px;line-height:1.65;max-width:60ch;color:color-mix(in srgb,var(--color-text) 70%,transparent)">Una entrada por placa y ubicación. Así el panel puede decirte cuál rinde y cuál no.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px;align-items:end">
+        <div class="field"><label>Modelo</label><input class="input" name="name" value="{{ newPlateName }}" onChange="{{ onNewPlate }}" style="min-height:48px;font-size:16px"></div>
+        <div class="field"><label>Ubicación</label><input class="input" name="place" value="{{ newPlatePlace }}" onChange="{{ onNewPlate }}" placeholder="Barra principal" style="min-height:48px;font-size:16px"></div>
+        <button type="button" class="btn btn-primary" onClick="{{ addPlate }}" style="padding:15px 20px;font-size:12px;letter-spacing:.1em;text-transform:uppercase">Añadir placa</button>
+      </div>
+      <sc-if value="{{ plateCount }}">
+        <table class="table" style="margin-top:26px">
+          <thead><tr><th>ID</th><th>Modelo</th><th>Ubicación</th><th></th></tr></thead>
+          <tbody>
+            <sc-for list="{{ plates }}" as="pl" hint-placeholder-count="0">
+              <tr><td>{{ pl.id }}</td><td>{{ pl.name }}</td><td>{{ pl.place }}</td><td><button type="button" class="btn btn-ghost" onClick="{{ pl.del }}" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase">Quitar</button></td></tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ onbStep3 }}">
+    <div style="border:2px solid var(--color-divider);padding:clamp(22px,3vw,34px);background:var(--color-surface);animation:tpUp .4s cubic-bezier(.2,.7,.2,1) both">
+      <p style="margin:0 0 10px;font-family:var(--font-heading);font-weight:800;font-size:22px;text-transform:uppercase;letter-spacing:-.02em">Marca tu objetivo mensual</p>
+      <p style="margin:0 0 24px;font-size:15px;line-height:1.65;max-width:60ch;color:color-mix(in srgb,var(--color-text) 70%,transparent)">Cuántas reseñas nuevas quieres al mes. El panel medirá tu avance y te dirá qué hacer para llegar.</p>
+      <div class="field" style="max-width:240px"><label>Reseñas al mes</label><input class="input" value="{{ goalDraft }}" onChange="{{ onGoal }}" placeholder="120" style="min-height:48px;font-size:16px"></div>
+    </div>
+  </sc-if>
+
+  <div style="display:flex;gap:12px;margin-top:30px;flex-wrap:wrap">
+    <sc-if value="{{ onbCanBack }}"><button type="button" class="btn btn-secondary" onClick="{{ onbBack }}" style="padding:15px 22px;font-size:12px;letter-spacing:.1em;text-transform:uppercase">Atrás</button></sc-if>
+    <button type="button" class="btn btn-primary" onClick="{{ onbNext }}" style="padding:15px 26px;font-size:12px;letter-spacing:.1em;text-transform:uppercase">{{ onbCta }}</button>
+  </div>
+</main>
+</sc-if>
+
+<sc-if value="{{ isPanel }}">
+<main style="max-width:1440px;margin:0 auto;padding:0 clamp(16px,3vw,40px) 80px;animation:tpFade .4s ease-out">
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;padding:34px 0 26px;border-bottom:2px solid var(--color-divider)">
+    <div>
+      <span style="display:block;font:600 10px/1 var(--font-body);letter-spacing:.24em;text-transform:uppercase;color:var(--color-accent-700);margin:0 0 14px">Mi Taplink</span>
+      <h1 style="font-family:var(--font-heading);font-weight:800;font-size:clamp(26px,3.2vw,42px);line-height:1;letter-spacing:-.035em;text-transform:uppercase;margin:0">{{ bizName }}</h1>
+      <p style="margin:12px 0 0;font-size:13px;letter-spacing:.06em;color:color-mix(in srgb,var(--color-text) 58%,transparent)">Plan activo · {{ plateCountStr }} · Última sincronización con Google hace 6 min</p>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <div class="seg">
+        <sc-for list="{{ ranges }}" as="r" hint-placeholder-count="3">
+          <label class="seg-opt" style="letter-spacing:.08em;text-transform:uppercase;font-size:11px"><input type="radio" name="rango" checked="{{ r.on }}" onChange="{{ r.pick }}">{{ r.label }}</label>
+        </sc-for>
+      </div>
+      <button type="button" class="btn btn-secondary" onClick="{{ logout }}" style="padding:11px 16px;font-size:11px;letter-spacing:.1em;text-transform:uppercase">Salir</button>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:minmax(0,208px) minmax(0,1fr);gap:clamp(20px,3vw,44px);align-items:start;padding-top:32px">
+    <nav style="display:flex;flex-direction:column;gap:2px;position:sticky;top:96px">
+      <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="5">
+        <button type="button" onClick="{{ t.pick }}" style="text-align:left;background:{{ t.bg }};color:{{ t.fg }};border:0;border-left:3px solid {{ t.bar }};padding:14px 16px;cursor:pointer;font:600 12px/1 var(--font-body);letter-spacing:.14em;text-transform:uppercase;transition:background .3s ease" style-hover="background:color-mix(in srgb,var(--color-text) 8%,transparent)">{{ t.label }}</button>
+      </sc-for>
+      <div style="margin-top:22px;padding:18px;border:2px solid var(--color-divider);background:var(--color-surface)">
+        <p style="margin:0 0 8px;font:600 10px/1 var(--font-body);letter-spacing:.2em;text-transform:uppercase;color:var(--color-accent-700)">Objetivo del mes</p>
+        <p style="margin:0 0 12px;font-family:var(--font-heading);font-weight:800;font-size:22px;letter-spacing:-.02em">{{ goalNow }} / {{ goalTarget }}</p>
+        <div style="height:6px;background:color-mix(in srgb,var(--color-text) 16%,transparent)"><div style="height:6px;background:var(--color-accent);width:{{ goalPct }}"></div></div>
+        <p style="margin:12px 0 0;font-size:12px;line-height:1.5;color:color-mix(in srgb,var(--color-text) 58%,transparent)">{{ goalNote }}</p>
+      </div>
+    </nav>
+
+    <div>
+      <sc-if value="{{ tabResumen }}">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:2px;background:transparent;border:2px solid var(--color-divider)">
+          <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4">
+            <div style="box-shadow:0 0 0 1px var(--color-divider);background:var(--color-bg);padding:24px">
+              <p style="margin:0 0 16px;font:600 10px/1 var(--font-body);letter-spacing:.2em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 55%,transparent)">{{ k.label }}</p>
+              <p style="margin:0;font-family:var(--font-heading);font-weight:800;font-size:38px;line-height:.9;letter-spacing:-.04em">{{ k.value }}</p>
+              <p style="margin:14px 0 0;font-size:13px;color:{{ k.color }}">{{ k.delta }}</p>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;margin-top:24px">
+          <div style="border:2px solid var(--color-divider);padding:26px;background:var(--color-bg)">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-bottom:26px">
+              <p style="margin:0;font-family:var(--font-heading);font-weight:800;font-size:17px;text-transform:uppercase;letter-spacing:-.01em">Reseñas por semana</p>
+              <p style="margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 55%,transparent)">{{ rangeLabel }}</p>
+            </div>
+            <div style="display:flex;align-items:flex-end;gap:8px;height:170px">
+              <sc-for list="{{ bars }}" as="b" hint-placeholder-count="8">
+                <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;gap:8px;height:100%">
+                  <span style="font-size:11px;text-align:center;color:color-mix(in srgb,var(--color-text) 60%,transparent)">{{ b.v }}</span>
+                  <div style="background:{{ b.color }};height:{{ b.h }};transition:height .8s cubic-bezier(.2,.7,.2,1)"></div>
+                  <span style="font-size:10px;text-align:center;letter-spacing:.08em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 45%,transparent)">{{ b.k }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="border:2px solid var(--color-divider);padding:26px;background:var(--color-bg)">
+            <p style="margin:0 0 26px;font-family:var(--font-heading);font-weight:800;font-size:17px;text-transform:uppercase;letter-spacing:-.01em">Distribución de estrellas</p>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <sc-for list="{{ dist }}" as="d" hint-placeholder-count="5">
+                <div style="display:flex;align-items:center;gap:14px">
+                  <span style="width:52px;flex:none;font-size:13px;letter-spacing:.08em;color:color-mix(in srgb,var(--color-text) 65%,transparent)">{{ d.stars }}</span>
+                  <div style="flex:1;height:12px;background:color-mix(in srgb,var(--color-text) 12%,transparent)"><div style="height:12px;background:{{ d.color }};width:{{ d.w }};transition:width .9s cubic-bezier(.2,.7,.2,1)"></div></div>
+                  <span style="width:52px;flex:none;text-align:right;font-family:var(--font-heading);font-weight:800;font-size:14px">{{ d.n }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <hr class="hr" style="margin:26px 0">
+            <p style="margin:0;font-size:14px;line-height:1.6;color:color-mix(in srgb,var(--color-text) 68%,transparent)">{{ distNote }}</p>
+          </div>
+        </div>
+
+        <div style="border:2px solid var(--color-divider);margin-top:24px;background:var(--color-bg)">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:24px 26px;border-bottom:2px solid var(--color-divider)">
+            <p style="margin:0;font-family:var(--font-heading);font-weight:800;font-size:17px;text-transform:uppercase;letter-spacing:-.01em">Rendimiento por placa</p>
+            <button type="button" class="btn btn-ghost" onClick="{{ tabPlacasGo }}" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase">Ver placas →</button>
+          </div>
+          <table class="table" style="margin:0">
+            <thead><tr><th>Placa</th><th>Ubicación</th><th>Toques</th><th>Reseñas</th><th>Conversión</th><th>Estado</th></tr></thead>
+            <tbody>
+              <sc-for list="{{ plates }}" as="pl" hint-placeholder-count="3">
+                <tr><td>{{ pl.name }}</td><td>{{ pl.place }}</td><td>{{ pl.taps }}</td><td>{{ pl.reviews }}</td><td>{{ pl.conv }}</td><td><span class="tag" style="background:{{ pl.tagBg }};color:{{ pl.tagFg }};letter-spacing:.1em">{{ pl.status }}</span></td></tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ tabResenas }}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:24px">
+          <p style="margin:0;font-family:var(--font-heading);font-weight:800;font-size:22px;text-transform:uppercase;letter-spacing:-.02em">Últimas reseñas</p>
+          <p style="margin:0;font-size:13px;color:color-mix(in srgb,var(--color-text) 58%,transparent)">{{ pendingNote }}</p>
+        </div>
+        <sc-if value="{{ noReviews }}">
+          <div style="border:2px solid var(--color-divider);padding:34px;background:var(--color-surface)">
+            <p style="margin:0 0 10px;font-family:var(--font-heading);font-weight:800;font-size:20px;text-transform:uppercase;letter-spacing:-.02em">Todavía sin reseñas</p>
+            <p style="margin:0;font-size:15px;line-height:1.65;max-width:56ch;color:color-mix(in srgb,var(--color-text) 68%,transparent)">En cuanto tus placas empiecen a recibir toques, las reseñas aparecerán aquí con la placa que las ha generado.</p>
+          </div>
+        </sc-if>
+        <sc-if value="{{ hasReviews }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;flex-direction:column;gap:2px;background:transparent;border:2px solid var(--color-divider)">
+          <sc-for list="{{ reviews }}" as="r" hint-placeholder-count="6">
+            <div style="box-shadow:0 0 0 1px var(--color-divider);background:var(--color-bg);padding:24px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,220px);gap:20px;align-items:start">
+              <div>
+                <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+                  <span style="font-size:15px;letter-spacing:.24em;color:var(--color-accent-700)">{{ r.stars }}</span>
+                  <span style="font-family:var(--font-heading);font-weight:800;font-size:15px">{{ r.author }}</span>
+                  <span style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 50%,transparent)">{{ r.when }} · {{ r.source }}</span>
+                </div>
+                <p style="margin:0;font-size:15px;line-height:1.65;color:color-mix(in srgb,var(--color-text) 76%,transparent)">{{ r.text }}</p>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-start">
+                <span class="tag" style="background:{{ r.tagBg }};color:{{ r.tagFg }};letter-spacing:.1em">{{ r.state }}</span>
+                <button type="button" class="btn btn-secondary" onClick="{{ r.reply }}" style="padding:10px 14px;font-size:11px;letter-spacing:.1em;text-transform:uppercase">{{ r.cta }}</button>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        </sc-if>
+      </sc-if>
+
+      <sc-if value="{{ tabPlacas }}">
+        <div style="border:2px solid var(--color-divider);background:var(--color-surface);padding:24px;margin-bottom:24px">
+          <p style="margin:0 0 18px;font:600 10px/1 var(--font-body);letter-spacing:.2em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 55%,transparent)">Dar de alta una placa nueva</p>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;align-items:end">
+            <div class="field"><label>Modelo</label><input class="input" name="name" value="{{ newPlateName }}" onChange="{{ onNewPlate }}" style="min-height:46px;font-size:15px"></div>
+            <div class="field"><label>Ubicación</label><input class="input" name="place" value="{{ newPlatePlace }}" onChange="{{ onNewPlate }}" placeholder="Punto de pago" style="min-height:46px;font-size:15px"></div>
+            <button type="button" class="btn btn-primary" onClick="{{ addPlate }}" style="padding:14px 20px;font-size:12px;letter-spacing:.1em;text-transform:uppercase">Añadir placa</button>
+          </div>
+          <sc-if value="{{ onbErr }}"><p style="margin:16px 0 0;font-size:13px;color:var(--color-accent-800)">{{ onbErrMsg }}</p></sc-if>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2px;background:transparent;border:2px solid var(--color-divider)">
+          <sc-for list="{{ plates }}" as="pl" hint-placeholder-count="3">
+            <div style="box-shadow:0 0 0 1px var(--color-divider);background:var(--color-bg);padding:26px;display:flex;flex-direction:column;gap:16px">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px">
+                <p style="margin:0;font-family:var(--font-heading);font-weight:800;font-size:19px;text-transform:uppercase;letter-spacing:-.015em">{{ pl.name }}</p>
+                <span class="tag" style="background:{{ pl.tagBg }};color:{{ pl.tagFg }};letter-spacing:.1em">{{ pl.status }}</span>
+              </div>
+              <p style="margin:0;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 52%,transparent)">{{ pl.place }} · ID {{ pl.id }}</p>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:18px 0;border-top:2px solid var(--color-divider);border-bottom:2px solid var(--color-divider)">
+                <div><p style="margin:0;font-family:var(--font-heading);font-weight:800;font-size:22px;letter-spacing:-.03em">{{ pl.taps }}</p><p style="margin:6px 0 0;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 50%,transparent)">Toques</p></div>
+                <div><p style="margin:0;font-family:var(--font-heading);font-weight:800;font-size:22px;letter-spacing:-.03em">{{ pl.reviews }}</p><p style="margin:6px 0 0;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 50%,transparent)">Reseñas</p></div>
+                <div><p style="margin:0;font-family:var(--font-heading);font-weight:800;font-size:22px;letter-spacing:-.03em;color:var(--color-accent-700)">{{ pl.conv }}</p><p style="margin:6px 0 0;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 50%,transparent)">Conversión</p></div>
+              </div>
+              <p style="margin:0;font-size:14px;line-height:1.6;color:color-mix(in srgb,var(--color-text) 68%,transparent)">{{ pl.tip }}</p>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:auto">
+                <button type="button" class="btn btn-secondary" onClick="{{ pl.edit }}" style="padding:11px 16px;font-size:11px;letter-spacing:.1em;text-transform:uppercase">Cambiar enlace</button>
+                <button type="button" class="btn btn-ghost" onClick="{{ pl.swap }}" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase">Pedir recambio</button>
+                <button type="button" class="btn btn-ghost" onClick="{{ pl.del }}" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 55%,transparent)">Dar de baja</button>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <sc-if value="{{ toast }}">
+          <p style="margin:20px 0 0;padding:16px 18px;background:color-mix(in srgb,var(--color-accent) 16%,transparent);border-left:5px solid var(--color-accent);font-size:14px;color:var(--color-accent-800);animation:tpUp .3s ease-out both">{{ toastMsg }}</p>
+        </sc-if>
+      </sc-if>
+
+      <sc-if value="{{ tabRecom }}">
+        <div style="display:flex;flex-direction:column;gap:2px;background:transparent;border:2px solid var(--color-divider)">
+          <sc-for list="{{ recs }}" as="rc" hint-placeholder-count="5">
+            <div style="box-shadow:0 0 0 1px var(--color-divider);background:var(--color-bg);padding:26px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,170px);gap:20px;align-items:center">
+              <div>
+                <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+                  <span class="tag" style="background:{{ rc.tagBg }};color:{{ rc.tagFg }};letter-spacing:.1em">{{ rc.level }}</span>
+                  <p style="margin:0;font-family:var(--font-heading);font-weight:800;font-size:19px;letter-spacing:-.015em;text-transform:uppercase">{{ rc.title }}</p>
+                </div>
+                <p style="margin:0;font-size:15px;line-height:1.65;color:color-mix(in srgb,var(--color-text) 72%,transparent)">{{ rc.copy }}</p>
+              </div>
+              <div style="text-align:right">
+                <p style="margin:0;font-family:var(--font-heading);font-weight:800;font-size:26px;letter-spacing:-.03em;color:var(--color-accent-700)">{{ rc.impact }}</p>
+                <p style="margin:8px 0 0;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 50%,transparent)">Impacto estimado</p>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="margin-top:24px;border:2px solid var(--color-divider);background:var(--color-surface);padding:28px;display:flex;gap:24px;flex-wrap:wrap;align-items:center;justify-content:space-between">
+          <p style="margin:0;font-family:var(--font-heading);font-weight:800;font-size:clamp(18px,2vw,24px);line-height:1.3;letter-spacing:-.02em;max-width:44ch">¿Quieres que lo revisemos contigo? Te llamamos y repasamos tus datos en 15 minutos.</p>
+          <a href="https://wa.me/34686485535" target="_blank" rel="noopener" class="btn btn-primary" style="padding:15px 22px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;background:#25d366;color:#08090f;border-color:#25d366">Hablar por WhatsApp</a>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ tabPlan }}">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px">
+          <div style="border:2px solid var(--color-divider);padding:28px;background:var(--color-bg)">
+            <p style="margin:0 0 20px;font:600 10px/1 var(--font-body);letter-spacing:.2em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 55%,transparent)">Tu plan</p>
+            <p style="margin:0;font-family:var(--font-heading);font-weight:800;font-size:34px;letter-spacing:-.035em">{{ planBigPrice }}</p>
+            <p style="margin:14px 0 0;font-size:15px;line-height:1.6;color:color-mix(in srgb,var(--color-text) 68%,transparent)">{{ planBigNote }}</p>
+            <div class="seg" style="margin-top:24px">
+              <label class="seg-opt" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase"><input type="radio" name="cadencia3" checked="{{ planMensual }}" onChange="{{ setMensual }}">Mensual</label>
+              <label class="seg-opt" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase"><input type="radio" name="cadencia3" checked="{{ planAnual }}" onChange="{{ setAnual }}">Anual · −18 %</label>
+            </div>
+            <hr class="hr" style="margin:24px 0">
+            <p style="margin:0 0 22px;font-size:14px;line-height:1.6;color:color-mix(in srgb,var(--color-text) 62%,transparent)">Próximo cargo: {{ nextCharge }}. Cancelas cuando quieras desde aquí; la placa sigue siendo tuya.</p>
+            <div style="display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap">
+              <div class="field" style="max-width:170px"><label>Objetivo mensual</label><input class="input" value="{{ goalDraft }}" onChange="{{ onGoal }}" placeholder="120" style="min-height:46px;font-size:15px"></div>
+              <button type="button" class="btn btn-secondary" onClick="{{ saveGoal }}" style="padding:13px 18px;font-size:11px;letter-spacing:.1em;text-transform:uppercase">Guardar objetivo</button>
+            </div>
+          </div>
+          <div style="border:2px solid var(--color-divider);padding:28px;background:var(--color-bg)">
+            <p style="margin:0 0 20px;font:600 10px/1 var(--font-body);letter-spacing:.2em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 55%,transparent)">Facturas</p>
+            <table class="table" style="margin:0">
+              <thead><tr><th>Fecha</th><th>Concepto</th><th>Importe</th></tr></thead>
+              <tbody>
+                <sc-for list="{{ invoices }}" as="iv" hint-placeholder-count="3">
+                  <tr><td>{{ iv.date }}</td><td>{{ iv.concept }}</td><td>{{ iv.amount }}</td></tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div style="margin-top:24px;border:2px solid var(--color-divider);background:var(--color-bg);padding:28px">
+          <p style="margin:0 0 20px;font:600 10px/1 var(--font-body);letter-spacing:.2em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 55%,transparent)">Ficha conectada</p>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px">
+            <div class="field"><label>Enlace de tu ficha de Google</label><input class="input" name="glink" value="{{ panelLink }}" onChange="{{ onPanelLink }}" style="min-height:48px;font-size:16px"></div>
+            <div style="display:flex;align-items:flex-end"><button type="button" class="btn btn-primary" onClick="{{ savePanelLink }}" style="padding:15px 22px;font-size:12px;letter-spacing:.1em;text-transform:uppercase">Guardar cambios</button></div>
+          </div>
+          <sc-if value="{{ toast }}">
+            <p style="margin:20px 0 0;padding:16px 18px;background:color-mix(in srgb,var(--color-accent) 16%,transparent);border-left:5px solid var(--color-accent);font-size:14px;color:var(--color-accent-800)">{{ toastMsg }}</p>
+          </sc-if>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+</main>
+</sc-if>
+
+<sc-if value="{{ isLegal }}">
+<main style="max-width:920px;margin:0 auto;padding:clamp(48px,7vw,96px) clamp(20px,5vw,64px) 104px;animation:tpFade .4s ease-out">
+  <span style="display:block;font:600 11px/1.2 var(--font-body);letter-spacing:.28em;text-transform:uppercase;color:var(--color-accent-700);margin:0 0 22px">Legal</span>
+  <nav style="display:flex;flex-wrap:wrap;gap:10px 22px;margin:0 0 40px;padding-bottom:24px;border-bottom:2px solid var(--color-divider)">
+    <a onClick="{{ goAvisoLegal }}" style="cursor:pointer;font-size:13px;letter-spacing:.04em">Aviso legal</a>
+    <a onClick="{{ goPrivacidad }}" style="cursor:pointer;font-size:13px;letter-spacing:.04em">Privacidad</a>
+    <a onClick="{{ goCookies }}" style="cursor:pointer;font-size:13px;letter-spacing:.04em">Cookies</a>
+    <a onClick="{{ goCondiciones }}" style="cursor:pointer;font-size:13px;letter-spacing:.04em">Condiciones de venta</a>
+    <a onClick="{{ goDesistimiento }}" style="cursor:pointer;font-size:13px;letter-spacing:.04em">Desistimiento y devoluciones</a>
+  </nav>
+
+  <sc-if value="{{ legalIsAviso }}">
+    <h1 style="font-family:var(--font-heading);font-weight:800;font-size:clamp(28px,4vw,44px);line-height:1.02;letter-spacing:-.03em;text-transform:uppercase;margin:0 0 28px">Aviso legal</h1>
+    <div style="display:flex;flex-direction:column;gap:26px;font-size:15px;line-height:1.7;color:color-mix(in srgb,var(--color-text) 78%,transparent)">
+      <div>
+        <p style="margin:0 0 10px;font:600 11px/1 var(--font-body);letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Titular del sitio web</p>
+        <p style="margin:0">En cumplimiento del deber de información recogido en la Ley 34/2002 de Servicios de la Sociedad de la Información y Comercio Electrónico (LSSI-CE), se informa de que este sitio web, operado bajo la marca comercial <strong>TAPLINK</strong>, es titularidad de:</p>
+        <p style="margin:12px 0 0">Marc Sayol Sánchez, autónomo · DNI 41567516F<br>Carrer Mare de la Font 88, 17486 Castelló d'Empúries (Girona), España<br>Email: hola@taplink.com · Teléfono: +34 686 48 55 35</p>
+      </div>
+      <div>
+        <p style="margin:0 0 10px;font:600 11px/1 var(--font-body);letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Objeto</p>
+        <p style="margin:0">A través de este sitio web, TAPLINK ofrece la venta de placas físicas con tecnología NFC para facilitar que los clientes de un negocio dejen reseñas en su ficha de Google, junto con un plan de gestión y soporte asociado.</p>
+      </div>
+      <div>
+        <p style="margin:0 0 10px;font:600 11px/1 var(--font-body);letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Condiciones de uso</p>
+        <p style="margin:0">El acceso y uso de este sitio web atribuye la condición de usuario e implica la aceptación de las condiciones incluidas en este Aviso legal, en la Política de privacidad, en la Política de cookies y en las Condiciones de venta. El usuario se compromete a hacer un uso adecuado de los contenidos y servicios ofrecidos.</p>
+      </div>
+      <div>
+        <p style="margin:0 0 10px;font:600 11px/1 var(--font-body);letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Propiedad intelectual e industrial</p>
+        <p style="margin:0">Los textos, imágenes, marca TAPLINK, diseño y demás elementos de este sitio web son propiedad del titular o cuentan con la correspondiente autorización de uso, y están protegidos por la normativa de propiedad intelectual e industrial. Queda prohibida su reproducción total o parcial sin autorización expresa.</p>
+      </div>
+      <div>
+        <p style="margin:0 0 10px;font:600 11px/1 var(--font-body);letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Legislación aplicable</p>
+        <p style="margin:0">Las presentes condiciones se rigen por la legislación española. Para cualquier controversia derivada del uso de este sitio web, y sin perjuicio de los derechos que asisten a los consumidores conforme a la normativa vigente, las partes se someten a los juzgados y tribunales que correspondan según la ley.</p>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ legalIsPrivacidad }}">
+    <h1 style="font-family:var(--font-heading);font-weight:800;font-size:clamp(28px,4vw,44px);line-height:1.02;letter-spacing:-.03em;text-transform:uppercase;margin:0 0 28px">Política de privacidad</h1>
+    <div style="display:flex;flex-direction:column;gap:26px;font-size:15px;line-height:1.7;color:color-mix(in srgb,var(--color-text) 78%,transparent)">
+      <div>
+        <p style="margin:0 0 10px;font:600 11px/1 var(--font-body);letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Responsable del tratamiento</p>
+        <p style="margin:0">Marc Sayol Sánchez, autónomo (TAPLINK) · DNI 41567516F · Carrer Mare de la Font 88, 17486 Castelló d'Empúries (Girona) · hola@taplink.com · +34 686 48 55 35.</p>
+      </div>
+      <div>
+        <p style="margin:0 0 10px;font:600 11px/1 var(--font-body);letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Finalidad del tratamiento</p>
+        <p style="margin:0">Tratamos los datos facilitados para: gestionar tu pedido y su envío, dar de alta y gestionar tu cuenta de Mi Taplink y el panel de reseñas, emitir facturas, y atender tus consultas. Si nos das tu consentimiento expreso, también para enviarte comunicaciones comerciales sobre TAPLINK.</p>
+      </div>
+      <div>
+        <p style="margin:0 0 10px;font:600 11px/1 var(--font-body);letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Legitimación</p>
+        <p style="margin:0">Ejecución del contrato de compraventa y del plan de gestión contratado, cumplimiento de obligaciones legales (facturación) y, en su caso, consentimiento del interesado para comunicaciones comerciales.</p>
+      </div>
+      <div>
+        <p style="margin:0 0 10px;font:600 11px/1 var(--font-body);letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Destinatarios</p>
+        <p style="margin:0">No cedemos tus datos a terceros salvo obligación legal o cuando sea estrictamente necesario para prestar el servicio (por ejemplo, proveedores de envío o de pago), quienes actuarán como encargados del tratamiento conforme al RGPD.</p>
+      </div>
+      <div>
+        <p style="margin:0 0 10px;font:600 11px/1 var(--font-body);letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Conservación</p>
+        <p style="margin:0">Los datos se conservan mientras exista una relación contractual activa y, posteriormente, durante los plazos legalmente exigidos en materia fiscal y de facturación.</p>
+      </div>
+      <div>
+        <p style="margin:0 0 10px;font:600 11px/1 var(--font-body);letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Tus derechos</p>
+        <p style="margin:0">Puedes ejercer tus derechos de acceso, rectificación, supresión, oposición, limitación del tratamiento y portabilidad escribiendo a hola@taplink.com. Si consideras que no hemos atendido correctamente tu solicitud, puedes presentar una reclamación ante la Agencia Española de Protección de Datos (aepd.es).</p>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ legalIsCookies }}">
+    <h1 style="font-family:var(--font-heading);font-weight:800;font-size:clamp(28px,4vw,44px);line-height:1.02;letter-spacing:-.03em;text-transform:uppercase;margin:0 0 28px">Política de cookies</h1>
+    <div style="display:flex;flex-direction:column;gap:26px;font-size:15px;line-height:1.7;color:color-mix(in srgb,var(--color-text) 78%,transparent)">
+      <div>
+        <p style="margin:0 0 10px;font:600 11px/1 var(--font-body);letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Qué son las cookies</p>
+        <p style="margin:0">Una cookie es un pequeño archivo que se guarda en tu navegador y que permite que un sitio web recuerde información sobre tu visita, como tu carrito de compra o tu sesión.</p>
+      </div>
+      <div>
+        <p style="margin:0 0 10px;font:600 11px/1 var(--font-body);letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Cookies que usamos</p>
+        <p style="margin:0">Este sitio utiliza únicamente cookies técnicas o necesarias para su funcionamiento: mantener tu carrito de compra, tu sesión en Mi Taplink y tus preferencias de navegación. No utilizamos cookies de publicidad ni de terceros para hacer seguimiento entre webs.</p>
+      </div>
+      <div>
+        <p style="margin:0 0 10px;font:600 11px/1 var(--font-body);letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Cómo desactivarlas</p>
+        <p style="margin:0">Puedes eliminar o bloquear las cookies desde la configuración de tu navegador. Ten en cuenta que, al tratarse de cookies técnicas necesarias, desactivarlas puede impedir el correcto funcionamiento de la tienda y del panel de Mi Taplink.</p>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ legalIsCondiciones }}">
+    <h1 style="font-family:var(--font-heading);font-weight:800;font-size:clamp(28px,4vw,44px);line-height:1.02;letter-spacing:-.03em;text-transform:uppercase;margin:0 0 28px">Condiciones de venta</h1>
+    <div style="display:flex;flex-direction:column;gap:26px;font-size:15px;line-height:1.7;color:color-mix(in srgb,var(--color-text) 78%,transparent)">
+      <div>
+        <p style="margin:0 0 10px;font:600 11px/1 var(--font-body);letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Proceso de compra</p>
+        <p style="margin:0">La compra se realiza en 3 pasos: datos del negocio, datos de envío y pago. Al confirmar el pedido recibirás un email de confirmación con tu código de pedido (formato TPK-XXXXXX), que además activa el acceso a tu panel Mi Taplink.</p>
+      </div>
+      <div>
+        <p style="margin:0 0 10px;font:600 11px/1 var(--font-body);letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Precios</p>
+        <p style="margin:0">Todos los precios mostrados incluyen IVA. El plan de gestión es obligatorio en toda compra, se suma al precio de la placa y se muestra ya sumado antes de confirmar el pago.</p>
+      </div>
+      <div>
+        <p style="margin:0 0 10px;font:600 11px/1 var(--font-body);letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Pago</p>
+        <p style="margin:0">El pago se realiza con tarjeta a través de una pasarela de pago segura. En el plan mensual se cobra el primer mes junto con el pedido y, a partir del segundo mes, el plan se factura mensualmente hasta su cancelación. En el plan anual, el importe completo se cobra por adelantado.</p>
+      </div>
+      <div>
+        <p style="margin:0 0 10px;font:600 11px/1 var(--font-body);letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Envío</p>
+        <p style="margin:0">Los pedidos salen de Girona en menos de 24 h y suelen llegar en 24–48 h dentro de España peninsular.</p>
+      </div>
+      <div>
+        <p style="margin:0 0 10px;font:600 11px/1 var(--font-body);letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Garantías y devoluciones</p>
+        <p style="margin:0">Consulta las condiciones de desistimiento y devolución en la sección correspondiente de este mismo apartado legal.</p>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ legalIsDesistimiento }}">
+    <h1 style="font-family:var(--font-heading);font-weight:800;font-size:clamp(28px,4vw,44px);line-height:1.02;letter-spacing:-.03em;text-transform:uppercase;margin:0 0 28px">Desistimiento y devoluciones</h1>
+    <div style="display:flex;flex-direction:column;gap:26px;font-size:15px;line-height:1.7;color:color-mix(in srgb,var(--color-text) 78%,transparent)">
+      <div>
+        <p style="margin:0 0 10px;font:600 11px/1 var(--font-body);letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Derecho de desistimiento (14 días)</p>
+        <p style="margin:0">Como consumidor, dispones de un plazo de 14 días naturales desde la recepción del pedido para desistir de la compra sin necesidad de justificar el motivo, conforme al Real Decreto Legislativo 1/2007 (TRLGDCU). Para ejercerlo, escríbenos a hola@taplink.com o llama al +34 686 48 55 35 dentro de ese plazo.</p>
+      </div>
+      <div>
+        <p style="margin:0 0 10px;font:600 11px/1 var(--font-body);letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Garantía TAPLINK de 30 días</p>
+        <p style="margin:0">Además del plazo legal, TAPLINK amplía voluntariamente el plazo de devolución por cambio de opinión hasta 30 días naturales desde la recepción de la placa, en las mismas condiciones descritas a continuación.</p>
+      </div>
+      <div>
+        <p style="margin:0 0 10px;font:600 11px/1 var(--font-body);letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Procedimiento y reembolso</p>
+        <p style="margin:0">La placa debe devolverse en buen estado. Los gastos de devolución corren a cargo del cliente, salvo que el motivo sea un defecto del producto o un error de TAPLINK. Una vez recibida y comprobada la devolución, el reembolso se realiza en un plazo máximo de 14 días por el mismo medio de pago utilizado.</p>
+      </div>
+      <div>
+        <p style="margin:0 0 10px;font:600 11px/1 var(--font-body);letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Cancelación del plan de gestión</p>
+        <p style="margin:0">El plan de gestión, al ser una suscripción, puede cancelarse en cualquier momento desde el panel Mi Taplink o escribiendo a hola@taplink.com. La cancelación es efectiva al finalizar el periodo ya pagado; la placa sigue funcionando, pero se pierde el acceso al panel y al soporte asociado.</p>
+      </div>
+    </div>
+  </sc-if>
+
+  <button type="button" class="btn btn-ghost" onClick="{{ goHome }}" style="margin-top:52px;padding:14px 0;font-size:13px;letter-spacing:.1em;text-transform:uppercase">Volver a la tienda</button>
+</main>
+</sc-if>
+
+<footer style="border-top:2px solid var(--color-divider)">
+  <div style="max-width:1280px;margin:0 auto;padding:52px clamp(20px,5vw,64px);display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:36px;font-size:14px">
+    <div>
+      <p style="font-family:var(--font-heading);font-weight:800;font-size:18px;margin:0 0 14px;display:flex;align-items:center;gap:10px;letter-spacing:.02em"><span style="width:11px;height:11px;background:var(--color-accent);display:block"></span>TAPLINK</p>
+      <p style="margin:0 0 20px;color:color-mix(in srgb,var(--color-text) 58%,transparent)">Placas NFC para reseñas de Google.<br>Castelló d'Empúries, Girona.</p>
+      <a href="https://instagram.com/taplink.es" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:var(--color-text);padding:8px 14px 8px 8px;border:2px solid var(--color-divider);transition:border-color .2s ease,transform .2s ease" style-hover="border-color:#e1306c;transform:translateY(-2px)">
+        <span style="width:30px;height:30px;flex:none;border-radius:9px;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+        </span>
+        <span style="font-size:13px;letter-spacing:.02em">@taplink.es</span>
+      </a>
+    </div>
+    <div>
+      <p style="margin:0 0 16px;font:600 10px/1 var(--font-body);letter-spacing:.22em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 50%,transparent)">Tienda</p>
+      <div style="display:flex;flex-direction:column;gap:10px"><a onClick="{{ viewPremium }}" style="cursor:pointer">Placa Premium</a><a onClick="{{ viewPack }}" style="cursor:pointer">Pack Doble</a><a onClick="{{ jumpPrecios }}" style="cursor:pointer">El plan</a></div>
+    </div>
+    <div>
+      <p style="margin:0 0 16px;font:600 10px/1 var(--font-body);letter-spacing:.22em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 50%,transparent)">Ayuda</p>
+      <div style="display:flex;flex-direction:column;gap:10px"><a onClick="{{ jumpFaq }}" style="cursor:pointer">Preguntas frecuentes</a><a href="mailto:hola@taplink.com">hola@taplink.com</a><a onClick="{{ jumpComo }}" style="cursor:pointer">Cómo funciona</a></div>
+    </div>
+    <div>
+      <p style="margin:0 0 16px;font:600 10px/1 var(--font-body);letter-spacing:.22em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 50%,transparent)">Legal</p>
+      <div style="display:flex;flex-direction:column;gap:10px"><a onClick="{{ goAvisoLegal }}" style="cursor:pointer">Aviso legal</a><a onClick="{{ goPrivacidad }}" style="cursor:pointer">Privacidad</a><a onClick="{{ goCookies }}" style="cursor:pointer">Cookies</a><a onClick="{{ goCondiciones }}" style="cursor:pointer">Condiciones de venta</a><a onClick="{{ goDesistimiento }}" style="cursor:pointer">Devoluciones</a></div>
+    </div>
+  </div>
+  <div style="max-width:1280px;margin:0 auto;padding:0 clamp(20px,5vw,64px) 44px;font-size:12px;letter-spacing:.06em;color:color-mix(in srgb,var(--color-text) 45%,transparent)">© 2026 Taplink · Marc Sayol Sánchez · DNI 41567516F · Carrer Mare de la Font 88, 17486 Castelló d'Empúries (Girona) · Precios con IVA incluido · El plan de gestión es obligatorio y se muestra sumado antes de pagar · Atención: +34 686 48 55 35 · hola@taplink.com</div>
+</footer>
+
+<sc-if value="{{ cartOpen }}">
+<div style="position:fixed;inset:0;z-index:90;display:flex;justify-content:flex-end">
+  <div onClick="{{ closeCart }}" style="position:absolute;inset:0;background:rgba(4,5,10,.72);backdrop-filter:blur(6px);animation:tpFade .2s ease-out"></div>
+  <aside style="position:relative;width:min(468px,100%);height:100%;background:var(--color-bg);border-left:2px solid var(--color-divider);box-shadow:var(--shadow-lg);display:flex;flex-direction:column;animation:tpSlide .26s cubic-bezier(.2,.7,.2,1)">
+    <header style="display:flex;justify-content:space-between;align-items:center;gap:16px;padding:24px 28px;border-bottom:2px solid var(--color-divider)">
+      <p style="margin:0;font-family:var(--font-heading);font-weight:800;font-size:20px;letter-spacing:.02em;text-transform:uppercase">Tu carrito</p>
+      <button type="button" class="btn btn-icon" onClick="{{ closeCart }}" style="font-size:22px">×</button>
+    </header>
+    <div style="flex:1;overflow-y:auto;padding:8px 28px">
+      <sc-if value="{{ isEmpty }}">
+        <p style="margin:40px 0 22px;font-size:16px;color:color-mix(in srgb,var(--color-text) 62%,transparent)">Todavía no has añadido ninguna placa.</p>
+        <button type="button" class="btn btn-primary" onClick="{{ closeCartToShop }}" style="padding:14px 22px;font-size:12px;letter-spacing:.1em;text-transform:uppercase">Ver los formatos</button>
+      </sc-if>
+      <sc-for list="{{ lines }}" as="l" hint-placeholder-count="0">
+        <div style="display:flex;gap:18px;padding:22px 0;border-bottom:2px solid var(--color-divider);animation:tpUp .35s ease-out both">
+          <div style="width:78px;height:78px;flex:none;background:#fff;overflow:hidden">
+            <sc-if value="{{ l.img }}" hint-placeholder-val="{{ false }}"><img data-src="{{ l.img }}" alt="{{ l.name }}" style="width:100%;height:100%;object-fit:cover;object-position:{{ l.pos }};display:block"></sc-if>
+            <sc-if value="{{ l.noImg }}"><div style="width:100%;height:100%;background:var(--color-surface)"></div></sc-if>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;justify-content:space-between;gap:12px;align-items:baseline"><p style="margin:0;font-family:var(--font-heading);font-weight:800;font-size:16px;text-transform:uppercase;letter-spacing:-.01em">{{ l.name }}</p><p style="margin:0;font-family:var(--font-heading);font-weight:800;font-size:16px">{{ l.total }}</p></div>
+            <p style="margin:6px 0 14px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 52%,transparent)">{{ l.unit }} / unidad</p>
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+              <div style="display:flex;align-items:center;border:2px solid var(--color-divider)">
+                <button type="button" class="btn" onClick="{{ l.dec }}" style="width:34px;height:34px;padding:0">−</button>
+                <span style="min-width:32px;text-align:center;font-size:14px">{{ l.qty }}</span>
+                <button type="button" class="btn" onClick="{{ l.inc }}" style="width:34px;height:34px;padding:0">+</button>
+              </div>
+              <button type="button" class="btn btn-ghost" onClick="{{ l.del }}" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase">Quitar</button>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+      <sc-if value="{{ hasItems }}">
+        <div style="padding:22px 0;border-bottom:2px solid var(--color-divider)">
+          <div style="display:flex;justify-content:space-between;gap:12px;align-items:baseline">
+            <p style="margin:0;font-family:var(--font-heading);font-weight:800;font-size:16px;text-transform:uppercase">Plan de gestión</p>
+            <p style="margin:0;font-family:var(--font-heading);font-weight:800;font-size:16px">{{ planPrice }}</p>
+          </div>
+          <p style="margin:6px 0 14px;font-size:12px;letter-spacing:.06em;color:color-mix(in srgb,var(--color-text) 52%,transparent)">Obligatorio · soporte, recambios y enlace editable</p>
+          <div class="seg">
+            <label class="seg-opt" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase"><input type="radio" name="cadencia2" checked="{{ planMensual }}" onChange="{{ setMensual }}">Mensual</label>
+            <label class="seg-opt" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase"><input type="radio" name="cadencia2" checked="{{ planAnual }}" onChange="{{ setAnual }}">Anual · 79 € · −18 %</label>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+    <sc-if value="{{ hasItems }}">
+    <footer style="padding:24px 28px;border-top:2px solid var(--color-divider);background:var(--color-surface)">
+      <sc-if value="{{ showUpsell }}">
+        <div style="margin:-4px 0 18px;padding:16px 18px;border:2px solid color-mix(in srgb,var(--color-accent) 55%,transparent);display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap">
+          <p style="margin:0;font-size:13px;line-height:1.5;max-width:24ch">Añade una segunda placa por <strong>24,99 €</strong> y cubre también el punto de pago.</p>
+          <button type="button" class="btn btn-secondary" onClick="{{ upsellAdd }}" style="padding:10px 14px;font-size:11px;letter-spacing:.1em;text-transform:uppercase">Cambiar al pack</button>
+        </div>
+      </sc-if>
+      <p style="margin:0 0 14px;font:600 10px/1.4 var(--font-body);letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">{{ cutoffLead }} {{ cutoffTxt }} {{ cutoffNote }}</p>
+      <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:16px">
+        <div class="field" style="flex:1"><label>Código de descuento</label><input class="input" value="{{ coupon }}" onChange="{{ onCoupon }}" placeholder="TAPLINK10" style="min-height:42px;font-size:14px"></div>
+        <button type="button" class="btn btn-secondary" onClick="{{ applyCoupon }}" style="padding:12px 16px;font-size:11px;letter-spacing:.1em;text-transform:uppercase">Aplicar</button>
+      </div>
+      <sc-if value="{{ hasCouponMsg }}"><p style="margin:-6px 0 14px;font-size:12px;color:var(--color-accent-700)">{{ couponMsg }}</p></sc-if>
+      <div style="display:flex;justify-content:space-between;gap:16px;font-size:15px;margin-bottom:10px"><span>Placas</span><span>{{ platesStr }}</span></div>
+      <sc-if value="{{ couponOk }}"><div style="display:flex;justify-content:space-between;gap:16px;font-size:15px;margin-bottom:10px;color:var(--color-accent-700)"><span>Descuento TAPLINK10</span><span>{{ discountStr }}</span></div></sc-if>
+      <div style="display:flex;justify-content:space-between;gap:16px;font-size:15px;margin-bottom:10px"><span>{{ planLabel }}</span><span>{{ planPrice }}</span></div>
+      <div style="display:flex;justify-content:space-between;gap:16px;font-size:15px;margin-bottom:16px;color:color-mix(in srgb,var(--color-text) 58%,transparent)"><span>Envío</span><span>Gratis</span></div>
+      <div style="display:flex;justify-content:space-between;gap:16px;font-family:var(--font-heading);font-weight:800;font-size:24px;letter-spacing:-.02em;padding-top:16px;border-top:2px solid var(--color-divider)"><span>Hoy pagas</span><span>{{ todayStr }}</span></div>
+      <p style="margin:12px 0 18px;font-size:12px;letter-spacing:.04em;color:color-mix(in srgb,var(--color-text) 55%,transparent)">{{ afterNote }} · IVA incluido</p>
+      <button type="button" class="btn btn-primary btn-block" onClick="{{ goCheckout }}" style="margin-top:0;padding:17px 22px;font-size:13px;letter-spacing:.1em;text-transform:uppercase" style-hover="box-shadow:0 12px 36px rgba(43,75,255,.5)">Finalizar compra</button>
+    </footer>
+    </sc-if>
+  </aside>
+</div>
+</sc-if>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showHeroPhoto&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Home&quot;},&quot;showBeforeAfter&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Home&quot;},&quot;showStickyBuy&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Producto&quot;},&quot;defaultPlan&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;mensual&quot;,&quot;anual&quot;],&quot;default&quot;:&quot;mensual&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Checkout&quot;}}">
+const EUR = n => {
+  const v = Math.abs(n), i = Math.floor(v), d = Math.round((v - i) * 100);
+  const ip = String(i).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return (n < 0 ? '-' : '') + ip + ',' + ('0' + d).slice(-2) + ' €';
+};
+const PLATE_STEPS = [1,2,3,4,5,6,8,10,15,20,30,50,75,100,150,200,300,500];
+const REV_STEPS = [3000,5000,8000,12000,20000,30000,50000,80000,120000,200000,350000,500000,1000000,2000000,5000000];
+const nearestIdx = (arr, v) => { let best = 0;
+  for (let i = 1; i < arr.length; i++) if (Math.abs(arr[i] - v) < Math.abs(arr[best] - v)) best = i;
+  return best; };
+const PLATES = {
+  premium:{name:'Placa Premium',kicker:'Mostrador',price:49.99,was:74.99,off:'−33 %',slot:'shop-premium',badge:'',img:'assets/placa-premium.png',fit:'cover',pos:'50% 50%',
+    spec:'Metacrilato · 98 × 98 mm · base antideslizante',
+    desc:'La pieza de mostrador. NFC con QR de respaldo y acabado premium: se queda a la vista en la barra y trabaja sola todo el día.',
+    feats:['NFC + código QR de respaldo','Enlace directo a tu ficha de Google','Acabado premium con base antideslizante','Llega grabada: cero configuración']},
+  estandar:{name:'Placa Estándar',kicker:'Mesa',price:42.99,was:59.99,off:'−28 %',slot:'shop-estandar',badge:'',img:'',
+    spec:'PVC rígido · 85 × 54 mm · formato tarjeta',
+    desc:'La tarjeta de mesa. Llega con la cuenta, en el momento exacto en el que el cliente está contento y con el móvil en la mano.',
+    feats:['Solo NFC — un toque y listo','Formato tarjeta, cabe en cualquier mesa','Enlace directo a tu ficha de Google','Resistente a agua y roces']},
+  pack:{name:'Pack Doble',kicker:'Dos Premium',price:74.98,was:92.98,off:'−19 %',slot:'shop-pack',badge:'Más vendido',img:'assets/pack-doble.png',fit:'cover',pos:'50% 56%',
+    spec:'2 × metacrilato 98 × 98 mm',
+    desc:'Dos placas Premium: una en el mostrador y otra donde más se note. Es la combinación que más reseñas genera y la segunda sale a 24,99 €.',
+    feats:['2 placas Premium con NFC + QR','Cubre entrada y punto de pago','La segunda placa sale a 24,99 €','Mismo envío y misma configuración']}
+};
+const IDS = ['premium','pack'];
+const LABELS = {email:'un email válido',negocio:'el nombre del negocio',glink:'el enlace de tu ficha de Google',nombre:'nombre y apellidos',nif:'un NIF/DNI válido',dir:'la dirección',cp:'un código postal de 5 dígitos',ciudad:'la ciudad',tel:'un teléfono',card:'el número de tarjeta',exp:'la caducidad (MM/AA)',cvc:'el CVC'};
+const FAQ = [
+  {q:'¿Tengo que instalar alguna app?',a:'No. El cliente solo acerca el móvil. En la Placa Premium y en el Pack, si el NFC está desactivado, un código QR de respaldo hace exactamente lo mismo.'},
+  {q:'¿Funciona en iPhone y en Android?',a:'Sí, en los dos. iPhone desde el 7 y prácticamente cualquier Android de los últimos años, sin abrir nada.'},
+  {q:'¿Es obligatorio el plan de gestión?',a:'Sí, y lo decimos antes de que pagues: 7,99 € / mes de 1 a 10 placas — o 79 € al año en vez de 95,88 € y se suma aparte del precio de la placa. Es lo que mantiene el enlace editable y te da soporte y recambios. Cancelas cuando quieras.'},
+  {q:'¿Puedo cambiar el enlace más adelante?',a:'Sí, tantas veces como necesites mientras tengas el plan activo. Cambias de ficha, de local o de campaña y la misma placa sigue sirviendo.'},
+  {q:'¿Qué pasa si la placa se rompe?',a:'El plan incluye un recambio gratuito cada 2 meses. Nos escribes, te la enviamos y no pagas nada más.'},
+  {q:'Tengo varios locales, ¿me sirve?',a:'Sí. Cada placa apunta a la ficha que quieras y el plan escala por tramos: 7,99 € / mes de 1 a 10 placas, 14,99 € de 10 a 20, y así en adelante.'}
+];
+const STATS = [
+  {pre:'+',n:270,suf:' %',label:'más probabilidades de que te elijan si tienes reseñas de 5 estrellas.'},
+  {pre:'',n:90,suf:' %',label:'de clientes ni se plantea un negocio sin reseñas visibles.'},
+  {pre:'+',n:63,suf:' %',label:'más gasta de media un cliente en un negocio con buena reputación online.'},
+  {pre:'',n:9,suf:'/10',label:'miran tus reseñas de Google antes de cruzar tu puerta.'}
+];
+const STEPS = [
+  {n:'01',title:'La compras',copy:'Eliges formato y plan, nos dices el enlace de tu ficha de Google y pagas online. Menos de un minuto.'},
+  {n:'02',title:'Te llega lista',copy:'Sale de fábrica grabada y apuntando a tu perfil. La saca de la caja cualquiera: cero configuración.'},
+  {n:'03',title:'La colocas y funciona',copy:'Donde más se note. El cliente acerca el móvil, se abre tu ficha y deja la reseña. Tú no dices nada.'}
+];
+const BENEFITS = [
+  {n:'01',title:'Un equipo de desarrollo detrás',copy:'Programadores propios mantienen la plataforma que gobierna tus placas: enlaces, redirecciones y compatibilidad con cada actualización de iOS y Android. Si Google cambia algo mañana, lo arreglamos nosotros, no tú.'},
+  {n:'02',title:'Tu enlace nunca muere',copy:'La placa apunta a un enlace nuestro que redirige a tu ficha. Cambias de local, de ficha o de campaña y sigue funcionando — sin volver a comprar nada ni reimprimir.'},
+  {n:'03',title:'Más reseñas = más clientes',copy:'La reputación en Google es hoy el escaparate. Subir de 3,4 a 4,8 estrellas cambia quién entra por tu puerta, y eso se mide en facturación, no en likes.'},
+  {n:'04',title:'Soporte humano al momento',copy:'WhatsApp directo con una persona, en español, sin ticket ni robot. La media de respuesta está en minutos, en horario de negocio.'},
+  {n:'05',title:'Recambios incluidos',copy:'Una placa se cae, se moja o desaparece. Te enviamos otra gratis cada 2 meses si hace falta: el sistema no se para nunca.'},
+  {n:'06',title:'Cero trabajo para tu equipo',copy:'Llega grabada y lista. Nadie tiene que configurar nada, formar a nadie ni pedir reseñas de viva voz. La colocas y se acabó.'}
+];
+const QUOTES = [
+  {text:'“Pasamos de 12 reseñas a 187 en cuatro meses. Ahora salimos primeros cuando alguien busca bar en Gràcia.”',ini:'BN',who:'Marta Sesé · Bar Nou',where:'Gràcia, Barcelona'},
+  {text:'“Lo que más me gustó: llegó configurada. La puse en el mostrador y esa misma tarde entraron dos reseñas.”',ini:'CF',who:'Jordi Ferrer · Clínica Ferrer',where:'Sabadell'},
+  {text:'“Llevamos el pack doble en los tres locales. Las tarjetas de mesa son las que más funcionan, con diferencia.”',ini:'GP',who:'Laura Pons · Grupo Pons',where:'Barcelona · 3 locales'}
+];
+
+const ACC = 'var(--color-accent)';
+const KEY = 'taplink_store_v1';
+const DAY = 86400000;
+const AUTHORS = ['Nuria B.','Marc T.','Alba R.','Óscar P.','Judith M.','Iván S.','Carla D.','Pau M.','Rocío G.','Sergi V.','Elena C.','Toni F.','Laia P.','Hugo N.','Berta A.'];
+const TEXT5 = ['Trato inmejorable y todo buenísimo. Volveremos seguro.','Servicio rapidísimo y precio muy razonable. Muy recomendable.','Un descubrimiento. Todo cuidado al detalle.','De lo mejor del barrio, sin duda. Repetiremos.','Muy atentos y producto de primera. Diez sobre diez.','Llevo tiempo viniendo y no falla nunca.'];
+const TEXT4 = ['Muy bien todo, solo tardaron un poco. Repetiremos.','Buena experiencia en general, se puede mejorar el tiempo de espera.','Nos gustó mucho, aunque el local estaba algo lleno.'];
+const TEXT3 = ['Bien pero esperamos bastante en hora punta.','Correcto, sin más. Esperaba algo más de atención.'];
+const MONTHS = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const PROOF = [
+  {who:'Un restaurante de Sabadell', what:'el Pack Doble', when:'hace 12 min'},
+  {who:'Una clínica dental de Terrassa', what:'la Placa Premium', when:'hace 34 min'},
+  {who:'Una peluquería de Gràcia', what:'el Pack Doble', when:'hace 1 h'},
+  {who:'Un taller de Badalona', what:'la Placa Premium', when:'hace 2 h'},
+  {who:'Un hotel del Eixample', what:'el Pack Doble', when:'hace 3 h'}
+];
+
+const store = {
+  read() {
+    try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; }
+  },
+  write(data) {
+    try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) {}
+  }
+};
+const TICKET = 22;
+const roiReviewsFor = (rev, plates) => {
+  const clients = rev / TICKET;
+  return Math.max(4, Math.round(Math.min(plates * 46, clients * 0.14)));
+};
+const effPlates = (rev, plates) => Math.max(1, Math.min(plates, roiReviewsFor(rev, plates) / 46));
+const upliftPct = (rev, plates) => {
+  const e = effPlates(rev, plates);
+  return Math.min(0.24, 0.07 + (e - 1) * 0.022);
+};
+const upliftStars = (rev, plates) => Math.min(1.6, 0.6 + (effPlates(rev, plates) - 1) * 0.22);
+const planFor = n => n <= 10 ? 7.99 : n <= 20 ? 14.99 : n <= 50 ? 24.99 : Math.round(n * 0.5 * 100) / 100;
+const rnd = (a, b) => a + Math.random() * (b - a);
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+const uid = pre => pre + '-' + Math.floor(1000 + Math.random() * 8999);
+
+function genReviews(plateId, days, perWeek) {
+  const out = [], n = Math.max(1, Math.round(days / 7 * perWeek));
+  for (let i = 0; i < n; i++) {
+    const r = Math.random();
+    const rating = r < 0.82 ? 5 : r < 0.93 ? 4 : r < 0.98 ? 3 : 2;
+    const pool = rating === 5 ? TEXT5 : rating === 4 ? TEXT4 : TEXT3;
+    out.push({id: uid('rv'), plate: plateId, rating, author: pick(AUTHORS),
+      text: pick(pool), ts: Date.now() - Math.floor(rnd(0, days * DAY)), replied: Math.random() < 0.45});
+  }
+  return out;
+}
+function makePlate(name, place, days, perWeek) {
+  const id = uid(name.indexOf('Premium') >= 0 ? 'PRM' : 'STD');
+  const reviews = genReviews(id, days, perWeek);
+  return {id, name, place, created: Date.now() - days * DAY,
+    taps: Math.round(reviews.length / rnd(0.09, 0.16)), reviews};
+}
+function relTime(ts) {
+  const d = Date.now() - ts, h = Math.floor(d / 3600000);
+  if (h < 1) return 'Hace ' + Math.max(1, Math.floor(d / 60000)) + ' min';
+  if (h < 24) return 'Hace ' + h + ' h';
+  const dd = Math.floor(h / 24);
+  if (dd === 1) return 'Ayer';
+  if (dd < 30) return 'Hace ' + dd + ' días';
+  return 'Hace ' + Math.floor(dd / 30) + ' meses';
+}
+const STARS = n => '★★★★★'.slice(0, n) + '☆☆☆☆☆'.slice(0, 5 - n);
+const NUM = n => {
+  const s = String(Math.round(Math.abs(n))), sign = n < 0 ? '-' : '';
+  return sign + s.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+};
+const DEC = n => n.toFixed(1).replace('.', ',');
+const dmy = ts => { const d = new Date(ts); return ('0' + d.getDate()).slice(-2) + '/' + ('0' + (d.getMonth() + 1)).slice(-2) + '/' + d.getFullYear(); };
+const RANGES = {
+  '7d': {label:'7 días', bars:[{k:'L',v:3},{k:'M',v:5},{k:'X',v:2},{k:'J',v:6},{k:'V',v:9},{k:'S',v:11},{k:'D',v:7}],
+    kpis:{reviews:'43', avg:'4,8', taps:'312', conv:'13,8 %'}, note:'Esta semana'},
+  '30d': {label:'30 días', bars:[{k:'S1',v:21},{k:'S2',v:28},{k:'S3',v:34},{k:'S4',v:43}],
+    kpis:{reviews:'126', avg:'4,8', taps:'948', conv:'13,3 %'}, note:'Últimos 30 días'},
+  '12m': {label:'12 meses', bars:[{k:'A',v:12},{k:'S',v:18},{k:'O',v:27},{k:'N',v:35},{k:'D',v:48},{k:'E',v:52},{k:'F',v:61},{k:'M',v:74},{k:'A',v:88},{k:'M',v:96},{k:'J',v:112},{k:'J',v:126}],
+    kpis:{reviews:'759', avg:'4,7', taps:'5.842', conv:'13,0 %'}, note:'Últimos 12 meses'}
+};
+const DIST = [
+  {stars:'5 ★', n:641, w:'92%'}, {stars:'4 ★', n:78, w:'26%'},
+  {stars:'3 ★', n:24, w:'11%'}, {stars:'2 ★', n:9, w:'5%'}, {stars:'1 ★', n:7, w:'4%'}
+];
+const PLATES_DATA = [
+  {id:'PRM-4471', name:'Placa Premium', place:'Barra principal', taps:512, reviews:74, conv:'14,5 %', status:'Activa', ok:true,
+    tip:'Es tu placa más productiva. Mantenla a la altura de la vista, junto al datáfono.'},
+  {id:'STD-8820', name:'Placa Estándar', place:'Mesas 1–8', taps:298, reviews:41, conv:'13,8 %', status:'Activa', ok:true,
+    tip:'Funciona mejor si llega con la cuenta. Pide al equipo que la deje encima del ticket.'},
+  {id:'STD-8821', name:'Placa Estándar', place:'Terraza', taps:138, reviews:11, conv:'8,0 %', status:'Bajo rendimiento', ok:false,
+    tip:'Conversión por debajo de la media. Pruébala en la mesa alta de la entrada durante dos semanas.'}
+];
+const REVIEWS_DATA = [
+  {stars:'★★★★★', author:'Nuria B.', when:'Hace 2 h', source:'Placa Premium', state:'Sin responder', ok:false, text:'Comida espectacular y trato de diez. Volveremos seguro, el arroz es de lo mejor del barrio.'},
+  {stars:'★★★★★', author:'Marc T.', when:'Hace 6 h', source:'Placa Estándar · Mesas', state:'Sin responder', ok:false, text:'Servicio rapidísimo y precio muy razonable. El detalle de la placa para dejar reseña me pareció genial.'},
+  {stars:'★★★★☆', author:'Alba R.', when:'Ayer', source:'Placa Premium', state:'Respondida', ok:true, text:'Muy bien todo, solo tardaron un poco con los postres. Repetiremos.'},
+  {stars:'★★★★★', author:'Óscar P.', when:'Hace 2 días', source:'Placa Estándar · Terraza', state:'Respondida', ok:true, text:'La terraza es una gozada y el personal muy atento. Recomendable al 100 %.'},
+  {stars:'★★★☆☆', author:'Cliente anónimo', when:'Hace 3 días', source:'Placa Premium', state:'Requiere atención', ok:false, text:'La comida bien pero esperamos bastante en hora punta. Con más personal sería perfecto.'},
+  {stars:'★★★★★', author:'Judith M.', when:'Hace 4 días', source:'Placa Premium', state:'Respondida', ok:true, text:'Llevo años viniendo y no falla. Ahora además es facilísimo dejar la reseña, un toque y ya.'}
+];
+const RECS_DATA = [
+  {level:'Prioridad alta', hot:true, title:'Mueve la placa de terraza', impact:'+18 reseñas / mes', copy:'La placa STD-8821 convierte al 8 % frente al 14 % de la barra. En terraza el cliente paga y se levanta: colócala en la mesa alta de la entrada o entrégala con la cuenta.'},
+  {level:'Prioridad alta', hot:true, title:'Responde las 2 reseñas pendientes', impact:'+0,1 en nota media', copy:'Google prioriza fichas activas. Responder en menos de 24 h mejora tu posición local y anima a otros clientes a escribir.'},
+  {level:'Oportunidad', hot:false, title:'Añade una segunda placa en caja', impact:'+22 reseñas / mes', copy:'Tu punto de pago concentra el 61 % de los toques. Una segunda Premium ahí duplicaría la exposición en el momento de máxima satisfacción.'},
+  {level:'Rutina', hot:false, title:'Recuerda la placa al equipo los viernes', impact:'+9 reseñas / mes', copy:'Viernes y sábado suman el 44 % de tus reseñas. Un recordatorio al turno de tarde sostiene el pico del fin de semana.'},
+  {level:'Rutina', hot:false, title:'Limpia la superficie de la placa', impact:'Evita fallos de lectura', copy:'La grasa y el polvo reducen la sensibilidad del NFC. Una pasada con paño seco a la semana es suficiente.'}
+];
+const INVOICES = [
+  {date:'01/07/2026', concept:'Plan de gestión · julio', amount:'7,99 €'},
+  {date:'01/06/2026', concept:'Plan de gestión · junio', amount:'7,99 €'},
+  {date:'12/05/2026', concept:'Pack Doble + plan', amount:'82,97 €'}
+];
+const TABS = [
+  {id:'resumen', label:'Resumen'}, {id:'resenas', label:'Reseñas'}, {id:'placas', label:'Mis placas'},
+  {id:'recom', label:'Recomendaciones'}, {id:'plan', label:'Plan y facturas'}
+];
+
+class Component extends DCLogic {
+  state = {screen:'home',pid:'premium',qty:1,cart:[],cartOpen:false,plan:null,faq:0,step:1,errs:'',order:null,
+    user:null, authMode:'login', authErr:'', tab:'resumen', range:'30d', toast:'', panelLink:'',
+    auth:{email:'',pass:'',negocio:'',code:''}, onbStep:1, onbErr:'',
+    newPlate:{name:'Placa Premium', place:''}, goalDraft:'',
+    roiRev:9000, roiPlates:2, proofIdx:0, proofOff:false, liveN:128437, showBuyBar:false,
+    coupon:'', couponOk:false, couponMsg:'', legalPage:'aviso-legal', acceptTerms:false, paying:false, payError:'',
+    form:{email:'',negocio:'',glink:'',nombre:'',nif:'',razonSocial:'',dir:'',cp:'',ciudad:'',tel:'',card:'',exp:'',cvc:''}};
+
+  componentDidMount() {
+    this.hydrate();
+    this.handleStripeReturn();
+    this.schedule();
+    this._onScroll = () => {
+      const el = this._prog;
+      if (!el) return;
+      const h = document.documentElement.scrollHeight - window.innerHeight;
+      el.style.transform = 'scaleX(' + (h > 0 ? Math.min(1, window.scrollY / h) : 0) + ')';
+      const shop = document.getElementById('tienda');
+      const show = !!shop && window.scrollY > shop.offsetTop + 240;
+      if (show !== this.state.showBuyBar) this.setState({showBuyBar: show});
+    };
+    window.addEventListener('scroll', this._onScroll, {passive:true});
+    this._onScroll();
+    this._tick = setInterval(() => this.forceUpdate(), 30000);
+    this._proof = setInterval(() => this.setState(s => ({proofIdx: (s.proofIdx + 1) % PROOF.length})), 7000);
+    this._live = setInterval(() => this.setState(s => ({liveN: s.liveN + 1 + Math.floor(Math.random() * 3)})), 4500);
+  }
+  componentDidUpdate() { this.schedule(); }
+  componentWillUnmount() {
+    if (this.io) this.io.disconnect();
+    clearTimeout(this._t1); clearTimeout(this._t2); clearTimeout(this._toast);
+    clearInterval(this._tick); clearInterval(this._proof); clearInterval(this._live);
+    window.removeEventListener('scroll', this._onScroll);
+  }
+  hydrate() {
+    const db = store.read();
+    if (!db.accounts) db.accounts = {};
+    if (!db.accounts['demo@taplink.com']) {
+      db.accounts['demo@taplink.com'] = {
+        email:'demo@taplink.com', pass:'demo1234', name:'Bar Nou', code:'TPK-100001',
+        link:'g.page/bar-nou', goal:150, plan:'mensual', created: Date.now() - 120 * DAY, onboarded:true,
+        plates:[makePlate('Placa Premium', 'Barra principal', 120, 4.6),
+                makePlate('Placa Premium', 'Punto de pago', 90, 3.4),
+                makePlate('Placa Premium', 'Terraza', 60, 1.1)]
+      };
+      store.write(db);
+    }
+    const patch = {};
+    if (Array.isArray(db.cart)) patch.cart = db.cart.filter(c => PLATES[c.id]);
+    if (db.plan) patch.plan = db.plan;
+    const email = db.session;
+    if (email && db.accounts[email]) {
+      patch.account = db.accounts[email];
+      patch.user = {name: db.accounts[email].name, email};
+      patch.panelLink = db.accounts[email].link || '';
+    }
+    if (Object.keys(patch).length) this.setState(patch);
+  }
+  handleStripeReturn() {
+    const params = new URLSearchParams(window.location.search);
+    const checkout = params.get('checkout');
+    if (checkout === 'success') {
+      const db = store.read();
+      const pending = db.pendingOrder;
+      const form = (pending && pending.form) || this.state.form;
+      const code = 'TPK-' + Math.floor(100000 + Math.random() * 899999);
+      db.codes = db.codes || {}; db.codes[code] = '';
+      db.cart = []; db.plan = this.plan;
+      delete db.pendingOrder;
+      store.write(db);
+      this.setState({order:code, screen:'done', errs:'', cart:[], form, paying:false,
+        auth:{...this.state.auth, email: form.email || '', negocio: form.negocio || '', code},
+        authMode:'signup'}, () => this.top());
+      window.history.replaceState({}, '', window.location.pathname);
+    } else if (checkout === 'cancel') {
+      this.setState({screen:'checkout', step:3, errs:'', paying:false,
+        payError:'Pago cancelado. Puedes intentarlo de nuevo cuando quieras.'});
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }
+  persist(extra) {
+    const db = store.read();
+    if (!db.accounts) db.accounts = {};
+    const a = (extra && extra.account) || this.state.account;
+    if (a) db.accounts[a.email] = a;
+    db.cart = (extra && extra.cart) || this.state.cart;
+    db.plan = this.plan;
+    db.session = (extra && 'session' in extra) ? extra.session : (a ? a.email : db.session);
+    store.write(db);
+  }
+  saveAccount(next, cb) {
+    this.setState({account: next, user:{name: next.name, email: next.email}}, () => {
+      this.persist({account: next});
+      if (cb) cb();
+    });
+  }
+  cutoff() {
+    const now = new Date(), end = new Date(now);
+    end.setHours(17, 0, 0, 0);
+    let ms = end - now, today = true;
+    if (ms <= 0) { end.setDate(end.getDate() + 1); ms = end - now; today = false; }
+    const h = Math.floor(ms / 3600000), m = Math.floor(ms % 3600000 / 60000);
+    return {txt: h + ' h ' + m + ' min', today};
+  }
+
+  hydrateImgs() {
+    document.querySelectorAll('img[data-src]').forEach(el => {
+      const s = el.getAttribute('data-src');
+      if (s && s.indexOf('{{') === -1 && el.getAttribute('src') !== s) el.setAttribute('src', s);
+    });
+  }
+  schedule() {
+    this.hydrateImgs();
+    clearTimeout(this._t1); clearTimeout(this._t2);
+    this._t1 = setTimeout(() => this.observe(), 0);
+    this._t2 = setTimeout(() => this.revealAll(), 1400);
+  }
+  reveal(el) {
+    if (el.hasAttribute('data-rv')) el.classList.add('rv-in');
+    if (el.hasAttribute('data-bar')) el.style.width = el.getAttribute('data-bar') + '%';
+    if (el.hasAttribute('data-count') && !el.dataset.counted) { el.dataset.counted = '1'; this.countUp(el); }
+  }
+  revealAll() { document.querySelectorAll('[data-rv]:not(.rv-in),[data-bar],[data-count]').forEach(el => this.reveal(el)); }
+
+  observe() {
+    const nodes = document.querySelectorAll('[data-rv]:not(.rv-in),[data-bar],[data-count]');
+    if (!('IntersectionObserver' in window)) return this.revealAll();
+    if (!this.io) {
+      this.io = new IntersectionObserver(es => es.forEach(e => {
+        if (!e.isIntersecting) return;
+        this.io.unobserve(e.target);
+        this.reveal(e.target);
+      }), {rootMargin:'0px 0px -6% 0px', threshold:0.05});
+    }
+    const h = window.innerHeight || 800;
+    nodes.forEach(el => {
+      const r = el.getBoundingClientRect();
+      if (r.top < h * 0.96 && r.bottom > 0) this.reveal(el); else this.io.observe(el);
+    });
+  }
+  countUp(el) {
+    const target = parseFloat(el.getAttribute('data-count')) || 0;
+    const pre = el.getAttribute('data-pre') || '', suf = el.getAttribute('data-suf') || '';
+    const t0 = performance.now(), dur = 1200;
+    const tick = now => {
+      const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+      el.textContent = pre + Math.round(target * e) + suf;
+      if (k < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+
+  get plan() { return this.state.plan ?? (this.props.defaultPlan ?? 'mensual'); }
+  get planCost() { return this.plan === 'anual' ? 79 : 7.99; }
+  get platesTotal() { return this.state.cart.reduce((s,c) => s + PLATES[c.id].price * c.qty, 0); }
+  get discount() { return this.state.couponOk ? this.platesTotal * 0.1 : 0; }
+  get today() { return this.platesTotal - this.discount + this.planCost; }
+  get afterTxt() { return this.plan === 'anual' ? 'Plan anual pagado por adelantado — nada más hasta el año que viene' : 'Después, 7,99 € / mes — cancelas cuando quieras'; }
+
+  top() { try { window.scrollTo({top:0}); } catch(e) {} }
+  go(screen) { this.setState({screen, cartOpen:false, errs:''}, () => this.top()); }
+  goLegal(page) { this.setState({screen:'legal', legalPage:page, cartOpen:false, errs:''}, () => this.top()); }
+  jump(id) {
+    this.setState({screen:'home', cartOpen:false}, () => {
+      const el = document.getElementById(id);
+      if (el) window.scrollTo({top: el.getBoundingClientRect().top + window.scrollY - 76, behavior:'smooth'});
+    });
+  }
+  add(id, qty) {
+    const cart = this.state.cart.slice(), i = cart.findIndex(c => c.id === id);
+    if (i >= 0) cart[i] = {id, qty: cart[i].qty + qty}; else cart.push({id, qty});
+    this.setState({cart, cartOpen:true}, () => this.persist({cart}));
+  }
+  setQty(id, q) {
+    const cart = q <= 0 ? this.state.cart.filter(c => c.id !== id) : this.state.cart.map(c => c.id === id ? {id, qty:q} : c);
+    this.setState({cart}, () => this.persist({cart}));
+  }
+  validate() {
+    const f = this.state.form, s = this.state.step, bad = [];
+    const need = s === 1 ? ['email','negocio','glink'] : s === 2 ? ['nombre','nif','dir','cp','ciudad','tel'] : [];
+    need.forEach(k => {
+      const v = (f[k] || '').trim();
+      let ok = v.length > 1;
+      if (k === 'email') ok = /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(v);
+      if (k === 'nif') ok = /^[A-Za-z0-9]{8,9}$/.test(v.replace(/\s/g,''));
+      if (k === 'cp') ok = /^\d{5}$/.test(v);
+      if (k === 'tel') ok = v.replace(/\D/g,'').length >= 9;
+      if (k === 'card') ok = v.replace(/\D/g,'').length >= 15;
+      if (k === 'exp') ok = /^\d{2}\s*\/\s*\d{2}$/.test(v);
+      if (k === 'cvc') ok = /^\d{3,4}$/.test(v);
+      if (!ok) bad.push(LABELS[k]);
+    });
+    return bad;
+  }
+
+  flash(msg) {
+    this.setState({toast:msg});
+    clearTimeout(this._toast);
+    this._toast = setTimeout(() => this.setState({toast:''}), 3200);
+  }
+  doAuth() {
+    const a = this.state.auth, signup = this.state.authMode === 'signup';
+    const email = (a.email || '').trim().toLowerCase();
+    const db = store.read(), accounts = db.accounts || {};
+    if (!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)) return this.setState({authErr:'Introduce un email válido.'});
+    if ((a.pass || '').length < 6) return this.setState({authErr:'La contraseña necesita al menos 6 caracteres.'});
+    if (!signup) {
+      const acc = accounts[email];
+      if (!acc) return this.setState({authErr:'No hay ninguna cuenta con ese email. Crea una cuenta con el código de tu plan.'});
+      if (acc.pass !== a.pass) return this.setState({authErr:'Contraseña incorrecta. Inténtalo de nuevo.'});
+      return this.setState({authErr:'', panelLink: acc.link || '', tab:'resumen'}, () => {
+        this.saveAccount(acc, () => this.go(acc.onboarded ? 'panel' : 'onboarding'));
+      });
+    }
+    if ((a.negocio || '').trim().length < 2) return this.setState({authErr:'Dinos el nombre de tu negocio.'});
+    if (accounts[email]) return this.setState({authErr:'Ya existe una cuenta con ese email. Entra con tu contraseña.'});
+    const code = (a.code || '').trim().toUpperCase();
+    const valid = /^TPK-?\d{4,6}$/.test(code) && (!db.codes || !db.codes[code] || db.codes[code] === email);
+    if (!valid) return this.setState({authErr:'Ese código no es válido. Tiene el formato TPK-000000 y llega en el email de confirmación de tu pedido.'});
+    const acc = {email, pass:a.pass, name:a.negocio.trim(), code, link:'', goal:120,
+      plan:this.plan, created:Date.now(), onboarded:false, plates:[]};
+    this.setState({authErr:'', onbStep:1, onbErr:'', panelLink:''}, () => {
+      this.saveAccount(acc, () => this.go('onboarding'));
+    });
+  }
+  onbNext() {
+    const a = this.state.account, s = this.state.onbStep;
+    if (!a) return;
+    if (s === 1) {
+      const link = (this.state.panelLink || '').trim();
+      if (link.length < 4) return this.setState({onbErr:'Pega el enlace de tu ficha de Google (o su nombre exacto en Maps).'});
+      return this.saveAccount({...a, link}, () => this.setState({onbStep:2, onbErr:''}));
+    }
+    if (s === 2) {
+      if (!a.plates.length) return this.setState({onbErr:'Añade al menos una placa para poder medirla.'});
+      return this.setState({onbStep:3, onbErr:''});
+    }
+    const goal = parseInt(this.state.goalDraft, 10);
+    if (!goal || goal < 5) return this.setState({onbErr:'Marca un objetivo realista (mínimo 5 reseñas al mes).'});
+    this.saveAccount({...a, goal, onboarded:true}, () => this.go('panel'));
+  }
+  addPlate() {
+    const a = this.state.account, np = this.state.newPlate;
+    if (!a) return;
+    const place = (np.place || '').trim();
+    if (place.length < 2) return this.setState({onbErr:'Dinos dónde va la placa (barra, terraza, recepción…).'});
+    const plate = makePlate(np.name, place, 0, 0);
+    plate.taps = 0; plate.reviews = [];
+    this.saveAccount({...a, plates: a.plates.concat([plate])}, () => {
+      this.setState({newPlate:{name:np.name, place:''}, onbErr:''});
+      this.flash('Placa ' + plate.id + ' dada de alta en «' + place + '». Ya está midiendo.');
+    });
+  }
+  delPlate(id) {
+    const a = this.state.account;
+    if (!a) return;
+    this.saveAccount({...a, plates: a.plates.filter(p => p.id !== id)}, () => this.flash('Placa ' + id + ' dada de baja.'));
+  }
+  toggleReply(plateId, rvId) {
+    const a = this.state.account;
+    if (!a) return;
+    const plates = a.plates.map(p => p.id !== plateId ? p : {...p,
+      reviews: p.reviews.map(r => r.id === rvId ? {...r, replied: !r.replied} : r)});
+    this.saveAccount({...a, plates}, () => this.flash('Respuesta registrada. Se publica en tu ficha de Google.'));
+  }
+
+  panelData() {
+    const st = this.state, a = st.account;
+    const plates = (a && a.plates) || [];
+    const all = [];
+    plates.forEach(p => p.reviews.forEach(r => all.push({...r, plateName:p.name, plateId:p.id, place:p.place})));
+    all.sort((x, y) => y.ts - x.ts);
+    const days = st.range === '7d' ? 7 : st.range === '30d' ? 30 : 365;
+    const since = Date.now() - days * DAY;
+    const inRange = all.filter(r => r.ts >= since);
+    const prev = all.filter(r => r.ts >= since - days * DAY && r.ts < since);
+    const taps = plates.reduce((s, p) => s + (p.taps || 0), 0);
+    const tapsRange = Math.round(taps * Math.min(1, days / 120));
+    const avg = all.length ? all.reduce((s, r) => s + r.rating, 0) / all.length : 0;
+    const conv = tapsRange ? inRange.length / tapsRange * 100 : 0;
+    const growth = prev.length ? Math.round((inRange.length - prev.length) / prev.length * 100) : null;
+    const buckets = [];
+    if (days === 7) {
+      const D = ['D','L','M','X','J','V','S'];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(Date.now() - i * DAY);
+        buckets.push({k: D[d.getDay()], v: all.filter(r => new Date(r.ts).toDateString() === d.toDateString()).length});
+      }
+    } else if (days === 30) {
+      for (let i = 3; i >= 0; i--) {
+        const hi = Date.now() - i * 7 * DAY, lo = hi - 7 * DAY;
+        buckets.push({k:'S' + (4 - i), v: all.filter(r => r.ts > lo && r.ts <= hi).length});
+      }
+    } else {
+      for (let i = 11; i >= 0; i--) {
+        const d = new Date(); d.setMonth(d.getMonth() - i);
+        buckets.push({k: MONTHS[d.getMonth()].charAt(0).toUpperCase(),
+          v: all.filter(r => { const t = new Date(r.ts); return t.getMonth() === d.getMonth() && t.getFullYear() === d.getFullYear(); }).length});
+      }
+    }
+    const maxBar = Math.max.apply(null, buckets.map(b => b.v).concat([1]));
+    const counts = [5,4,3,2,1].map(n => all.filter(r => r.rating === n).length);
+    const maxDist = Math.max.apply(null, counts.concat([1]));
+    const pending = all.filter(r => !r.replied);
+    const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0,0,0,0);
+    const goalNow = all.filter(r => r.ts >= monthStart.getTime()).length;
+    const goalTarget = (a && a.goal) || 0;
+    const plateRows = plates.map(p => {
+      const c = p.taps ? p.reviews.length / p.taps * 100 : 0;
+      const ok = p.reviews.length === 0 ? true : c >= 8.1;
+      return {id:p.id, name:p.name, place:p.place, taps:NUM(p.taps), reviews:NUM(p.reviews.length),
+        conv: p.taps ? DEC(c) + ' %' : '—', ok,
+        status: p.reviews.length === 0 ? 'Recién dada de alta' : ok ? 'Activa' : 'Bajo rendimiento',
+        tip: p.reviews.length === 0 ? 'Aún sin datos. En cuanto empiece a recibir toques verás su conversión aquí.'
+          : ok ? 'Convierte al ' + DEC(c) + ' %, por encima de la media del sector (8,1 %). Mantenla donde está.'
+          : 'Convierte al ' + DEC(c) + ' %, por debajo de la media del sector (8,1 %). Pruébala en otro punto del local durante dos semanas.',
+        tagBg: ok ? 'color-mix(in srgb, var(--color-accent) 20%, transparent)' : 'color-mix(in srgb, #ffb020 22%, transparent)',
+        tagFg: ok ? 'var(--color-accent-800)' : '#ffcf80',
+        edit:() => this.setState({tab:'plan'}, () => this.flash('Cambia el enlace de destino aquí: afecta a todas tus placas.')),
+        swap:() => this.flash('Recambio solicitado para ' + p.id + '. Sale hoy mismo, sin coste.'),
+        del:() => this.delPlate(p.id)};
+    });
+    const worst = plateRows.filter(p => !p.ok)[0];
+    const recs = [];
+    if (worst) recs.push({level:'Prioridad alta', hot:true, title:'Reubica la placa de ' + worst.place,
+      impact:'+' + Math.max(6, Math.round(inRange.length * 0.15)) + ' reseñas / mes',
+      copy:'La placa ' + worst.id + ' convierte al ' + worst.conv + ', por debajo de tus demás placas. Cámbiala a un punto donde el cliente esté parado y con el móvil en la mano.'});
+    if (pending.length) recs.push({level:'Prioridad alta', hot:true, title:'Responde ' + pending.length + ' reseñas pendientes',
+      impact:'+0,1 en nota media', copy:'Google prioriza fichas activas. Responder en menos de 24 h mejora tu posición local y anima a otros clientes a escribir.'});
+    if (plates.length < 2) recs.push({level:'Oportunidad', hot:false, title:'Añade una segunda placa',
+      impact:'+' + Math.max(12, Math.round(inRange.length * 0.6)) + ' reseñas / mes',
+      copy:'Con una sola placa dependes de un único punto de contacto. Una segunda en el punto de pago suele duplicar los toques.'});
+    if (goalTarget && goalNow < goalTarget) recs.push({level:'Oportunidad', hot:false, title:'Te faltan ' + (goalTarget - goalNow) + ' reseñas este mes',
+      impact:'Objetivo ' + goalTarget + ' / mes', copy:'A tu ritmo actual llegas justo. Un recordatorio al turno de tarde el fin de semana suele cerrar la diferencia.'});
+    recs.push({level:'Rutina', hot:false, title:'Limpia la superficie de las placas', impact:'Evita fallos de lectura',
+      copy:'La grasa y el polvo reducen la sensibilidad del NFC. Una pasada con paño seco a la semana es suficiente.'});
+    const invoices = [];
+    if (a) {
+      const anual = (a.plan || 'mensual') === 'anual';
+      invoices.push({date: dmy(a.created), concept: anual ? 'Plan anual + placas' : 'Pedido inicial + 1er mes', amount: anual ? '79,00 €' : '7,99 €'});
+      if (!anual) {
+        const months = Math.min(5, Math.floor((Date.now() - a.created) / (30 * DAY)));
+        for (let i = 1; i <= months; i++) invoices.push({date: dmy(a.created + i * 30 * DAY), concept:'Plan de gestión', amount:'7,99 €'});
+      }
+      invoices.reverse();
+    }
+    return {
+      hasAccount: !!a, isOnboarding: st.screen === 'onboarding',
+      onbStep: st.onbStep, onbStep1: st.onbStep === 1, onbStep2: st.onbStep === 2, onbStep3: st.onbStep === 3,
+      onbErr: !!st.onbErr, onbErrMsg: st.onbErr,
+      onbNext:() => this.onbNext(),
+      onbBack:() => this.setState({onbStep: Math.max(1, st.onbStep - 1), onbErr:''}),
+      onbCta: st.onbStep === 3 ? 'Entrar en mi panel' : 'Continuar',
+      onbCanBack: st.onbStep > 1,
+      onbBar2: st.onbStep >= 2 ? 'var(--color-accent)' : 'var(--color-divider)',
+      onbBar3: st.onbStep >= 3 ? 'var(--color-accent)' : 'var(--color-divider)',
+      newPlateName: st.newPlate.name, newPlatePlace: st.newPlate.place,
+      onNewPlate: e => { const {name, value} = e.target; this.setState({newPlate:{...this.state.newPlate, [name]:value}, onbErr:''}); },
+      addPlate:() => this.addPlate(),
+      goalDraft: st.goalDraft, onGoal: e => this.setState({goalDraft: e.target.value, onbErr:''}),
+      saveGoal:() => { const g = parseInt(st.goalDraft, 10); if (!g || g < 5 || !a) return this.flash('Marca un objetivo de al menos 5 reseñas.');
+        this.saveAccount({...a, goal:g}, () => this.flash('Objetivo actualizado a ' + g + ' reseñas al mes.')); },
+      plateCount: plates.length, plateCountStr: plates.length + (plates.length === 1 ? ' placa activa' : ' placas activas'),
+      ranges: [{k:'7d',label:'7 días'},{k:'30d',label:'30 días'},{k:'12m',label:'12 meses'}].map(r =>
+        ({label:r.label, on: st.range === r.k, pick:() => this.setState({range:r.k})})),
+      rangeLabel: days === 7 ? 'Esta semana' : days === 30 ? 'Últimos 30 días' : 'Últimos 12 meses',
+      kpis: [
+        {label:'Reseñas nuevas', value:NUM(inRange.length),
+          delta: growth === null ? 'Primer periodo con datos' : (growth >= 0 ? '▲ ' : '▼ ') + Math.abs(growth) + ' % vs periodo anterior',
+          color:'var(--color-accent-700)'},
+        {label:'Nota media', value: all.length ? DEC(avg) : '—', delta: all.length ? 'Sobre ' + NUM(all.length) + ' reseñas' : 'Sin reseñas todavía', color:'var(--color-accent-700)'},
+        {label:'Toques en placas', value:NUM(tapsRange), delta: plates.length + ' placas midiendo', color:'var(--color-accent-700)'},
+        {label:'Conversión toque → reseña', value: tapsRange ? DEC(conv) + ' %' : '—', delta:'Media del sector: 8,1 %', color:'color-mix(in srgb, var(--color-text) 58%, transparent)'}
+      ],
+      bars: buckets.map(b => ({k:b.k, v:b.v, h: Math.round(b.v / maxBar * 100) + '%',
+        color: b.v === maxBar && b.v > 0 ? ACC : 'color-mix(in srgb, var(--color-accent) 45%, transparent)'})),
+      dist: [5,4,3,2,1].map((n, i) => ({stars: n + ' ★', n: NUM(counts[i]), w: Math.round(counts[i] / maxDist * 100) + '%',
+        color: counts[i] === maxDist && counts[i] > 0 ? ACC : 'color-mix(in srgb, var(--color-accent) 45%, transparent)'})),
+      distNote: all.length
+        ? 'El ' + Math.round(counts[0] / all.length * 100) + ' % de tus reseñas son de 5 estrellas. Tu nota media es ' + DEC(avg) + '.'
+        : 'Cuando entren las primeras reseñas verás aquí el reparto por estrellas.',
+      plates: plateRows,
+      reviews: all.slice(0, 12).map(r => ({stars: STARS(r.rating), author: r.author, when: relTime(r.ts),
+        source: r.plateName + ' · ' + r.place, text: r.text,
+        state: r.replied ? 'Respondida' : r.rating <= 3 ? 'Requiere atención' : 'Sin responder',
+        cta: r.replied ? 'Marcar sin responder' : 'Responder',
+        tagBg: r.replied ? 'color-mix(in srgb, var(--color-accent) 18%, transparent)' : 'color-mix(in srgb, #ffb020 22%, transparent)',
+        tagFg: r.replied ? 'var(--color-accent-800)' : '#ffcf80',
+        reply:() => this.toggleReply(r.plateId, r.id)})),
+      hasReviews: all.length > 0, noReviews: all.length === 0,
+      pendingNote: !all.length
+        ? 'Sin reseñas todavía · en cuanto entren toques aparecerán aquí'
+        : pending.length
+          ? pending.length + ' sin responder · responde en menos de 24 h para mantener la ficha activa'
+          : 'Todas respondidas. Así es como Google entiende que tu ficha está viva.',
+      recs: recs.map(rc => ({...rc,
+        tagBg: rc.hot ? 'color-mix(in srgb, var(--color-accent) 20%, transparent)' : 'color-mix(in srgb, var(--color-text) 12%, transparent)',
+        tagFg: rc.hot ? 'var(--color-accent-800)' : 'color-mix(in srgb, var(--color-text) 70%, transparent)'})),
+      invoices,
+      nextCharge: a ? ((a.plan || 'mensual') === 'anual'
+        ? dmy(a.created + 365 * DAY) + ' · 79 €'
+        : dmy(a.created + (Math.floor((Date.now() - a.created) / (30 * DAY)) + 1) * 30 * DAY) + ' · 7,99 €') : '—',
+      goalNow, goalTarget: goalTarget || '—',
+      goalPct: goalTarget ? Math.min(100, Math.round(goalNow / goalTarget * 100)) + '%' : '0%',
+      goalNote: !goalTarget ? 'Fija tu objetivo en «Plan y facturas».'
+        : goalNow >= goalTarget ? 'Objetivo cumplido este mes. Sube el listón.'
+        : 'Te faltan ' + (goalTarget - goalNow) + ' reseñas para el objetivo del mes.'
+    };
+  }
+
+  renderVals() {
+    const st = this.state, plan = this.plan, p = PLATES[st.pid];
+    const lines = st.cart.map(c => {
+      const it = PLATES[c.id];
+      return {name:it.name, label:it.name + ' × ' + c.qty, qty:c.qty, slot:it.slot, img:it.img, noImg:!it.img, pos:it.pos || 'center',
+        unit:EUR(it.price), total:EUR(it.price * c.qty),
+        inc:() => this.setQty(c.id, c.qty + 1), dec:() => this.setQty(c.id, c.qty - 1), del:() => this.setQty(c.id, 0)};
+    });
+    const planLabel = plan === 'anual' ? 'Plan anual' : 'Plan mensual (1er mes)';
+    const step = st.step;
+    return {
+      isHome: st.screen === 'home', isProduct: st.screen === 'product',
+      isCheckout: st.screen === 'checkout', isDone: st.screen === 'done',
+      isAuth: st.screen === 'auth', isPanel: st.screen === 'panel',
+      goPanel:() => this.go(!st.account ? 'auth' : (st.account.onboarded ? 'panel' : 'onboarding')),
+      logout:() => { this.persist({session:''}); this.setState({user:null, account:null, auth:{email:'',pass:'',negocio:'',code:''}, authErr:''}, () => this.go('home')); },
+      isLogin: st.authMode === 'login', isSignup: st.authMode === 'signup',
+      setLogin:() => this.setState({authMode:'login', authErr:''}), setSignup:() => this.setState({authMode:'signup', authErr:''}),
+      authCta: st.authMode === 'signup' ? 'Crear cuenta y entrar' : 'Entrar en mi panel',
+      auth: st.auth, authErr: !!st.authErr, authErrMsg: st.authErr,
+      onAuthField: e => { const {name, value} = e.target; this.setState({auth:{...this.state.auth, [name]:value}, authErr:''}); },
+      submitAuth:() => this.doAuth(),
+      demoLogin:() => { const db = store.read(); const acc = (db.accounts || {})['demo@taplink.com'];
+        if (!acc) return this.setState({authErr:'La demo no está disponible en este navegador.'});
+        this.setState({authErr:'', panelLink: acc.link, goalDraft: String(acc.goal)}, () => this.saveAccount(acc, () => this.go('panel'))); },
+      authPerks:['Todas tus reseñas de Google en un solo panel','Qué placa trae cada reseña, y cuál no rinde','Recomendaciones semanales con impacto estimado','Cambiar el enlace, pedir recambios y ver facturas'],
+      bizName: (st.user && st.user.name) || 'Tu negocio',
+      tabs: TABS.map(t => ({...t, pick:() => this.setState({tab:t.id, toast:''}),
+        bg: st.tab === t.id ? 'color-mix(in srgb, var(--color-accent) 16%, transparent)' : 'transparent',
+        fg: st.tab === t.id ? 'var(--color-accent-800)' : 'color-mix(in srgb, var(--color-text) 68%, transparent)',
+        bar: st.tab === t.id ? 'var(--color-accent)' : 'transparent'})),
+      tabResumen: st.tab === 'resumen', tabResenas: st.tab === 'resenas', tabPlacas: st.tab === 'placas',
+      tabRecom: st.tab === 'recom', tabPlan: st.tab === 'plan',
+      tabPlacasGo:() => this.setState({tab:'placas'}),
+      ...this.panelData(),
+      panelLink: st.panelLink,
+      onPanelLink: e => this.setState({panelLink: e.target.value}),
+      savePanelLink:() => { const a = st.account; if (!a) return;
+        this.saveAccount({...a, link:(st.panelLink || '').trim()}, () => this.flash('Enlace actualizado. Todas tus placas apuntan ya al nuevo destino.')); },
+      toast: !!st.toast, toastMsg: st.toast,
+      progRef: el => { this._prog = el; },
+      cutoffTxt: this.cutoff().txt,
+      cutoffLead: this.cutoff().today ? 'Pídelo en' : 'Próxima salida en',
+      cutoffNote: this.cutoff().today ? 'y sale hoy de Girona' : 'para el envío de mañana',
+      stockNote: 'Lote de julio · 37 placas grabadas listas',
+      showUpsell: st.cart.length > 0 && !st.cart.some(c => c.id === 'pack'),
+      upsellAdd:() => this.add('pack', 1),
+      liveCount: NUM(st.liveN),
+      proofOn: !st.proofOff && st.screen === 'home' && !st.showBuyBar,
+      proofWho: PROOF[st.proofIdx].who, proofWhat: PROOF[st.proofIdx].what, proofWhen: PROOF[st.proofIdx].when,
+      proofClose:() => this.setState({proofOff:true}),
+      buyBarOn: st.showBuyBar && st.screen === 'home',
+      buyBarPrice: EUR(PLATES.pack.price), addPackNow:() => this.add('pack', 1),
+      roiRev: st.roiRev, roiPlates: st.roiPlates,
+      roiRevStr: NUM(st.roiRev) + ' €', roiPlatesStr: st.roiPlates + (st.roiPlates === 1 ? ' placa' : ' placas'),
+      roiRevIdx: nearestIdx(REV_STEPS, st.roiRev), roiPlatesIdx: nearestIdx(PLATE_STEPS, st.roiPlates),
+      roiRevMax: REV_STEPS.length - 1, roiPlatesMax: PLATE_STEPS.length - 1,
+      onRoiRev: e => this.setState({roiRev: REV_STEPS[parseInt(e.target.value, 10)] || 3000}),
+      onRoiPlates: e => this.setState({roiPlates: PLATE_STEPS[parseInt(e.target.value, 10)] || 1}),
+      onRoiPlatesNum: e => { const v = parseInt(e.target.value, 10);
+        this.setState({roiPlates: Math.max(1, Math.min(500, isNaN(v) ? 1 : v))}); },
+      roiReviews: NUM(roiReviewsFor(st.roiRev, st.roiPlates)),
+      roiStars: '+' + DEC(upliftStars(st.roiRev, st.roiPlates)),
+      roiUplift: NUM(Math.round(st.roiRev * upliftPct(st.roiRev, st.roiPlates))) + ' €',
+      roiUpliftYear: NUM(Math.round(st.roiRev * upliftPct(st.roiRev, st.roiPlates) * 12)) + ' €',
+      roiUpliftPct: '+' + DEC(upliftPct(st.roiRev, st.roiPlates) * 100) + ' % de facturación',
+      roiOverPlates: st.roiPlates > Math.ceil(effPlates(st.roiRev, st.roiPlates)) + 1,
+      roiOverNote: 'Con tu volumen de clientes, ' + Math.ceil(effPlates(st.roiRev, st.roiPlates)) + (Math.ceil(effPlates(st.roiRev, st.roiPlates)) === 1 ? ' placa ya lo cubre' : ' placas ya lo cubren') + '. Más placas no añaden reseñas.',
+      roiCost: EUR(PLATES.premium.price + Math.max(0, st.roiPlates - 1) * 24.99 + planFor(st.roiPlates)),
+      roiPlanNote: 'Plan de gestión: ' + EUR(planFor(st.roiPlates)) + ' / mes' + (st.roiPlates > 50 ? ' (estimado — a medida)' : ''),
+      roiBig: st.roiPlates > 50,
+      roiPayback: (d => d === 1 ? '1 día' : d + ' días')(Math.max(1, Math.round(
+        (PLATES.premium.price + Math.max(0, st.roiPlates - 1) * 24.99) /
+        Math.max(1, st.roiRev * upliftPct(st.roiRev, st.roiPlates) / 30)))),
+      coupon: st.coupon, couponOk: st.couponOk, couponMsg: st.couponMsg, hasCouponMsg: !!st.couponMsg,
+      discountStr: '−' + EUR(this.discount),
+      onCoupon: e => this.setState({coupon: e.target.value, couponMsg:''}),
+      applyCoupon:() => { const c = (st.coupon || '').trim().toUpperCase();
+        if (c === 'TAPLINK10') return this.setState({couponOk:true, couponMsg:'Código aplicado: −10 % en las placas.'});
+        this.setState({couponOk:false, couponMsg:'Ese código no es válido o ya ha caducado.'}); },
+      compare: [
+        {row:'Formato', one:'1 placa de mostrador', two:'2 placas: mostrador + segundo punto'},
+        {row:'Material', one:'Metacrilato 98 × 98 mm', two:'Metacrilato 98 × 98 mm'},
+        {row:'Lectura', one:'NFC + QR de respaldo', two:'NFC + QR de respaldo'},
+        {row:'Cobertura', one:'Barra o recepción', two:'Barra y punto de pago o terraza'},
+        {row:'Reseñas / mes (media)', one:'≈ 74', two:'≈ 126'},
+        {row:'Precio por placa', one:'49,99 €', two:'37,49 €'}
+      ],
+      showHeroPhoto: this.props.showHeroPhoto ?? true,
+      showBeforeAfter: this.props.showBeforeAfter ?? true,
+      showStickyBuy: this.props.showStickyBuy ?? true,
+      goHome:() => this.go('home'), goCheckout:() => this.go('checkout'),
+      isLegal: st.screen === 'legal',
+      legalIsAviso: st.legalPage === 'aviso-legal', legalIsPrivacidad: st.legalPage === 'privacidad',
+      legalIsCookies: st.legalPage === 'cookies', legalIsCondiciones: st.legalPage === 'condiciones',
+      legalIsDesistimiento: st.legalPage === 'desistimiento',
+      goAvisoLegal:() => this.goLegal('aviso-legal'), goPrivacidad:() => this.goLegal('privacidad'),
+      goCookies:() => this.goLegal('cookies'), goCondiciones:() => this.goLegal('condiciones'),
+      goDesistimiento:() => this.goLegal('desistimiento'),
+      jumpTienda:() => this.jump('tienda'), jumpComo:() => this.jump('como-funciona'),
+      jumpPrecios:() => this.jump('precios'), jumpFaq:() => this.jump('faq'),
+      openCart:() => this.setState({cartOpen:true}), closeCart:() => this.setState({cartOpen:false}),
+      closeCartToShop:() => { this.setState({cartOpen:false}); this.jump('tienda'); },
+      cartOpen: st.cartOpen, cartCount: st.cart.reduce((s,c) => s + c.qty, 0),
+      hasItems: st.cart.length > 0, isEmpty: st.cart.length === 0, lines,
+      products: IDS.map(id => ({...PLATES[id], noImg: !PLATES[id].img, price:EUR(PLATES[id].price), was:EUR(PLATES[id].was),
+        add:() => this.add(id, 1), view:() => this.setState({pid:id, qty:1}, () => this.go('product'))})),
+      viewPremium:() => this.setState({pid:'premium', qty:1}, () => this.go('product')),
+
+      viewPack:() => this.setState({pid:'pack', qty:1}, () => this.go('product')),
+      stats: STATS.map(s => ({...s, full: s.pre + s.n + s.suf})),
+      steps: STEPS, quotes: QUOTES, benefits: BENEFITS,
+      faqs: FAQ.map((f,i) => ({...f, open: st.faq === i, mark: st.faq === i ? '−' : '+',
+        toggle:() => this.setState({faq: st.faq === i ? -1 : i})})),
+      planMensual: plan === 'mensual', planAnual: plan === 'anual',
+      setMensual:() => this.setState({plan:'mensual'}), setAnual:() => this.setState({plan:'anual'}),
+      planBigPrice: plan === 'anual' ? '79 € / año' : '7,99 € / mes',
+      weekPrice: plan === 'anual' ? '1,52 €' : '1,84 €',
+      weekNote: plan === 'anual' ? 'menos que un café' : 'lo que cuesta un café',
+      planIsAnual: plan === 'anual', planWas: '95,88 €', planSave: ' −18 ',
+      planBigNote: plan === 'anual' ? 'De 1 a 10 placas, pagado por adelantado: 79 € en vez de 95,88 €.' : 'De 1 a 10 placas. Se suma al precio de la placa y se cobra desde el primer mes.',
+      planLabel, planPrice: EUR(this.planCost), platesStr: EUR(this.platesTotal),
+      todayStr: EUR(this.today), afterNote: this.afterTxt,
+      paying: st.paying, payError: st.payError, payLabel: st.paying ? 'Redirigiendo a Stripe…' : ('Pagar ' + EUR(this.today)),
+      pImg:p.img, pNoImg:!p.img, pFit:p.fit || 'contain', pPos:p.pos || 'center', pName:p.name, pKicker:p.kicker, pDesc:p.desc, pSpec:p.spec, pOff:p.off, pSlot:p.slot,
+      pPrice:EUR(p.price), pWas:EUR(p.was), pFeats:p.feats, qty:st.qty,
+      pLine:EUR(p.price * st.qty), pToday:EUR(p.price * st.qty + this.planCost),
+      incQty:() => this.setState({qty: st.qty + 1}), decQty:() => this.setState({qty: Math.max(1, st.qty - 1)}),
+      addCurrent:() => this.add(st.pid, st.qty),
+      isStep1: step === 1, isStep2: step === 2, isStep3: step === 3,
+      acceptTerms: st.acceptTerms, toggleTerms:() => this.setState({acceptTerms: !this.state.acceptTerms}),
+      canBack: step > 1, notLast: step < 3,
+      stepsUi: [{label:'01 · Tu negocio'},{label:'02 · Envío'},{label:'03 · Pago'}].map((s,i) => ({
+        label:s.label, w: step > i ? '100%' : '0%',
+        color: step > i ? 'var(--color-text)' : 'color-mix(in srgb, var(--color-text) 45%, transparent)'})),
+      form: st.form, errs: st.errs, hasErrs: !!st.errs,
+      onField: e => { const {name, value} = e.target; this.setState({form:{...this.state.form, [name]:value}}); },
+      next:() => { const bad = this.validate();
+        if (bad.length) return this.setState({errs:'Nos falta ' + bad.join(', ') + '.'});
+        this.setState({step: step + 1, errs:''}, () => this.top()); },
+      back:() => this.setState({step: Math.max(1, step - 1), errs:''}),
+      submitOrder:() => { const bad = this.validate();
+        if (bad.length) return this.setState({errs:'Nos falta ' + bad.join(', ') + '.'});
+        if (!this.state.acceptTerms) return this.setState({errs:'Debes aceptar las condiciones de venta y la política de privacidad antes de pagar.'});
+        this.setState({paying:true, payError:'', errs:''});
+        const db = store.read();
+        db.pendingOrder = {form: this.state.form};
+        store.write(db);
+        fetch('/create-checkout-session', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({cart: this.state.cart, plan: this.plan, email: this.state.form.email, negocio: this.state.form.negocio})
+        }).then(r => r.json()).then(data => {
+          if (data && data.url) { window.location.href = data.url; }
+          else { this.setState({paying:false, payError: (data && data.error) || 'No se pudo iniciar el pago. Inténtalo de nuevo.'}); }
+        }).catch(() => { this.setState({paying:false, payError:'No se pudo conectar con el servidor de pago. Inténtalo de nuevo.'}); });
+      },
+      goSignup:() => this.setState({authMode:'signup'}, () => this.go('auth')),
+      chargeNote: plan === 'anual'
+        ? 'Hoy se cobra ' + EUR(this.today) + ': las placas y el plan anual completo (79 € en vez de 95,88 €). Nada más hasta dentro de un año.'
+        : 'Hoy se cobra ' + EUR(this.today) + ': las placas más el primer mes de plan (7,99 €). A partir del mes 2, 7,99 € / mes que puedes cancelar cuando quieras.',
+      orderNo: st.order || '—', orderEmail: st.form.email || 'tu correo',
+      spotRef: el => { this.spotEl = el; },
+      onSpot: e => { if (!this.spotEl) return;
+        const r = e.currentTarget.getBoundingClientRect();
+        this.spotEl.style.transform = 'translate(' + (e.clientX - r.left) + 'px,' + (e.clientY - r.top) + 'px)'; }
+    };
+  }
+}
+</script>
+</body>
+</html>
