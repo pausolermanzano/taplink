@@ -14,7 +14,7 @@
 //   - invoice.paid
 
 import { verifyStripeSignature } from './_lib/stripe-verify.js';
-import { getLocalBySubscriptionId, setEstado, createLocal } from './_lib/airtable.js';
+import { getLocalBySubscriptionId, setEstado, createLocal } from './_lib/kv.js';
 
 function json(data, status) {
   return new Response(JSON.stringify(data), {
@@ -93,5 +93,5 @@ async function actualizarEstado(env, subscriptionId, estado) {
   if (!subscriptionId) return;
   const local = await getLocalBySubscriptionId(env, subscriptionId);
   if (!local) return; // suscripción de otra cosa, o local aún no creado: se ignora
-  await setEstado(env, local.id, estado);
+  await setEstado(env, local.slug, estado);
 }

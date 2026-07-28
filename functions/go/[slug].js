@@ -6,7 +6,7 @@
 //   aviso, en vez de a las reseñas. Así se corta el servicio automáticamente,
 //   sin que nadie tenga que hacer nada manualmente.
 
-import { getLocalBySlug } from '../_lib/airtable.js';
+import { getLocalBySlug } from '../_lib/kv.js';
 
 export async function onRequest(context) {
   const { params, env, request } = context;
@@ -26,7 +26,7 @@ export async function onRequest(context) {
       return Response.redirect(origin, 302);
     }
 
-    const { estado, review_url } = local.fields;
+    const { estado, review_url } = local;
 
     if (estado === 'activo' && review_url) {
       return Response.redirect(review_url, 302);
