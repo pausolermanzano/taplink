@@ -79,10 +79,25 @@ En el proyecto → Settings → Environment variables, añade (además de la
 - `AIRTABLE_BASE_ID`
 - `AIRTABLE_TABLE_NAME` = `Locales`
 - `STRIPE_WEBHOOK_SECRET`
+- `ADMIN_PASSWORD` (la contraseña que compartiréis Marc y Pau para entrar al panel)
 - `FALLBACK_URL` = `https://taplink.es/pago-pendiente.html` (opcional, ya
   es el valor por defecto)
 
 Guarda y vuelve a desplegar (Retry deployment) para que las tome.
+
+## Paso 3bis — El panel privado
+
+En `https://taplink.es/panel.html` tenéis un listado de solo lectura con
+todos los locales: nombre, estado (activo/pausado/cancelado), el link de
+su placa, su enlace de reseñas y la fecha de alta. Se actualiza en tiempo
+real contra Airtable (botón "Actualizar").
+
+Pide la contraseña `ADMIN_PASSWORD` la primera vez que se abre en un
+navegador (se queda recordada mientras no cierres esa pestaña). Es una
+protección sencilla pensada para que solo la uséis Marc y Pau — si más
+adelante queréis algo más robusto (verificación en dos pasos, por
+ejemplo), Cloudflare Access permite añadir esa capa sin tocar el código,
+desde el propio dashboard de Cloudflare.
 
 ## Paso 4 — Programar cada placa NFC
 
