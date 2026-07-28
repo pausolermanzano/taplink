@@ -3,6 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png">
+<link rel="apple-touch-icon" href="favicon-192.png">
 <script src="./support.js"></script>
 </head>
 <body>
@@ -74,9 +78,21 @@ a:hover{color:var(--color-accent-800)}
   .nav-links .btn{width:100%;justify-content:center;margin-top:14px}
 }
 
+.table-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.table-wrap .table{min-width:480px}
+
 @media (max-width:640px){
   .step-row{grid-template-columns:1fr;gap:6px}
   .step-row h3{font-size:22px}
+}
+
+@media (max-width:860px){
+  .panel-layout{grid-template-columns:1fr}
+  .panel-nav{position:static;top:auto}
+}
+@media (max-width:640px){
+  .review-card,.rec-card{grid-template-columns:1fr}
+  .rec-card > div:last-child{text-align:left}
 }
 </style>
 </helmet>
@@ -179,7 +195,7 @@ a:hover{color:var(--color-accent-800)}
         <p style="margin:0;font-family:var(--font-heading);font-weight:800;font-size:18px;text-transform:uppercase;letter-spacing:-.015em">Cuál te conviene</p>
         <p style="margin:0;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 52%,transparent)">8 de cada 10 negocios eligen el pack</p>
       </div>
-      <table class="table" style="margin:0">
+      <div class="table-wrap"><table class="table" style="margin:0">
         <thead><tr><th></th><th>Placa Premium</th><th>Pack Doble</th></tr></thead>
         <tbody>
           <tr><td style="color:color-mix(in srgb,var(--color-text) 60%,transparent)">Formato</td><td>1 placa de mostrador</td><td style="color:var(--color-accent-700)">2 placas: mostrador + segundo punto</td></tr>
@@ -189,7 +205,7 @@ a:hover{color:var(--color-accent-800)}
           <tr><td style="color:color-mix(in srgb,var(--color-text) 60%,transparent)">Reseñas / mes (media)</td><td>≈ 74</td><td style="color:var(--color-accent-700)">≈ 126</td></tr>
           <tr><td style="color:color-mix(in srgb,var(--color-text) 60%,transparent)">Precio por placa</td><td>49,99 €</td><td style="color:var(--color-accent-700)">37,49 €</td></tr>
         </tbody>
-      </table>
+      </table></div>
     </div>
     <p style="margin:22px 0 0;font-size:13px;letter-spacing:.06em;color:color-mix(in srgb,var(--color-text) 58%,transparent)">IVA incluido · El plan de gestión se suma en el carrito y se ve antes de pagar — <a onClick="{{ jumpPrecios }}" style="cursor:pointer">cómo funciona</a></p>
   </section>
@@ -258,13 +274,13 @@ a:hover{color:var(--color-accent-800)}
         <h2 style="font-family:var(--font-heading);font-weight:800;font-size:clamp(30px,4vw,56px);line-height:1.02;letter-spacing:-.035em;text-transform:uppercase;margin:0 0 26px;max-width:20ch">Precio claro,<br>dicho antes.</h2>
         <p style="font-size:16px;line-height:1.65;margin:0 0 16px;color:color-mix(in srgb,var(--color-text) 74%,transparent)">Toda placa lleva plan de gestión y no es opcional: mantiene el enlace vivo, te deja cambiarlo cuando quieras y te cubre con soporte y un recambio gratis cada 2 meses.</p>
         <p style="font-size:16px;line-height:1.65;margin:0;color:color-mix(in srgb,var(--color-text) 74%,transparent)">Se paga aparte del precio de la placa, lo verás sumado en el carrito y no hay letra pequeña. Cancelas cuando quieras: la placa se queda contigo.</p>
-        <table class="table" style="margin-top:34px">
+        <div class="table-wrap"><table class="table" style="margin-top:34px">
           <thead><tr><th>Placas activas</th><th>Mensual</th><th>Anual</th></tr></thead>
           <tbody>
             <tr><td>De 1 a 10</td><td>7,99 € / mes</td><td><span style="text-decoration:line-through;text-decoration-thickness:2px;color:color-mix(in srgb,var(--color-text) 42%,transparent)">95,88 €</span> 79 €</td></tr>
             <tr><td>Más de 10 placas</td><td colspan="2">Precio a medida — te lo damos por WhatsApp</td></tr>
           </tbody>
-        </table>
+        </table></div>
         <div style="margin-top:28px;padding:26px;background:var(--color-surface);border:2px solid var(--color-divider);display:flex;gap:22px;align-items:center;flex-wrap:wrap">
           <div style="flex:1 1 260px;min-width:0">
             <p style="margin:0 0 8px;font-family:var(--font-heading);font-weight:800;font-size:20px;letter-spacing:-.015em;text-transform:uppercase">¿Más de 10 placas?</p>
@@ -703,14 +719,14 @@ a:hover{color:var(--color-accent-800)}
         <button type="button" class="btn btn-primary" onClick="{{ addPlate }}" style="padding:15px 20px;font-size:12px;letter-spacing:.1em;text-transform:uppercase">Añadir placa</button>
       </div>
       <sc-if value="{{ plateCount }}">
-        <table class="table" style="margin-top:26px">
+        <div class="table-wrap"><table class="table" style="margin-top:26px">
           <thead><tr><th>ID</th><th>Modelo</th><th>Ubicación</th><th></th></tr></thead>
           <tbody>
             <sc-for list="{{ plates }}" as="pl" hint-placeholder-count="0">
               <tr><td>{{ pl.id }}</td><td>{{ pl.name }}</td><td>{{ pl.place }}</td><td><button type="button" class="btn btn-ghost" onClick="{{ pl.del }}" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase">Quitar</button></td></tr>
             </sc-for>
           </tbody>
-        </table>
+        </table></div>
       </sc-if>
     </div>
   </sc-if>
@@ -748,8 +764,8 @@ a:hover{color:var(--color-accent-800)}
     </div>
   </div>
 
-  <div style="display:grid;grid-template-columns:minmax(0,208px) minmax(0,1fr);gap:clamp(20px,3vw,44px);align-items:start;padding-top:32px">
-    <nav style="display:flex;flex-direction:column;gap:2px;position:sticky;top:96px">
+  <div class="panel-layout" style="display:grid;grid-template-columns:minmax(0,208px) minmax(0,1fr);gap:clamp(20px,3vw,44px);align-items:start;padding-top:32px">
+    <nav class="panel-nav" style="display:flex;flex-direction:column;gap:2px;position:sticky;top:96px">
       <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="5">
         <button type="button" onClick="{{ t.pick }}" style="text-align:left;background:{{ t.bg }};color:{{ t.fg }};border:0;border-left:3px solid {{ t.bar }};padding:14px 16px;cursor:pointer;font:600 12px/1 var(--font-body);letter-spacing:.14em;text-transform:uppercase;transition:background .3s ease" style-hover="background:color-mix(in srgb,var(--color-text) 8%,transparent)">{{ t.label }}</button>
       </sc-for>
@@ -810,14 +826,14 @@ a:hover{color:var(--color-accent-800)}
             <p style="margin:0;font-family:var(--font-heading);font-weight:800;font-size:17px;text-transform:uppercase;letter-spacing:-.01em">Rendimiento por placa</p>
             <button type="button" class="btn btn-ghost" onClick="{{ tabPlacasGo }}" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase">Ver placas →</button>
           </div>
-          <table class="table" style="margin:0">
+          <div class="table-wrap"><table class="table" style="margin:0">
             <thead><tr><th>Placa</th><th>Ubicación</th><th>Toques</th><th>Reseñas</th><th>Conversión</th><th>Estado</th></tr></thead>
             <tbody>
               <sc-for list="{{ plates }}" as="pl" hint-placeholder-count="3">
                 <tr><td>{{ pl.name }}</td><td>{{ pl.place }}</td><td>{{ pl.taps }}</td><td>{{ pl.reviews }}</td><td>{{ pl.conv }}</td><td><span class="tag" style="background:{{ pl.tagBg }};color:{{ pl.tagFg }};letter-spacing:.1em">{{ pl.status }}</span></td></tr>
               </sc-for>
             </tbody>
-          </table>
+          </table></div>
         </div>
       </sc-if>
 
@@ -835,7 +851,7 @@ a:hover{color:var(--color-accent-800)}
         <sc-if value="{{ hasReviews }}" hint-placeholder-val="{{ true }}">
         <div style="display:flex;flex-direction:column;gap:2px;background:transparent;border:2px solid var(--color-divider)">
           <sc-for list="{{ reviews }}" as="r" hint-placeholder-count="6">
-            <div style="box-shadow:0 0 0 1px var(--color-divider);background:var(--color-bg);padding:24px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,220px);gap:20px;align-items:start">
+            <div class="review-card" style="box-shadow:0 0 0 1px var(--color-divider);background:var(--color-bg);padding:24px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,220px);gap:20px;align-items:start">
               <div>
                 <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
                   <span style="font-size:15px;letter-spacing:.24em;color:var(--color-accent-700)">{{ r.stars }}</span>
@@ -894,7 +910,7 @@ a:hover{color:var(--color-accent-800)}
       <sc-if value="{{ tabRecom }}">
         <div style="display:flex;flex-direction:column;gap:2px;background:transparent;border:2px solid var(--color-divider)">
           <sc-for list="{{ recs }}" as="rc" hint-placeholder-count="5">
-            <div style="box-shadow:0 0 0 1px var(--color-divider);background:var(--color-bg);padding:26px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,170px);gap:20px;align-items:center">
+            <div class="rec-card" style="box-shadow:0 0 0 1px var(--color-divider);background:var(--color-bg);padding:26px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,170px);gap:20px;align-items:center">
               <div>
                 <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
                   <span class="tag" style="background:{{ rc.tagBg }};color:{{ rc.tagFg }};letter-spacing:.1em">{{ rc.level }}</span>
@@ -934,14 +950,14 @@ a:hover{color:var(--color-accent-800)}
           </div>
           <div style="border:2px solid var(--color-divider);padding:28px;background:var(--color-bg)">
             <p style="margin:0 0 20px;font:600 10px/1 var(--font-body);letter-spacing:.2em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 55%,transparent)">Facturas</p>
-            <table class="table" style="margin:0">
+            <div class="table-wrap"><table class="table" style="margin:0">
               <thead><tr><th>Fecha</th><th>Concepto</th><th>Importe</th></tr></thead>
               <tbody>
                 <sc-for list="{{ invoices }}" as="iv" hint-placeholder-count="3">
                   <tr><td>{{ iv.date }}</td><td>{{ iv.concept }}</td><td>{{ iv.amount }}</td></tr>
                 </sc-for>
               </tbody>
-            </table>
+            </table></div>
           </div>
         </div>
         <div style="margin-top:24px;border:2px solid var(--color-divider);background:var(--color-bg);padding:28px">
@@ -1441,25 +1457,49 @@ class Component extends DCLogic {
   handleStripeReturn() {
     const params = new URLSearchParams(window.location.search);
     const checkout = params.get('checkout');
+    const sessionId = params.get('session_id');
     if (checkout === 'success') {
       const db = store.read();
       const pending = db.pendingOrder;
       const form = (pending && pending.form) || this.state.form;
-      const code = 'TPK-' + Math.floor(100000 + Math.random() * 899999);
-      db.codes = db.codes || {}; db.codes[code] = '';
-      const nfcLink = pending && pending.slug ? (window.location.origin + '/go/' + pending.slug) : '';
       db.cart = []; db.plan = this.plan;
       delete db.pendingOrder;
       store.write(db);
-      this.setState({order:code, screen:'done', errs:'', cart:[], form, paying:false, nfcLink,
-        auth:{...this.state.auth, email: form.email || '', negocio: form.negocio || '', code},
+      // Estado provisional mientras confirmamos con el servidor: el código
+      // y el enlace reales (los mismos que ya se han guardado y enviado
+      // por email) tardan como máximo un par de segundos en estar listos.
+      this.setState({order:'', screen:'done', errs:'', cart:[], form, paying:false, nfcLink:'',
+        auth:{...this.state.auth, email: form.email || '', negocio: form.negocio || ''},
         authMode:'signup'}, () => this.top());
       window.history.replaceState({}, '', window.location.pathname);
+      if (sessionId) this.pollCheckoutStatus(sessionId, 0);
     } else if (checkout === 'cancel') {
       this.setState({screen:'checkout', step:3, errs:'', paying:false,
         payError:'Pago cancelado. Puedes intentarlo de nuevo cuando quieras.'});
       window.history.replaceState({}, '', window.location.pathname);
     }
+  }
+  pollCheckoutStatus(sessionId, attempt) {
+    fetch('/checkout-status?session_id=' + encodeURIComponent(sessionId))
+      .then(r => r.json())
+      .then(data => {
+        if (data && data.ready) {
+          this.setState({
+            order: data.code || '',
+            orderEmail: data.email || this.state.form.email || 'tu correo',
+            nfcLink: data.nfcLink || '',
+            auth: {...this.state.auth, email: data.email || this.state.auth.email, negocio: data.negocio || this.state.auth.negocio, code: data.code || ''}
+          });
+        } else if (attempt < 8) {
+          setTimeout(() => this.pollCheckoutStatus(sessionId, attempt + 1), 1500);
+        }
+        // Si tras los reintentos sigue sin estar listo, el pago ya está
+        // hecho igualmente (Stripe lo confirma en su propio recibo) — el
+        // cliente recibirá su código por email en cuanto el webhook procese.
+      })
+      .catch(() => {
+        if (attempt < 8) setTimeout(() => this.pollCheckoutStatus(sessionId, attempt + 1), 1500);
+      });
   }
   persist(extra) {
     const db = store.read();

@@ -44,6 +44,11 @@
   .empty { color: rgba(255,255,255,.5); padding: 40px 0; text-align: center; }
   .refresh { width: auto; padding: 10px 18px; font-size: 13px; }
   .muted { color: rgba(255,255,255,.4); font-size: 12px; }
+  .estado-select {
+    background: #17181a; color: #fff; border: 1px solid #333; border-radius: 6px;
+    padding: 6px 8px; font-size: 12px; cursor: pointer;
+  }
+  .estado-select:disabled { opacity: .5; cursor: wait; }
 </style>
 </head>
 <body>
@@ -116,21 +121,51 @@ function render(locales) {
   const rows = locales.map(l => {
     const link = location.origin + '/go/' + l.slug;
     const fecha = l.creado ? new Date(l.creado).toLocaleDateString('es-ES') : '—';
+    const slugAttr = escapeHtml(l.slug || '');
     return `
       <tr>
         <td>${escapeHtml(l.nombre_local || '—')}</td>
+        <td>${escapeHtml(l.codigo || '—')}</td>
         <td><span class="badge ${l.estado}">${l.estado || '—'}</span></td>
         <td><a href="${link}" target="_blank">${link.replace('https://','')}</a></td>
         <td>${l.review_url ? '<a href="' + l.review_url + '" target="_blank">ver reseñas</a>' : '—'}</td>
         <td class="muted">${fecha}</td>
+        <td>
+          <select class="estado-select" data-slug="${slugAttr}" onchange="cambiarEstado(this)">
+            <option value="activo" ${l.estado === 'activo' ? 'selected' : ''}>Activo</option>
+            <option value="pausado" ${l.estado === 'pausado' ? 'selected' : ''}>Pausado</option>
+            <option value="cancelado" ${l.estado === 'cancelado' ? 'selected' : ''}>Cancelado</option>
+          </select>
+        </td>
       </tr>`;
   }).join('');
 
   document.getElementById('tableWrap').innerHTML = `
     <table>
-      <thead><tr><th>Local</th><th>Estado</th><th>Link de la placa</th><th>Reseñas</th><th>Alta</th></tr></thead>
+      <thead><tr><th>Local</th><th>Código</th><th>Estado</th><th>Link de la placa</th><th>Reseñas</th><th>Alta</th><th>Cambiar estado</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>`;
+}
+
+async function cambiarEstado(select) {
+  const slug = select.dataset.slug;
+  const estado = select.value;
+  const pw = sessionStorage.getItem('panel_pw');
+  select.disabled = true;
+  try {
+    const res = await fetch('/panel-set-estado', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-panel-password': pw },
+      body: JSON.stringify({ slug, estado })
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      alert('No se pudo cambiar el estado: ' + (data.error || res.status));
+    }
+  } catch (e) {
+    alert('No se pudo conectar para cambiar el estado.');
+  }
+  await cargar();
 }
 
 function escapeHtml(s) {

@@ -46,6 +46,14 @@ function slugify(str) {
   return base + '-' + suffix;
 }
 
+// Código de pedido / acceso al panel (TPK-XXXXXX). Se genera aquí, en el
+// servidor, para que sea el mismo que luego se manda por email y el que
+// activa la cuenta — antes se generaba también en el navegador al volver
+// de Stripe, por su cuenta, sin relación real con ningún envío.
+function generarCodigo() {
+  return 'TPK-' + Math.floor(100000 + Math.random() * 899999);
+}
+
 function normalizeUrl(url) {
   const u = (url || '').trim();
   if (!u) return '';
@@ -80,6 +88,7 @@ async function handlePost(context) {
   const negocio = payload && payload.negocio;
   const reviewUrl = normalizeUrl(payload && payload.glink);
   const slug = slugify(negocio);
+  const codigo = generarCodigo();
 
   if (!Array.isArray(cart) || cart.length === 0) {
     return json({ error: 'El carrito está vacío.' }, 400);
@@ -122,11 +131,13 @@ async function handlePost(context) {
   body.set('metadata[plan]', chosenPlan);
   body.set('metadata[slug]', slug);
   body.set('metadata[review_url]', reviewUrl);
+  body.set('metadata[code]', codigo);
   // Esto mismo se copia a la suscripción (no solo a la sesión), porque el
   // webhook de pagos fallidos recibe la suscripción, no la sesión original.
   body.set('subscription_data[metadata][negocio]', negocio || '');
   body.set('subscription_data[metadata][slug]', slug);
   body.set('subscription_data[metadata][review_url]', reviewUrl);
+  body.set('subscription_data[metadata][code]', codigo);
 
   // Line item 1: placas (pago único, importe agregado)
   body.set('line_items[0][price_data][currency]', 'eur');

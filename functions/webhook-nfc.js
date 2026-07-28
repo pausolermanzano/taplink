@@ -15,6 +15,7 @@
 
 import { verifyStripeSignature } from './_lib/stripe-verify.js';
 import { getLocalBySubscriptionId, setEstado, createLocal } from './_lib/kv.js';
+import { enviarConfirmacionPedido } from './_lib/email.js';
 
 function json(data, status) {
   return new Response(JSON.stringify(data), {
@@ -48,13 +49,30 @@ export async function onRequest(context) {
         if (meta.slug && meta.review_url && session.subscription) {
           const yaExiste = await getLocalBySubscriptionId(env, session.subscription);
           if (!yaExiste) {
-            await createLocal(env, {
+            const origin = new URL(request.url).origin;
+            const nfcLink = origin + '/go/' + meta.slug;
+            const local = await createLocal(env, {
               slug: meta.slug,
               nombre_local: meta.negocio || meta.slug,
               review_url: meta.review_url,
               stripe_subscription_id: session.subscription,
+              codigo: meta.code || '',
               estado: 'activo'
             });
+            const email = session.customer_email || (session.customer_details && session.customer_details.email);
+            if (email) {
+              try {
+                await enviarConfirmacionPedido(env, {
+                  to: email,
+                  negocio: local.nombre_local,
+                  codigo: meta.code || '',
+                  nfcLink
+                });
+              } catch (mailErr) {
+                // No tumbamos el webhook por un fallo de envío: el local ya
+                // ha quedado creado y activo, que es lo crítico aquí.
+              }
+            }
           }
         }
         break;
