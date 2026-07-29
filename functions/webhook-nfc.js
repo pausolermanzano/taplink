@@ -32,7 +32,10 @@ export async function onRequest(context) {
   const signature = request.headers.get('stripe-signature');
 
   const valid = await verifyStripeSignature(payload, signature, env.STRIPE_WEBHOOK_SECRET);
-  if (!valid) return json({ error: 'Firma inválida' }, 400);
+  if (!valid) {
+    console.error('Webhook recibido con firma inválida (revisa STRIPE_WEBHOOK_SECRET).');
+    return json({ error: 'Firma inválida' }, 400);
+  }
 
   let event;
   try {
@@ -40,12 +43,14 @@ export async function onRequest(context) {
   } catch (e) {
     return json({ error: 'Payload inválido' }, 400);
   }
+  console.log('Webhook OK, evento: ' + event.type);
 
   try {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object;
         const meta = session.metadata || {};
+        console.log('checkout.session.completed recibido. slug=' + meta.slug + ' subscription=' + session.subscription);
         if (meta.slug && meta.review_url && session.subscription) {
           const yaExiste = await getLocalBySubscriptionId(env, session.subscription);
           if (!yaExiste) {
@@ -65,6 +70,7 @@ export async function onRequest(context) {
               ciudad: meta.ciudad || '',
               telefono: meta.tel || ''
             });
+            console.log('Local creado en KV: ' + local.slug);
             const email = session.customer_email || (session.customer_details && session.customer_details.email);
             if (email) {
               try {
