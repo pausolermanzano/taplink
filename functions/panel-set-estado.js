@@ -7,9 +7,9 @@
 // Body: { "slug": "bar-nou-x7k2", "estado": "pausado" }
 // Header: x-panel-password: <ADMIN_PASSWORD>
 
-import { setEstado, getLocalBySlug } from './_lib/kv.js';
+import { setEstadoManual, liberarManual, getLocalBySlug } from './_lib/kv.js';
 
-const ESTADOS_VALIDOS = ['activo', 'pausado', 'cancelado'];
+const ESTADOS_VALIDOS = ['activo', 'pausado', 'cancelado', 'auto'];
 
 function json(data, status) {
   return new Response(JSON.stringify(data), {
@@ -46,6 +46,12 @@ export async function onRequest(context) {
   const existente = await getLocalBySlug(env, slug);
   if (!existente) return json({ error: 'No existe ningún local con ese slug.' }, 404);
 
-  const actualizado = await setEstado(env, slug, estado);
+  // "auto" no es un estado real: devuelve el control a Stripe (el próximo
+  // pago, impago o cancelación volverá a decidir el estado él solo) sin
+  // tocar el estado actual del local.
+  const actualizado = estado === 'auto'
+    ? await liberarManual(env, slug)
+    : await setEstadoManual(env, slug, estado);
+
   return json({ ok: true, local: actualizado });
 }

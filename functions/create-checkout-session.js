@@ -90,6 +90,30 @@ async function handlePost(context) {
   const slug = slugify(negocio);
   const codigo = generarCodigo();
 
+  // Datos de facturación y envío del cliente. Se validan aquí también
+  // (no solo en el navegador) porque este endpoint es una API pública:
+  // cualquiera podría llamarlo directamente saltándose el formulario.
+  const nombre = ((payload && payload.nombre) || '').trim();
+  const nif = ((payload && payload.nif) || '').trim();
+  const dir = ((payload && payload.dir) || '').trim();
+  const cp = ((payload && payload.cp) || '').trim();
+  const ciudad = ((payload && payload.ciudad) || '').trim();
+  const tel = ((payload && payload.tel) || '').trim();
+
+  const faltantes = [];
+  if (!email) faltantes.push('email');
+  if (!negocio) faltantes.push('negocio');
+  if (!reviewUrl) faltantes.push('glink');
+  if (!nombre) faltantes.push('nombre');
+  if (!nif) faltantes.push('nif');
+  if (!dir) faltantes.push('dir');
+  if (!/^\d{5}$/.test(cp)) faltantes.push('cp');
+  if (!ciudad) faltantes.push('ciudad');
+  if (!tel) faltantes.push('tel');
+  if (faltantes.length) {
+    return json({ error: 'Faltan datos obligatorios: ' + faltantes.join(', ') }, 400);
+  }
+
   if (!Array.isArray(cart) || cart.length === 0) {
     return json({ error: 'El carrito está vacío.' }, 400);
   }
@@ -132,12 +156,31 @@ async function handlePost(context) {
   body.set('metadata[slug]', slug);
   body.set('metadata[review_url]', reviewUrl);
   body.set('metadata[code]', codigo);
+  body.set('metadata[nombre]', nombre);
+  body.set('metadata[nif]', nif);
+  body.set('metadata[dir]', dir);
+  body.set('metadata[cp]', cp);
+  body.set('metadata[ciudad]', ciudad);
+  body.set('metadata[tel]', tel);
   // Esto mismo se copia a la suscripción (no solo a la sesión), porque el
   // webhook de pagos fallidos recibe la suscripción, no la sesión original.
   body.set('subscription_data[metadata][negocio]', negocio || '');
   body.set('subscription_data[metadata][slug]', slug);
   body.set('subscription_data[metadata][review_url]', reviewUrl);
   body.set('subscription_data[metadata][code]', codigo);
+  body.set('subscription_data[metadata][nombre]', nombre);
+  body.set('subscription_data[metadata][nif]', nif);
+  body.set('subscription_data[metadata][dir]', dir);
+  body.set('subscription_data[metadata][cp]', cp);
+  body.set('subscription_data[metadata][ciudad]', ciudad);
+  body.set('subscription_data[metadata][tel]', tel);
+
+  // Nota: los datos de facturación/envío ya viajan como metadata (arriba).
+  // No usamos aquí "customer_creation" (inválido en mode=subscription, lo
+  // habría roto todo) ni "billing_address_collection"/"phone_number_
+  // collection" (harían que Stripe volviera a pedir dirección y teléfono
+  // en su propia pantalla, duplicando lo que ya pedimos en nuestro
+  // formulario).
 
   // Line item 1: placas (pago único, importe agregado)
   body.set('line_items[0][price_data][currency]', 'eur');

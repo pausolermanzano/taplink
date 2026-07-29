@@ -15,7 +15,7 @@
 
 import { verifyStripeSignature } from './_lib/stripe-verify.js';
 import { getLocalBySubscriptionId, setEstado, createLocal } from './_lib/kv.js';
-import { enviarConfirmacionPedido } from './_lib/email.js';
+import { enviarConfirmacionPedido, enviarNotificacionInterna } from './_lib/email.js';
 
 function json(data, status) {
   return new Response(JSON.stringify(data), {
@@ -57,7 +57,13 @@ export async function onRequest(context) {
               review_url: meta.review_url,
               stripe_subscription_id: session.subscription,
               codigo: meta.code || '',
-              estado: 'activo'
+              estado: 'activo',
+              nombre_cliente: meta.nombre || '',
+              nif: meta.nif || '',
+              direccion: meta.dir || '',
+              cp: meta.cp || '',
+              ciudad: meta.ciudad || '',
+              telefono: meta.tel || ''
             });
             const email = session.customer_email || (session.customer_details && session.customer_details.email);
             if (email) {
@@ -70,8 +76,25 @@ export async function onRequest(context) {
                 });
               } catch (mailErr) {
                 // No tumbamos el webhook por un fallo de envío: el local ya
-                // ha quedado creado y activo, que es lo crítico aquí.
+                // ha quedado creado y activo, que es lo crítico aquí. Pero
+                // sí dejamos rastro en los logs para poder diagnosticarlo
+                // (Cloudflare > proyecto > Functions > Real-time Logs).
+                console.error('Fallo enviando email de confirmación al cliente:', mailErr && mailErr.message);
               }
+            } else {
+              console.error('checkout.session.completed sin email de cliente: no se pudo enviar confirmación.');
+            }
+            try {
+              await enviarNotificacionInterna(env, {
+                negocio: local.nombre_local,
+                nfcLink,
+                codigo: meta.code || '',
+                nombreCliente: meta.nombre || '',
+                emailCliente: email || '',
+                telefono: meta.tel || ''
+              });
+            } catch (mailErr) {
+              console.error('Fallo enviando notificación interna a Taplink:', mailErr && mailErr.message);
             }
           }
         }
@@ -111,5 +134,6 @@ async function actualizarEstado(env, subscriptionId, estado) {
   if (!subscriptionId) return;
   const local = await getLocalBySubscriptionId(env, subscriptionId);
   if (!local) return; // suscripción de otra cosa, o local aún no creado: se ignora
+  if (local.manual) return; // alguien lo ha fijado a mano desde el panel: Stripe no lo toca
   await setEstado(env, local.slug, estado);
 }

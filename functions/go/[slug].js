@@ -22,7 +22,7 @@ export async function onRequest(context) {
     const local = await getLocalBySlug(env, slug);
 
     if (!local) {
-      // Placa no registrada (todavía) en Airtable
+      // Placa no registrada (todavía) en Cloudflare KV
       return Response.redirect(origin, 302);
     }
 

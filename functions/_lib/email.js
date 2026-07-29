@@ -60,3 +60,55 @@ export async function enviarConfirmacionPedido(env, { to, negocio, codigo, nfcLi
 function escapeHtml(s) {
   return String(s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
+
+// Aviso interno a Taplink: se dispara junto con el email al cliente, cada
+// vez que se confirma un pedido nuevo. Va a NOTIFICATIONS_TO (o, si no se
+// ha configurado esa variable, a info@taplink.es por defecto) para que el
+// equipo se entere sin tener que entrar al panel a comprobarlo.
+export async function enviarNotificacionInterna(env, { negocio, nfcLink, codigo, nombreCliente, emailCliente, telefono }) {
+  if (!env.RESEND_API_KEY) {
+    throw new Error('Falta RESEND_API_KEY en las variables de entorno.');
+  }
+  const destino = env.NOTIFICATIONS_TO || 'info@taplink.es';
+
+  const html = `
+    <div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:0 auto;color:#0b0d16">
+      <h2 style="margin:0 0 16px">Nuevo pedido confirmado</h2>
+      <p style="font-size:15px;line-height:1.6"><strong>${escapeHtml(negocio)}</strong> acaba de completar su pago.</p>
+      <p style="margin:20px 0;padding:14px 18px;background:#f2f3f7;border-left:4px solid #2b4bff;font-size:14px;line-height:1.7">
+        Código: <strong>${escapeHtml(codigo)}</strong><br>
+        Cliente: ${escapeHtml(nombreCliente || '—')}<br>
+        Email: ${escapeHtml(emailCliente || '—')}<br>
+        Teléfono: ${escapeHtml(telefono || '—')}
+      </p>
+      <p style="font-size:14px">Enlace de la placa (el que hay que grabar con NFC Tools):</p>
+      <p style="font-size:14px;word-break:break-all"><a href="${nfcLink}" style="color:#2b4bff">${nfcLink}</a></p>
+      <p style="font-size:13px;color:#888;margin-top:30px">Ya está guardado en el panel: taplink.es/panel.html</p>
+    </div>`;
+
+  const texto = `Nuevo pedido confirmado\n\n` +
+    `Negocio: ${negocio}\nCódigo: ${codigo}\nCliente: ${nombreCliente || '—'}\nEmail: ${emailCliente || '—'}\nTeléfono: ${telefono || '—'}\n\n` +
+    `Enlace de la placa: ${nfcLink}\n\nYa está guardado en el panel: taplink.es/panel.html`;
+
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + env.RESEND_API_KEY,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      from: FROM,
+      to: [destino],
+      subject: 'Nuevo pedido: ' + negocio + ' (' + codigo + ')',
+      html,
+      text: texto
+    })
+  });
+
+  if (!res.ok) {
+    const errText = await res.text().catch(() => '');
+    throw new Error('Resend error ' + res.status + ': ' + errText);
+  }
+
+  return res.json();
+}

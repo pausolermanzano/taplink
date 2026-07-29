@@ -49,6 +49,10 @@
     padding: 6px 8px; font-size: 12px; cursor: pointer;
   }
   .estado-select:disabled { opacity: .5; cursor: wait; }
+  details summary { cursor: pointer; color: #6ea8ff; font-size: 12px; list-style: none; }
+  details summary::-webkit-details-marker { display: none; }
+  .envio-datos { margin-top: 6px; font-size: 12px; line-height: 1.5; color: rgba(255,255,255,.75); white-space: nowrap; }
+  .manual-tag { font-size: 11px; color: #ffb347; white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -122,19 +126,33 @@ function render(locales) {
     const link = location.origin + '/go/' + l.slug;
     const fecha = l.creado ? new Date(l.creado).toLocaleDateString('es-ES') : '—';
     const slugAttr = escapeHtml(l.slug || '');
+    const tieneEnvio = l.direccion || l.nombre_cliente || l.nif || l.telefono;
+    const envioHtml = tieneEnvio ? `
+      <details>
+        <summary>Ver datos</summary>
+        <div class="envio-datos">
+          ${l.nombre_cliente ? escapeHtml(l.nombre_cliente) + '<br>' : ''}
+          ${l.nif ? 'NIF: ' + escapeHtml(l.nif) + '<br>' : ''}
+          ${l.direccion ? escapeHtml(l.direccion) + '<br>' : ''}
+          ${(l.cp || l.ciudad) ? escapeHtml((l.cp || '') + ' ' + (l.ciudad || '')) + '<br>' : ''}
+          ${l.telefono ? 'Tel: ' + escapeHtml(l.telefono) : ''}
+        </div>
+      </details>` : '—';
     return `
       <tr>
         <td>${escapeHtml(l.nombre_local || '—')}</td>
         <td>${escapeHtml(l.codigo || '—')}</td>
-        <td><span class="badge ${l.estado}">${l.estado || '—'}</span></td>
+        <td><span class="badge ${l.estado}">${l.estado || '—'}</span>${l.manual ? ' <span class="manual-tag" title="Fijado a mano: Stripe no puede cambiarlo hasta que elijas Automático">🔒 manual</span>' : ''}</td>
         <td><a href="${link}" target="_blank">${link.replace('https://','')}</a></td>
         <td>${l.review_url ? '<a href="' + l.review_url + '" target="_blank">ver reseñas</a>' : '—'}</td>
+        <td>${envioHtml}</td>
         <td class="muted">${fecha}</td>
         <td>
           <select class="estado-select" data-slug="${slugAttr}" onchange="cambiarEstado(this)">
             <option value="activo" ${l.estado === 'activo' ? 'selected' : ''}>Activo</option>
             <option value="pausado" ${l.estado === 'pausado' ? 'selected' : ''}>Pausado</option>
             <option value="cancelado" ${l.estado === 'cancelado' ? 'selected' : ''}>Cancelado</option>
+            <option value="auto">↺ Volver a automático (Stripe)</option>
           </select>
         </td>
       </tr>`;
@@ -142,7 +160,7 @@ function render(locales) {
 
   document.getElementById('tableWrap').innerHTML = `
     <table>
-      <thead><tr><th>Local</th><th>Código</th><th>Estado</th><th>Link de la placa</th><th>Reseñas</th><th>Alta</th><th>Cambiar estado</th></tr></thead>
+      <thead><tr><th>Local</th><th>Código</th><th>Estado</th><th>Link de la placa</th><th>Reseñas</th><th>Envío / facturación</th><th>Alta</th><th>Cambiar estado</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>`;
 }

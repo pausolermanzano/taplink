@@ -86,6 +86,9 @@ a:hover{color:var(--color-accent-800)}
   .step-row h3{font-size:22px}
 }
 
+summary::-webkit-details-marker{display:none}
+summary::marker{content:''}
+
 @media (max-width:860px){
   .panel-layout{grid-template-columns:1fr}
   .panel-nav{position:static;top:auto}
@@ -992,8 +995,11 @@ a:hover{color:var(--color-accent-800)}
     <div style="display:flex;flex-direction:column;gap:26px;font-size:15px;line-height:1.7;color:color-mix(in srgb,var(--color-text) 78%,transparent)">
       <div>
         <p style="margin:0 0 10px;font:600 11px/1 var(--font-body);letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Titular del sitio web</p>
-        <p style="margin:0">En cumplimiento del deber de información recogido en la Ley 34/2002 de Servicios de la Sociedad de la Información y Comercio Electrónico (LSSI-CE), se informa de que este sitio web, operado bajo la marca comercial <strong>TAPLINK</strong>, es titularidad de:</p>
-        <p style="margin:12px 0 0">Marc Sayol Sánchez, autónomo · DNI 41567516F<br>Carrer Mare de la Font 88, 17486 Castelló d'Empúries (Girona), España<br>Email: info@taplink.es · Teléfono: +34 686 48 55 35</p>
+        <p style="margin:0">En cumplimiento del deber de información recogido en la Ley 34/2002 de Servicios de la Sociedad de la Información y Comercio Electrónico (LSSI-CE), se informa de que este sitio web, operado bajo la marca comercial <strong>TAPLINK</strong>, es titularidad de la persona física identificada a continuación.</p>
+        <details style="margin-top:14px">
+          <summary style="cursor:pointer;font-weight:600;color:var(--color-accent-700);list-style:none">Ver datos de identificación completos ▾</summary>
+          <p style="margin:12px 0 0">Marc Sayol Sánchez, autónomo · DNI 41567516F<br>Carrer Mare de la Font 88, 17486 Castelló d'Empúries (Girona), España<br>Email: info@taplink.es · Teléfono: +34 686 48 55 35</p>
+        </details>
       </div>
       <div>
         <p style="margin:0 0 10px;font:600 11px/1 var(--font-body);letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Objeto</p>
@@ -1019,7 +1025,10 @@ a:hover{color:var(--color-accent-800)}
     <div style="display:flex;flex-direction:column;gap:26px;font-size:15px;line-height:1.7;color:color-mix(in srgb,var(--color-text) 78%,transparent)">
       <div>
         <p style="margin:0 0 10px;font:600 11px/1 var(--font-body);letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Responsable del tratamiento</p>
-        <p style="margin:0">Marc Sayol Sánchez, autónomo (TAPLINK) · DNI 41567516F · Carrer Mare de la Font 88, 17486 Castelló d'Empúries (Girona) · info@taplink.es · +34 686 48 55 35.</p>
+        <details>
+          <summary style="cursor:pointer;font-weight:600;color:var(--color-accent-700);list-style:none">Ver datos de identificación completos ▾</summary>
+          <p style="margin:12px 0 0">Marc Sayol Sánchez, autónomo (TAPLINK) · DNI 41567516F · Carrer Mare de la Font 88, 17486 Castelló d'Empúries (Girona) · info@taplink.es · +34 686 48 55 35.</p>
+        </details>
       </div>
       <div>
         <p style="margin:0 0 10px;font:600 11px/1 var(--font-body);letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Finalidad del tratamiento</p>
@@ -1139,7 +1148,7 @@ a:hover{color:var(--color-accent-800)}
       <div style="display:flex;flex-direction:column;gap:10px"><a onClick="{{ goAvisoLegal }}" style="cursor:pointer">Aviso legal</a><a onClick="{{ goPrivacidad }}" style="cursor:pointer">Privacidad</a><a onClick="{{ goCookies }}" style="cursor:pointer">Cookies</a><a onClick="{{ goCondiciones }}" style="cursor:pointer">Condiciones de venta</a><a onClick="{{ goDesistimiento }}" style="cursor:pointer">Devoluciones</a></div>
     </div>
   </div>
-  <div style="max-width:1280px;margin:0 auto;padding:0 clamp(20px,5vw,64px) 44px;font-size:12px;letter-spacing:.06em;color:color-mix(in srgb,var(--color-text) 45%,transparent)">© 2026 Taplink · Marc Sayol Sánchez · DNI 41567516F · Carrer Mare de la Font 88, 17486 Castelló d'Empúries (Girona) · Precios con IVA incluido · El plan de gestión es obligatorio y se muestra sumado antes de pagar · Atención: +34 686 48 55 35 · info@taplink.es</div>
+  <div style="max-width:1280px;margin:0 auto;padding:0 clamp(20px,5vw,64px) 44px;font-size:12px;letter-spacing:.06em;color:color-mix(in srgb,var(--color-text) 45%,transparent)">© 2026 Taplink · Precios con IVA incluido · El plan de gestión es obligatorio y se muestra sumado antes de pagar · Atención: info@taplink.es · Datos de identificación completos en el <a onClick="{{ goAvisoLegal }}" style="cursor:pointer;color:inherit;text-decoration:underline">Aviso legal</a></div>
 </footer>
 
 <sc-if value="{{ cartOpen }}">
@@ -1981,7 +1990,7 @@ class Component extends DCLogic {
         store.write(db);
         fetch('/create-checkout-session', {
           method:'POST', headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({cart: this.state.cart, plan: this.plan, email: this.state.form.email, negocio: this.state.form.negocio, glink: this.state.form.glink})
+          body: JSON.stringify({cart: this.state.cart, plan: this.plan, email: this.state.form.email, negocio: this.state.form.negocio, glink: this.state.form.glink, nombre: this.state.form.nombre, nif: this.state.form.nif, dir: this.state.form.dir, cp: this.state.form.cp, ciudad: this.state.form.ciudad, tel: this.state.form.tel})
         }).then(r => r.json()).then(data => {
           if (data && data.url) {
             const db2 = store.read();

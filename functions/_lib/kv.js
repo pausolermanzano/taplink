@@ -38,6 +38,28 @@ export async function setEstado(env, slug, estado) {
   return local;
 }
 
+// Cambia el estado A MANO desde el panel: marca manual=true para que los
+// eventos automáticos de Stripe (pagos, renovaciones...) dejen de tocar
+// este local hasta que alguien vuelva a poner "Automático" desde el panel.
+export async function setEstadoManual(env, slug, estado) {
+  const local = await getLocalBySlug(env, slug);
+  if (!local) return null;
+  local.estado = estado;
+  local.manual = true;
+  await env.LOCALES_KV.put(`local:${slug}`, JSON.stringify(local));
+  return local;
+}
+
+// Devuelve el control a Stripe: el próximo evento de pago/suscripción que
+// llegue ya podrá volver a cambiar el estado de este local con normalidad.
+export async function liberarManual(env, slug) {
+  const local = await getLocalBySlug(env, slug);
+  if (!local) return null;
+  local.manual = false;
+  await env.LOCALES_KV.put(`local:${slug}`, JSON.stringify(local));
+  return local;
+}
+
 export async function listLocales(env) {
   const locales = [];
   let cursor;
