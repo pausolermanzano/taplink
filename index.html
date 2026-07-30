@@ -709,6 +709,14 @@ summary::marker{content:''}
       <p style="margin:0 0 10px;font-family:var(--font-heading);font-weight:800;font-size:22px;text-transform:uppercase;letter-spacing:-.02em">Conecta tu ficha de Google</p>
       <p style="margin:0 0 24px;font-size:15px;line-height:1.65;max-width:60ch;color:color-mix(in srgb,var(--color-text) 70%,transparent)">Es el destino al que apuntarán todas tus placas. Puedes cambiarlo cuando quieras sin volver a comprar nada.</p>
       <div class="field"><label>Enlace o nombre en Google Maps</label><input class="input" value="{{ panelLink }}" onChange="{{ onPanelLink }}" placeholder="g.page/mi-negocio" style="min-height:48px;font-size:16px"></div>
+      <details style="margin-top:14px;font-size:14px">
+        <summary style="cursor:pointer;color:var(--color-accent-800);font-weight:600">¿No sabes de dónde sacarlo? Míralo aquí (30 segundos)</summary>
+        <ol style="margin:12px 0 0;padding-left:20px;line-height:1.9;color:color-mix(in srgb,var(--color-text) 75%,transparent)">
+          <li>Abre <strong>Google Maps</strong> en tu móvil o busca tu negocio en Google.</li>
+          <li>Toca sobre las <strong>estrellas de valoración</strong> de tu ficha (donde pone "X reseñas").</li>
+          <li>Se abrirá la pantalla para escribir una reseña: copia el enlace de esa página (arriba del todo) y pégalo aquí.</li>
+        </ol>
+      </details>
     </div>
   </sc-if>
 
@@ -969,6 +977,14 @@ summary::marker{content:''}
             <div class="field"><label>Enlace de tu ficha de Google</label><input class="input" name="glink" value="{{ panelLink }}" onChange="{{ onPanelLink }}" style="min-height:48px;font-size:16px"></div>
             <div style="display:flex;align-items:flex-end"><button type="button" class="btn btn-primary" onClick="{{ savePanelLink }}" style="padding:15px 22px;font-size:12px;letter-spacing:.1em;text-transform:uppercase">Guardar cambios</button></div>
           </div>
+          <details style="margin-top:14px;font-size:14px">
+            <summary style="cursor:pointer;color:var(--color-accent-800);font-weight:600">¿No sabes de dónde sacar el enlace? Míralo aquí (30 segundos)</summary>
+            <ol style="margin:12px 0 0;padding-left:20px;line-height:1.9;color:color-mix(in srgb,var(--color-text) 75%,transparent)">
+              <li>Abre <strong>Google Maps</strong> en tu móvil o busca tu negocio en Google.</li>
+              <li>Toca sobre las <strong>estrellas de valoración</strong> de tu ficha (donde pone "X reseñas").</li>
+              <li>Se abrirá la pantalla para escribir una reseña: copia el enlace de esa página (arriba del todo) y pégalo aquí.</li>
+            </ol>
+          </details>
           <sc-if value="{{ toast }}">
             <p style="margin:20px 0 0;padding:16px 18px;background:color-mix(in srgb,var(--color-accent) 16%,transparent);border-left:5px solid var(--color-accent);font-size:14px;color:var(--color-accent-800)">{{ toastMsg }}</p>
           </sc-if>

@@ -121,7 +121,7 @@ async function handlePost(context) {
     const encontrado = await resolveReviewLink(env, { negocio, direccion: dir, cp, ciudad });
     if (!encontrado) {
       return json({
-        error: 'No hemos encontrado tu negocio en Google con esos datos. Revisa que el nombre y la dirección coincidan exactamente con los de tu ficha de Google Maps, o escríbenos a info@taplink.es y te lo activamos a mano.'
+        error: 'No hemos encontrado tu negocio en Google automáticamente. Para no perder tu pedido, dinos el enlace tú mismo: 1) Busca tu negocio en Google Maps. 2) Toca las estrellas de valoración. 3) Copia el enlace que te aparece y envíanoslo a info@taplink.es o por WhatsApp indicando tu nombre y negocio — lo activamos a mano en menos de 1 hora.'
       }, 400);
     }
     reviewUrl = encontrado.reviewUrl;
