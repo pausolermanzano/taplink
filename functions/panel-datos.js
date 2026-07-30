@@ -25,6 +25,7 @@ export async function onRequest(context) {
     const locales = await listLocales(env);
     return json({ locales });
   } catch (err) {
-    return json({ error: 'Error interno' }, 500);
+    console.error('Error leyendo locales de KV: ' + (err && err.message));
+    return json({ error: 'Error interno: ' + (err && err.message) }, 500);
   }
 }
