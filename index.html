@@ -563,7 +563,8 @@ summary::marker{content:''}
         <div style="display:flex;flex-direction:column;gap:20px;max-width:540px;animation:tpUp .45s cubic-bezier(.2,.7,.2,1) both">
           <div class="field"><label>Email</label><input class="input" name="email" value="{{ form.email }}" onChange="{{ onField }}" placeholder="hola@minegocio.com" style="min-height:48px;font-size:16px"></div>
           <div class="field"><label>Nombre del negocio (tal cual en Google)</label><input class="input" name="negocio" value="{{ form.negocio }}" onChange="{{ onField }}" placeholder="Bar Nou" style="min-height:48px;font-size:16px"></div>
-          <p style="margin:-8px 0 0;font-size:13px;color:color-mix(in srgb,var(--color-text) 58%,transparent)">Usamos el nombre y la dirección de tu negocio (paso siguiente) para localizar tu ficha de Google automáticamente. No hace falta ningún enlace.</p>
+          <div class="field"><label>Dirección del negocio (la de tu ficha de Google)</label><input class="input" name="negocioDir" value="{{ form.negocioDir }}" onChange="{{ onField }}" placeholder="Carrer Major 12, Girona" style="min-height:48px;font-size:16px"></div>
+          <p style="margin:-8px 0 0;font-size:13px;color:color-mix(in srgb,var(--color-text) 58%,transparent)">Con esto localizamos tu ficha de Google automáticamente y generamos el enlace de reseñas. No hace falta ningún enlace.</p>
         </div>
       </sc-if>
       <sc-if value="{{ isStep2 }}">
@@ -571,7 +572,7 @@ summary::marker{content:''}
           <div class="field" style="grid-column:1 / -1"><label>Nombre y apellidos</label><input class="input" name="nombre" value="{{ form.nombre }}" onChange="{{ onField }}" style="min-height:48px;font-size:16px"></div>
           <div class="field"><label>NIF / DNI de facturación</label><input class="input" name="nif" value="{{ form.nif }}" onChange="{{ onField }}" placeholder="12345678A" style="min-height:48px;font-size:16px"></div>
           <div class="field"><label>Razón social (opcional)</label><input class="input" name="razonSocial" value="{{ form.razonSocial }}" onChange="{{ onField }}" placeholder="Solo si facturas a nombre de una empresa" style="min-height:48px;font-size:16px"></div>
-          <div class="field" style="grid-column:1 / -1"><label>Dirección del negocio (la de tu ficha de Google)</label><input class="input" name="dir" value="{{ form.dir }}" onChange="{{ onField }}" placeholder="Calle, número, piso" style="min-height:48px;font-size:16px"></div>
+          <div class="field" style="grid-column:1 / -1"><label>Dirección de envío y facturación</label><input class="input" name="dir" value="{{ form.dir }}" onChange="{{ onField }}" placeholder="Calle, número, piso" style="min-height:48px;font-size:16px"></div>
           <div class="field"><label>Código postal</label><input class="input" name="cp" value="{{ form.cp }}" onChange="{{ onField }}" placeholder="08012" style="min-height:48px;font-size:16px"></div>
           <div class="field"><label>Ciudad</label><input class="input" name="ciudad" value="{{ form.ciudad }}" onChange="{{ onField }}" style="min-height:48px;font-size:16px"></div>
           <div class="field" style="grid-column:1 / -1"><label>Teléfono</label><input class="input" name="tel" value="{{ form.tel }}" onChange="{{ onField }}" placeholder="600 000 000" style="min-height:48px;font-size:16px"></div>
@@ -1268,7 +1269,7 @@ const PLATES = {
     feats:['2 placas Premium con NFC + QR','Cubre entrada y punto de pago','La segunda placa sale a 24,99 €','Mismo envío y misma configuración']}
 };
 const IDS = ['premium','pack'];
-const LABELS = {email:'un email válido',negocio:'el nombre del negocio',nombre:'nombre y apellidos',nif:'un NIF/DNI válido',dir:'la dirección',cp:'un código postal de 5 dígitos',ciudad:'la ciudad',tel:'un teléfono',card:'el número de tarjeta',exp:'la caducidad (MM/AA)',cvc:'el CVC'};
+const LABELS = {email:'un email válido',negocio:'el nombre del negocio',negocioDir:'la dirección de tu negocio',nombre:'nombre y apellidos',nif:'un NIF/DNI válido',dir:'la dirección',cp:'un código postal de 5 dígitos',ciudad:'la ciudad',tel:'un teléfono',card:'el número de tarjeta',exp:'la caducidad (MM/AA)',cvc:'el CVC'};
 const FAQ = [
   {q:'¿Tengo que instalar alguna app?',a:'No. El cliente solo acerca el móvil. En la Placa Premium y en el Pack, si el NFC está desactivado, un código QR de respaldo hace exactamente lo mismo.'},
   {q:'¿Funciona en iPhone y en Android?',a:'Sí, en los dos. iPhone desde el 7 y prácticamente cualquier Android de los últimos años, sin abrir nada.'},
@@ -1427,7 +1428,7 @@ class Component extends DCLogic {
     newPlate:{name:'Placa Premium', place:''}, goalDraft:'',
     roiRev:9000, roiPlates:2, proofIdx:0, proofOff:false, liveN:128437, showBuyBar:false,
     coupon:'', couponOk:false, couponMsg:'', legalPage:'aviso-legal', acceptTerms:false, paying:false, payError:'',
-    form:{email:'',negocio:'',nombre:'',nif:'',razonSocial:'',dir:'',cp:'',ciudad:'',tel:'',card:'',exp:'',cvc:''}};
+    form:{email:'',negocio:'',negocioDir:'',nombre:'',nif:'',razonSocial:'',dir:'',cp:'',ciudad:'',tel:'',card:'',exp:'',cvc:''}};
 
   componentDidMount() {
     this.hydrate();
@@ -1625,7 +1626,7 @@ class Component extends DCLogic {
   }
   validate() {
     const f = this.state.form, s = this.state.step, bad = [];
-    const need = s === 1 ? ['email','negocio'] : s === 2 ? ['nombre','nif','dir','cp','ciudad','tel'] : [];
+    const need = s === 1 ? ['email','negocio','negocioDir'] : s === 2 ? ['nombre','nif','dir','cp','ciudad','tel'] : [];
     need.forEach(k => {
       const v = (f[k] || '').trim();
       let ok = v.length > 1;
@@ -2006,7 +2007,7 @@ class Component extends DCLogic {
         store.write(db);
         fetch('/create-checkout-session', {
           method:'POST', headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({cart: this.state.cart, plan: this.plan, email: this.state.form.email, negocio: this.state.form.negocio, nombre: this.state.form.nombre, nif: this.state.form.nif, dir: this.state.form.dir, cp: this.state.form.cp, ciudad: this.state.form.ciudad, tel: this.state.form.tel})
+          body: JSON.stringify({cart: this.state.cart, plan: this.plan, email: this.state.form.email, negocio: this.state.form.negocio, negocioDir: this.state.form.negocioDir, nombre: this.state.form.nombre, nif: this.state.form.nif, dir: this.state.form.dir, cp: this.state.form.cp, ciudad: this.state.form.ciudad, tel: this.state.form.tel})
         }).then(r => r.json()).then(data => {
           if (data && data.url) {
             const db2 = store.read();

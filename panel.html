@@ -63,6 +63,10 @@
   }
   .btn-eliminar:hover { background: #3b1a1a; }
   .btn-eliminar:disabled { opacity: .5; cursor: wait; }
+  .btn-editar {
+    background: none; border: none; cursor: pointer; font-size: 13px; padding: 2px 4px; opacity: .75;
+  }
+  .btn-editar:hover { opacity: 1; }
 </style>
 </head>
 <body>
@@ -188,7 +192,7 @@ function render(locales) {
         <td>${escapeHtml(l.codigo || '—')}</td>
         <td><span class="badge ${l.estado}">${l.estado || '—'}</span>${l.manual ? ' <span class="manual-tag" title="Fijado a mano: Stripe no puede cambiarlo hasta que elijas Automático">🔒 manual</span>' : ''}</td>
         <td><a href="${link}" target="_blank">${link.replace('https://','')}</a></td>
-        <td>${l.review_url ? '<a href="' + l.review_url + '" target="_blank">ver reseñas</a>' : '—'}</td>
+        <td>${l.review_url ? '<a href="' + l.review_url + '" target="_blank">ver reseñas</a>' : '—'} <button class="btn-editar" data-slug="${slugAttr}" onclick="corregirLink(this)" title="Corregir enlace de reseñas">✏️</button></td>
         <td>${envioHtml}</td>
         <td>${emailHtml}</td>
         <td class="muted">${fecha}</td>
@@ -230,6 +234,29 @@ async function cambiarEstado(select) {
   } catch (e) {
     alert('No se pudo conectar para cambiar el estado.');
   }
+  await cargar();
+}
+
+async function corregirLink(btn) {
+  const slug = btn.dataset.slug;
+  const nuevo = prompt('Pega aquí el enlace correcto de reseñas para este negocio:\n\n(Búscalo en Google Maps → toca las estrellas → "Escribir una reseña" → copia la URL de esa pantalla)');
+  if (!nuevo) return;
+  const pw = sessionStorage.getItem('panel_pw');
+  btn.disabled = true;
+  try {
+    const res = await fetch('/panel-set-review', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-panel-password': pw },
+      body: JSON.stringify({ slug, reviewUrl: nuevo.trim() })
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      alert('No se pudo actualizar: ' + (data.error || res.status));
+    }
+  } catch (e) {
+    alert('No se pudo conectar para actualizar el enlace.');
+  }
+  btn.disabled = false;
   await cargar();
 }
 

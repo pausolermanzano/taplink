@@ -74,6 +74,18 @@ export async function liberarManual(env, slug) {
   return local;
 }
 
+// Permite corregir a mano, desde el panel, el enlace de reseñas de un
+// local concreto — por si la resolución automática con Google Places no
+// ha acertado para ese negocio en particular (fichas nuevas o
+// incompletas en Google, homónimos, etc.).
+export async function setReviewUrl(env, slug, reviewUrl) {
+  const local = await getLocalBySlug(env, slug);
+  if (!local) return null;
+  local.review_url = reviewUrl;
+  await env.LOCALES_KV.put(`local:${slug}`, JSON.stringify(local));
+  return local;
+}
+
 // Elimina un local de forma permanente y sin vuelta atrás: borra tanto su
 // registro (local:{slug}) como el índice que lo relaciona con su
 // suscripción de Stripe (sub:{stripe_subscription_id}). No cancela la

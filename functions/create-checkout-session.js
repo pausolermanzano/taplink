@@ -94,10 +94,15 @@ async function handlePost(context) {
   const cp = ((payload && payload.cp) || '').trim();
   const ciudad = ((payload && payload.ciudad) || '').trim();
   const tel = ((payload && payload.tel) || '').trim();
+  // Dirección del NEGOCIO (para localizarlo en Google) — puede ser
+  // distinta de la dirección de envío/facturación de arriba (por
+  // ejemplo, si factura desde casa pero el negocio está en otro sitio).
+  const negocioDir = ((payload && payload.negocioDir) || '').trim();
 
   const faltantes = [];
   if (!email) faltantes.push('email');
   if (!negocio) faltantes.push('negocio');
+  if (!negocioDir) faltantes.push('negocioDir');
   if (!nombre) faltantes.push('nombre');
   if (!nif) faltantes.push('nif');
   if (!dir) faltantes.push('dir');
@@ -113,12 +118,13 @@ async function handlePost(context) {
   }
 
   // El enlace de reseñas ya NO lo escribe el cliente a mano: se resuelve
-  // automáticamente a partir del nombre del negocio + su dirección, vía
-  // Google Places API. Así el cliente solo rellena los datos que ya
-  // rellenaba de todos modos (nombre, dirección, ciudad).
+  // automáticamente a partir del nombre del negocio + SU PROPIA dirección
+  // (negocioDir, no la de envío/facturación), vía Google Places API (New),
+  // usando el enlace oficial que la propia API genera (más fiable que
+  // construirlo a mano con el Place ID).
   let reviewUrl;
   try {
-    const encontrado = await resolveReviewLink(env, { negocio, direccion: dir, cp, ciudad });
+    const encontrado = await resolveReviewLink(env, { negocio, direccion: negocioDir });
     if (!encontrado) {
       return json({
         error: 'No hemos encontrado tu negocio en Google automáticamente. Para no perder tu pedido, dinos el enlace tú mismo: 1) Busca tu negocio en Google Maps. 2) Toca las estrellas de valoración. 3) Copia el enlace que te aparece y envíanoslo a info@taplink.es o por WhatsApp indicando tu nombre y negocio — lo activamos a mano en menos de 1 hora.'
@@ -163,6 +169,7 @@ async function handlePost(context) {
   body.set('cancel_url', origin + '/?checkout=cancel');
   body.set('allow_promotion_codes', 'true');
   body.set('metadata[negocio]', negocio || '');
+  body.set('metadata[negocio_dir]', negocioDir);
   body.set('metadata[plan]', chosenPlan);
   body.set('metadata[slug]', slug);
   body.set('metadata[review_url]', reviewUrl);
