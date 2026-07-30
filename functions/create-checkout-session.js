@@ -240,4 +240,3 @@ async function handlePost(context) {
     return json({ error: 'No se pudo conectar con Stripe.' }, 500);
   }
 }
-
