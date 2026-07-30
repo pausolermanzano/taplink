@@ -67,6 +67,12 @@
     background: none; border: none; cursor: pointer; font-size: 13px; padding: 2px 4px; opacity: .75;
   }
   .btn-editar:hover { opacity: 1; }
+  .btn-etiqueta {
+    background: #142a3b; color: #6ea8ff; border: 1px solid #23415a; border-radius: 6px;
+    padding: 6px 10px; font-size: 12px; cursor: pointer; margin-top: 6px;
+  }
+  .btn-etiqueta:hover { background: #1a3548; }
+  .btn-etiqueta:disabled { opacity: .4; cursor: not-allowed; }
 </style>
 </head>
 <body>
@@ -175,6 +181,15 @@ function render(locales) {
         }</div></details>`
       : '<span style="color:#4ade80">✅ OK</span>';
     const tieneEnvio = l.direccion || l.nombre_cliente || l.nif || l.telefono;
+    const etiqueta = l.envio_label;
+    const etiquetaHtml = etiqueta && etiqueta.label_url
+      ? `<div class="envio-datos">
+           ${escapeHtml(etiqueta.carrier)} ${escapeHtml(etiqueta.servicio)} (${escapeHtml(etiqueta.precio)})<br>
+           <a href="${etiqueta.label_url}" target="_blank">🖨️ Ver/Imprimir etiqueta</a><br>
+           ${etiqueta.tracking_number ? 'Track: ' + escapeHtml(etiqueta.tracking_number) : ''}
+         </div>
+         <button class="btn-etiqueta" data-slug="${slugAttr}" onclick="generarEtiqueta(this)">↺ Regenerar</button>`
+      : `<button class="btn-etiqueta" data-slug="${slugAttr}" onclick="generarEtiqueta(this)" ${tieneEnvio ? '' : 'disabled title="Falta la dirección del cliente"'}>📦 Generar etiqueta</button>`;
     const envioHtml = tieneEnvio ? `
       <details>
         <summary>Ver datos</summary>
@@ -185,7 +200,7 @@ function render(locales) {
           ${(l.cp || l.ciudad) ? escapeHtml((l.cp || '') + ' ' + (l.ciudad || '')) + '<br>' : ''}
           ${l.telefono ? 'Tel: ' + escapeHtml(l.telefono) : ''}
         </div>
-      </details>` : '—';
+      </details><br>${etiquetaHtml}` : '—';
     return `
       <tr>
         <td>${escapeHtml(l.nombre_local || '—')}</td>
@@ -233,6 +248,37 @@ async function cambiarEstado(select) {
     }
   } catch (e) {
     alert('No se pudo conectar para cambiar el estado.');
+  }
+  await cargar();
+}
+
+async function generarEtiqueta(btn) {
+  const slug = btn.dataset.slug;
+  if (!confirm('¿Generar y COMPRAR la etiqueta de envío para este pedido ahora? Esto tiene un coste real en Shippo.')) return;
+  const pw = sessionStorage.getItem('panel_pw');
+  btn.disabled = true;
+  btn.textContent = 'Generando…';
+  try {
+    const res = await fetch('/panel-generar-etiqueta', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-panel-password': pw },
+      body: JSON.stringify({ slug })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      alert('No se pudo generar la etiqueta: ' + (data.error || res.status));
+      btn.disabled = false;
+      btn.textContent = '📦 Generar etiqueta';
+      return;
+    }
+    if (data.etiqueta && data.etiqueta.labelUrl) {
+      window.open(data.etiqueta.labelUrl, '_blank');
+    }
+  } catch (e) {
+    alert('No se pudo conectar para generar la etiqueta.');
+    btn.disabled = false;
+    btn.textContent = '📦 Generar etiqueta';
+    return;
   }
   await cargar();
 }

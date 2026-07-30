@@ -74,6 +74,25 @@ export async function liberarManual(env, slug) {
   return local;
 }
 
+// Guarda los datos de la etiqueta de envío generada con Shippo
+// (tracking, link del PDF, transportista) en el registro del local,
+// para poder verla y reimprimirla desde el panel sin volver a Shippo.
+export async function setEnvioLabel(env, slug, datos) {
+  const local = await getLocalBySlug(env, slug);
+  if (!local) return null;
+  local.envio_label = {
+    tracking_number: datos.trackingNumber || '',
+    tracking_url: datos.trackingUrl || '',
+    label_url: datos.labelUrl || '',
+    carrier: datos.carrier || '',
+    servicio: datos.servicio || '',
+    precio: datos.precio || '',
+    fecha: new Date().toISOString()
+  };
+  await env.LOCALES_KV.put(`local:${slug}`, JSON.stringify(local));
+  return local;
+}
+
 // Permite corregir a mano, desde el panel, el enlace de reseñas de un
 // local concreto — por si la resolución automática con Google Places no
 // ha acertado para ese negocio en particular (fichas nuevas o
