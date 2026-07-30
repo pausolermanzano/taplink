@@ -53,6 +53,16 @@
   details summary::-webkit-details-marker { display: none; }
   .envio-datos { margin-top: 6px; font-size: 12px; line-height: 1.5; color: rgba(255,255,255,.75); white-space: nowrap; }
   .manual-tag { font-size: 11px; color: #ffb347; white-space: nowrap; }
+  .buscador {
+    flex: 1 1 240px; max-width: 320px; padding: 10px 14px; border-radius: 8px;
+    border: 1px solid #333; background: #17181a; color: #fff; font-size: 13px;
+  }
+  .btn-eliminar {
+    background: #2a1414; color: #f87171; border: 1px solid #5a2323; border-radius: 6px;
+    padding: 6px 10px; font-size: 12px; cursor: pointer; margin-top: 8px;
+  }
+  .btn-eliminar:hover { background: #3b1a1a; }
+  .btn-eliminar:disabled { opacity: .5; cursor: wait; }
 </style>
 </head>
 <body>
@@ -69,6 +79,7 @@
   <div class="wrap" id="wrap">
     <header class="top">
       <h1>Locales</h1>
+      <input id="buscador" class="buscador" type="text" placeholder="Buscar por nombre, código o email…" oninput="filtrar()" />
       <button class="refresh" onclick="cargar()">Actualizar</button>
     </header>
     <div class="stats" id="stats"></div>
@@ -110,7 +121,22 @@ async function cargar() {
     return;
   }
 
-  render(data.locales || []);
+  TODOS = data.locales || [];
+  render(TODOS);
+}
+
+let TODOS = [];
+
+function filtrar() {
+  const q = (document.getElementById('buscador').value || '').trim().toLowerCase();
+  if (!q) return render(TODOS);
+  const filtrados = TODOS.filter(l =>
+    (l.nombre_local || '').toLowerCase().includes(q) ||
+    (l.codigo || '').toLowerCase().includes(q) ||
+    (l.nombre_cliente || '').toLowerCase().includes(q) ||
+    (l.slug || '').toLowerCase().includes(q)
+  );
+  render(filtrados);
 }
 
 function render(locales) {
@@ -126,7 +152,10 @@ function render(locales) {
   `;
 
   if (!locales.length) {
-    document.getElementById('tableWrap').innerHTML = '<p class="empty">Todavía no hay ningún local dado de alta.</p>';
+    const q = (document.getElementById('buscador').value || '').trim();
+    document.getElementById('tableWrap').innerHTML = q
+      ? '<p class="empty">Ningún resultado para "' + escapeHtml(q) + '".</p>'
+      : '<p class="empty">Todavía no hay ningún local dado de alta.</p>';
     return;
   }
 
@@ -170,6 +199,8 @@ function render(locales) {
             <option value="cancelado" ${l.estado === 'cancelado' ? 'selected' : ''}>Cancelado</option>
             <option value="auto">↺ Volver a automático (Stripe)</option>
           </select>
+          <br>
+          <button class="btn-eliminar" data-slug="${slugAttr}" onclick="eliminarLocal(this)">🗑 Eliminar</button>
         </td>
       </tr>`;
   }).join('');
@@ -198,6 +229,34 @@ async function cambiarEstado(select) {
     }
   } catch (e) {
     alert('No se pudo conectar para cambiar el estado.');
+  }
+  await cargar();
+}
+
+async function eliminarLocal(btn) {
+  const slug = btn.dataset.slug;
+  if (!confirm('¿Eliminar este local de forma PERMANENTE? Esto no se puede deshacer (no cancela la suscripción en Stripe, solo borra sus datos de Taplink).')) return;
+  const pw = sessionStorage.getItem('panel_pw');
+  btn.disabled = true;
+  btn.textContent = 'Eliminando…';
+  try {
+    const res = await fetch('/panel-eliminar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-panel-password': pw },
+      body: JSON.stringify({ slug })
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      alert('No se pudo eliminar: ' + (data.error || res.status));
+      btn.disabled = false;
+      btn.textContent = '🗑 Eliminar';
+      return;
+    }
+  } catch (e) {
+    alert('No se pudo conectar para eliminar.');
+    btn.disabled = false;
+    btn.textContent = '🗑 Eliminar';
+    return;
   }
   await cargar();
 }

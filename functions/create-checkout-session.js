@@ -13,6 +13,8 @@
 // proyecto de Cloudflare Pages (Settings -> Environment variables).
 // Nunca se expone al navegador.
 
+import { resolveReviewLink } from './_lib/places.js';
+
 const PLATES = {
   premium: { name: 'Placa Premium', price: 4999 },
   estandar: { name: 'Placa Estándar', price: 4299 },
@@ -54,12 +56,6 @@ function generarCodigo() {
   return 'TPK-' + Math.floor(100000 + Math.random() * 899999);
 }
 
-function normalizeUrl(url) {
-  const u = (url || '').trim();
-  if (!u) return '';
-  return /^https?:\/\//i.test(u) ? u : 'https://' + u;
-}
-
 export async function onRequest(context) {
   const { request } = context;
   if (request.method !== 'POST') {
@@ -86,7 +82,6 @@ async function handlePost(context) {
   const plan = payload && payload.plan;
   const email = payload && payload.email;
   const negocio = payload && payload.negocio;
-  const reviewUrl = normalizeUrl(payload && payload.glink);
   const slug = slugify(negocio);
   const codigo = generarCodigo();
 
@@ -103,7 +98,6 @@ async function handlePost(context) {
   const faltantes = [];
   if (!email) faltantes.push('email');
   if (!negocio) faltantes.push('negocio');
-  if (!reviewUrl) faltantes.push('glink');
   if (!nombre) faltantes.push('nombre');
   if (!nif) faltantes.push('nif');
   if (!dir) faltantes.push('dir');
@@ -116,6 +110,23 @@ async function handlePost(context) {
 
   if (!Array.isArray(cart) || cart.length === 0) {
     return json({ error: 'El carrito está vacío.' }, 400);
+  }
+
+  // El enlace de reseñas ya NO lo escribe el cliente a mano: se resuelve
+  // automáticamente a partir del nombre del negocio + su dirección, vía
+  // Google Places API. Así el cliente solo rellena los datos que ya
+  // rellenaba de todos modos (nombre, dirección, ciudad).
+  let reviewUrl;
+  try {
+    const encontrado = await resolveReviewLink(env, { negocio, direccion: dir, cp, ciudad });
+    if (!encontrado) {
+      return json({
+        error: 'No hemos encontrado tu negocio en Google con esos datos. Revisa que el nombre y la dirección coincidan exactamente con los de tu ficha de Google Maps, o escríbenos a info@taplink.es y te lo activamos a mano.'
+      }, 400);
+    }
+    reviewUrl = encontrado.reviewUrl;
+  } catch (e) {
+    return json({ error: 'No se pudo verificar tu negocio en Google ahora mismo. Inténtalo de nuevo en un momento.' }, 500);
   }
 
   // Stripe solo permite UN line item sin "recurring" cuando el modo es

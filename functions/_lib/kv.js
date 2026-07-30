@@ -74,6 +74,21 @@ export async function liberarManual(env, slug) {
   return local;
 }
 
+// Elimina un local de forma permanente y sin vuelta atrás: borra tanto su
+// registro (local:{slug}) como el índice que lo relaciona con su
+// suscripción de Stripe (sub:{stripe_subscription_id}). No cancela la
+// suscripción en Stripe (eso se hace aparte, desde el propio Stripe, si
+// hace falta) — solo borra los datos guardados en Taplink.
+export async function deleteLocal(env, slug) {
+  const local = await getLocalBySlug(env, slug);
+  if (!local) return false;
+  await env.LOCALES_KV.delete(`local:${slug}`);
+  if (local.stripe_subscription_id) {
+    await env.LOCALES_KV.delete(`sub:${local.stripe_subscription_id}`);
+  }
+  return true;
+}
+
 export async function listLocales(env) {
   const locales = [];
   let cursor;
