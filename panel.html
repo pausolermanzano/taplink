@@ -33,6 +33,7 @@
   .stat .n { font-size: 24px; font-weight: 800; }
   .stat .l { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: rgba(255,255,255,.5); margin-top: 4px; }
 
+  #tableWrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
   table { width: 100%; border-collapse: collapse; font-size: 14px; }
   th, td { text-align: left; padding: 12px 10px; border-bottom: 1px solid #222; vertical-align: top; }
   th { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: rgba(255,255,255,.5); font-weight: 600; }
@@ -73,6 +74,42 @@
   }
   .btn-etiqueta:hover { background: #1a3548; }
   .btn-etiqueta:disabled { opacity: .4; cursor: not-allowed; }
+
+  /* — responsive: pantalla completa en desktop, tarjetas en móvil — */
+  @media (max-width: 760px) {
+    .wrap { padding: 24px 14px 60px; }
+    header.top { flex-direction: column; align-items: stretch; gap: 10px; }
+    header.top h1 { font-size: 18px; }
+    .buscador { max-width: none; font-size: 16px; padding: 12px 14px; }
+    .refresh { width: 100%; padding: 13px; }
+    .stats { gap: 8px; }
+    .stat { flex: 1 1 calc(50% - 8px); min-width: 0; }
+
+    #tableWrap table,
+    #tableWrap thead,
+    #tableWrap tbody,
+    #tableWrap tr,
+    #tableWrap td { display: block; width: 100%; }
+    #tableWrap thead { position: absolute; left: -9999px; top: -9999px; }
+    #tableWrap tr {
+      background: #141416; border: 1px solid #262626; border-radius: 10px;
+      padding: 14px; margin-bottom: 12px;
+    }
+    #tableWrap td {
+      border-bottom: none; padding: 8px 0; display: flex;
+      justify-content: space-between; align-items: flex-start; gap: 14px; text-align: right;
+    }
+    #tableWrap td::before {
+      content: attr(data-label); font-size: 11px; text-transform: uppercase; letter-spacing: .06em;
+      color: rgba(255,255,255,.5); font-weight: 600; text-align: left; flex: 0 0 auto; padding-top: 2px;
+    }
+    #tableWrap td.muted { color: rgba(255,255,255,.4); }
+    #tableWrap .envio-datos { white-space: normal; text-align: right; }
+    #tableWrap .estado-select { width: 100%; font-size: 14px; padding: 10px; margin-top: 2px; }
+    #tableWrap td[data-label="Cambiar estado"] { flex-direction: column; align-items: stretch; text-align: left; }
+    #tableWrap td[data-label="Cambiar estado"]::before { text-align: left; margin-bottom: 4px; }
+    #tableWrap .btn-eliminar { width: 100%; margin-top: 10px; padding: 10px; }
+  }
 </style>
 </head>
 <body>
@@ -144,6 +181,7 @@ function filtrar() {
     (l.nombre_local || '').toLowerCase().includes(q) ||
     (l.codigo || '').toLowerCase().includes(q) ||
     (l.nombre_cliente || '').toLowerCase().includes(q) ||
+    (l.email || '').toLowerCase().includes(q) ||
     (l.slug || '').toLowerCase().includes(q)
   );
   render(filtrados);
@@ -203,15 +241,15 @@ function render(locales) {
       </details><br>${etiquetaHtml}` : '—';
     return `
       <tr>
-        <td>${escapeHtml(l.nombre_local || '—')}</td>
-        <td>${escapeHtml(l.codigo || '—')}</td>
-        <td><span class="badge ${l.estado}">${l.estado || '—'}</span>${l.manual ? ' <span class="manual-tag" title="Fijado a mano: Stripe no puede cambiarlo hasta que elijas Automático">🔒 manual</span>' : ''}</td>
-        <td><a href="${link}" target="_blank">${link.replace('https://','')}</a></td>
-        <td>${l.review_url ? '<a href="' + l.review_url + '" target="_blank">ver reseñas</a>' : '—'} <button class="btn-editar" data-slug="${slugAttr}" onclick="corregirLink(this)" title="Corregir enlace de reseñas">✏️</button></td>
-        <td>${envioHtml}</td>
-        <td>${emailHtml}</td>
-        <td class="muted">${fecha}</td>
-        <td>
+        <td data-label="Local">${escapeHtml(l.nombre_local || '—')}</td>
+        <td data-label="Código">${escapeHtml(l.codigo || '—')}</td>
+        <td data-label="Estado"><span class="badge ${l.estado}">${l.estado || '—'}</span>${l.manual ? ' <span class="manual-tag" title="Fijado a mano: Stripe no puede cambiarlo hasta que elijas Automático">🔒 manual</span>' : ''}</td>
+        <td data-label="Link de la placa"><a href="${link}" target="_blank">${link.replace('https://','')}</a></td>
+        <td data-label="Reseñas">${l.review_url ? '<a href="' + l.review_url + '" target="_blank">ver reseñas</a>' : '—'} <button class="btn-editar" data-slug="${slugAttr}" onclick="corregirLink(this)" title="Corregir enlace de reseñas">✏️</button></td>
+        <td data-label="Envío / facturación">${envioHtml}</td>
+        <td data-label="Email">${emailHtml}</td>
+        <td data-label="Alta" class="muted">${fecha}</td>
+        <td data-label="Cambiar estado">
           <select class="estado-select" data-slug="${slugAttr}" onchange="cambiarEstado(this)">
             <option value="activo" ${l.estado === 'activo' ? 'selected' : ''}>Activo</option>
             <option value="pausado" ${l.estado === 'pausado' ? 'selected' : ''}>Pausado</option>
@@ -335,7 +373,7 @@ async function eliminarLocal(btn) {
 }
 
 function escapeHtml(s) {
-  return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
 // Si ya había una contraseña guardada en esta pestaña, entra directo

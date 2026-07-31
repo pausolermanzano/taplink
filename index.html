@@ -97,6 +97,17 @@ summary::marker{content:''}
   .review-card,.rec-card{grid-template-columns:1fr}
   .rec-card > div:last-child{text-align:left}
 }
+
+/* — Mi Taplink: cabecera y selector de rango en móvil — */
+h1[style*="clamp(26px"]{overflow-wrap:anywhere}
+@media (max-width:760px){
+  .seg{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch}
+  .seg-opt{white-space:nowrap}
+}
+@media (max-width:560px){
+  .panel-header-row{flex-direction:column;align-items:stretch !important}
+  .panel-subheader-row{flex-direction:column;align-items:stretch !important}
+}
 </style>
 </helmet>
 
@@ -562,9 +573,9 @@ summary::marker{content:''}
       <sc-if value="{{ isStep1 }}">
         <div style="display:flex;flex-direction:column;gap:20px;max-width:540px;animation:tpUp .45s cubic-bezier(.2,.7,.2,1) both">
           <div class="field"><label>Email</label><input class="input" name="email" value="{{ form.email }}" onChange="{{ onField }}" placeholder="hola@minegocio.com" style="min-height:48px;font-size:16px"></div>
-          <div class="field"><label>Nombre del negocio (tal cual en Google)</label><input class="input" name="negocio" value="{{ form.negocio }}" onChange="{{ onField }}" placeholder="Bar Nou" style="min-height:48px;font-size:16px"></div>
-          <div class="field"><label>Dirección del negocio (la de tu ficha de Google)</label><input class="input" name="negocioDir" value="{{ form.negocioDir }}" onChange="{{ onField }}" placeholder="Carrer Major 12, Girona" style="min-height:48px;font-size:16px"></div>
-          <p style="margin:-8px 0 0;font-size:13px;color:color-mix(in srgb,var(--color-text) 58%,transparent)">Con esto localizamos tu ficha de Google automáticamente y generamos el enlace de reseñas. No hace falta ningún enlace.</p>
+          <div class="field"><label>Nombre de tu negocio en Google Maps</label><input class="input" name="negocio" value="{{ form.negocio }}" onChange="{{ onField }}" placeholder="Escríbelo tal cual sale en Google Maps. Ej: Bar Vista Alegre" style="min-height:48px;font-size:16px"></div>
+          <div class="field"><label>Dirección en Google Maps</label><input class="input" name="negocioDir" value="{{ form.negocioDir }}" onChange="{{ onField }}" placeholder="Escríbela tal cual sale en Google Maps. Ej: Carrer de la Pau 8, Girona" style="min-height:48px;font-size:16px"></div>
+          <p style="margin:-8px 0 0;font-size:13px;color:color-mix(in srgb,var(--color-text) 58%,transparent)">Busca tu negocio en Google Maps y copia el nombre y la dirección exactamente como salen ahí (mayúsculas, tildes o alguna errata incluidos). Con ese texto exacto localizamos tu ficha y generamos tu enlace de reseñas nosotros solos — no hace falta que pegues ningún enlace.</p>
         </div>
       </sc-if>
       <sc-if value="{{ isStep2 }}">
@@ -760,7 +771,7 @@ summary::marker{content:''}
 
 <sc-if value="{{ isPanel }}">
 <main style="max-width:1440px;margin:0 auto;padding:0 clamp(16px,3vw,40px) 80px;animation:tpFade .4s ease-out">
-  <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;padding:34px 0 26px;border-bottom:2px solid var(--color-divider)">
+  <div class="panel-header-row" style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;padding:34px 0 26px;border-bottom:2px solid var(--color-divider)">
     <div>
       <span style="display:block;font:600 10px/1 var(--font-body);letter-spacing:.24em;text-transform:uppercase;color:var(--color-accent-700);margin:0 0 14px">Mi Taplink</span>
       <h1 style="font-family:var(--font-heading);font-weight:800;font-size:clamp(26px,3.2vw,42px);line-height:1;letter-spacing:-.035em;text-transform:uppercase;margin:0">{{ bizName }}</h1>
@@ -850,7 +861,7 @@ summary::marker{content:''}
       </sc-if>
 
       <sc-if value="{{ tabResenas }}">
-        <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:24px">
+        <div class="panel-subheader-row" style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:24px">
           <p style="margin:0;font-family:var(--font-heading);font-weight:800;font-size:22px;text-transform:uppercase;letter-spacing:-.02em">Últimas reseñas</p>
           <p style="margin:0;font-size:13px;color:color-mix(in srgb,var(--color-text) 58%,transparent)">{{ pendingNote }}</p>
         </div>
@@ -886,8 +897,8 @@ summary::marker{content:''}
         <div style="border:2px solid var(--color-divider);background:var(--color-surface);padding:24px;margin-bottom:24px">
           <p style="margin:0 0 18px;font:600 10px/1 var(--font-body);letter-spacing:.2em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 55%,transparent)">Dar de alta una placa nueva</p>
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;align-items:end">
-            <div class="field"><label>Modelo</label><input class="input" name="name" value="{{ newPlateName }}" onChange="{{ onNewPlate }}" style="min-height:46px;font-size:15px"></div>
-            <div class="field"><label>Ubicación</label><input class="input" name="place" value="{{ newPlatePlace }}" onChange="{{ onNewPlate }}" placeholder="Punto de pago" style="min-height:46px;font-size:15px"></div>
+            <div class="field"><label>Modelo</label><input class="input" name="name" value="{{ newPlateName }}" onChange="{{ onNewPlate }}" style="min-height:46px;font-size:16px"></div>
+            <div class="field"><label>Ubicación</label><input class="input" name="place" value="{{ newPlatePlace }}" onChange="{{ onNewPlate }}" placeholder="Punto de pago" style="min-height:46px;font-size:16px"></div>
             <button type="button" class="btn btn-primary" onClick="{{ addPlate }}" style="padding:14px 20px;font-size:12px;letter-spacing:.1em;text-transform:uppercase">Añadir placa</button>
           </div>
           <sc-if value="{{ onbErr }}"><p style="margin:16px 0 0;font-size:13px;color:var(--color-accent-800)">{{ onbErrMsg }}</p></sc-if>
@@ -956,7 +967,7 @@ summary::marker{content:''}
             <hr class="hr" style="margin:24px 0">
             <p style="margin:0 0 22px;font-size:14px;line-height:1.6;color:color-mix(in srgb,var(--color-text) 62%,transparent)">Próximo cargo: {{ nextCharge }}. Cancelas cuando quieras desde aquí; la placa sigue siendo tuya.</p>
             <div style="display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap">
-              <div class="field" style="max-width:170px"><label>Objetivo mensual</label><input class="input" value="{{ goalDraft }}" onChange="{{ onGoal }}" placeholder="120" style="min-height:46px;font-size:15px"></div>
+              <div class="field" style="max-width:170px"><label>Objetivo mensual</label><input class="input" value="{{ goalDraft }}" onChange="{{ onGoal }}" placeholder="120" style="min-height:46px;font-size:16px"></div>
               <button type="button" class="btn btn-secondary" onClick="{{ saveGoal }}" style="padding:13px 18px;font-size:11px;letter-spacing:.1em;text-transform:uppercase">Guardar objetivo</button>
             </div>
           </div>
@@ -1158,7 +1169,7 @@ summary::marker{content:''}
     </div>
     <div>
       <p style="margin:0 0 16px;font:600 10px/1 var(--font-body);letter-spacing:.22em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 50%,transparent)">Ayuda</p>
-      <div style="display:flex;flex-direction:column;gap:10px"><a onClick="{{ jumpFaq }}" style="cursor:pointer">Preguntas frecuentes</a><a href="mailto:info@taplink.es">info@taplink.es</a><a onClick="{{ jumpComo }}" style="cursor:pointer">Cómo funciona</a></div>
+      <div style="display:flex;flex-direction:column;gap:10px"><a onClick="{{ jumpFaq }}" style="cursor:pointer">Preguntas frecuentes</a><a href="mailto:info@taplink.es">info@taplink.es</a><a onClick="{{ jumpComo }}" style="cursor:pointer">Cómo funciona</a><a href="ya-tengo-mi-placa.html">Ya soy cliente</a></div>
     </div>
     <div>
       <p style="margin:0 0 16px;font:600 10px/1 var(--font-body);letter-spacing:.22em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 50%,transparent)">Legal</p>

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ya tengo mi placa — Taplink</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800&display=swap');
+
+:root{
+  --color-bg:#08090f;--color-surface:#101320;--color-text:#f2f3f7;
+  --color-divider:color-mix(in srgb,#f2f3f7 26%,transparent);
+  --color-accent:#2b4bff;--color-accent-2:#5a72ff;
+  --color-accent-700:#7f92ff;--color-accent-800:#c3cdff;--color-accent-900:#e6ebff;
+  --font-heading:"Archivo",system-ui,sans-serif;--font-body:"Archivo",system-ui,sans-serif;
+  --space-2:8px;--space-3:12px;--space-4:16px;--space-6:24px;--space-8:32px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;background:#08090f}
+body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);font-size:16px;-webkit-font-smoothing:antialiased}
+a{color:var(--color-accent-700);text-decoration:none}
+a:hover{color:var(--color-accent-800)}
+::selection{background:color-mix(in srgb,var(--color-accent) 45%,transparent)}
+h1,h2,h3{font-family:var(--font-heading);letter-spacing:-.03em;margin:0}
+.wrap{max-width:1000px;margin:0 auto;padding-inline:clamp(20px,5vw,64px)}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;border:2px solid var(--color-divider);padding:9px 14px;font:600 11px/1 var(--font-body);letter-spacing:.16em;text-transform:uppercase}
+.eyebrow span.dot{position:relative;width:8px;height:8px;background:var(--color-accent);display:block}
+.eyebrow span.dot::after{content:'';position:absolute;inset:0;background:var(--color-accent);animation:ring 2.4s ease-out infinite}
+@keyframes ring{0%{transform:scale(.85);opacity:.75}70%{transform:scale(2.1);opacity:0}100%{opacity:0}}
+
+/* nav */
+.nav{position:sticky;top:0;z-index:60;background:color-mix(in srgb,#08090f 82%,transparent);backdrop-filter:blur(14px);border-bottom:2px solid var(--color-divider)}
+.nav-inner{max-width:1280px;margin:0 auto;padding:18px clamp(20px,5vw,64px);display:flex;align-items:center;justify-content:space-between;gap:20px}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--font-heading);font-weight:800;letter-spacing:-.02em;font-size:16px;text-transform:uppercase}
+.logo .dot{position:relative;width:11px;height:11px;background:var(--color-accent);display:block}
+.logo .dot::after{content:'';position:absolute;inset:0;background:var(--color-accent);animation:ring 2.6s ease-out infinite}
+.nav-links{display:flex;align-items:center;gap:28px;font:600 12px/1 var(--font-body);letter-spacing:.06em}
+.nav-links a{color:var(--color-text);opacity:.75}
+.nav-links a:hover{opacity:1;color:var(--color-text)}
+@media (max-width:640px){.nav-links a:not(.btn){display:none}}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;border:2px solid var(--color-text);padding:16px 22px;font:700 12px/1 var(--font-body);letter-spacing:.1em;text-transform:uppercase;cursor:pointer;background:transparent;color:var(--color-text);transition:background .2s ease}
+.btn-primary{background:var(--color-accent);border-color:var(--color-accent);color:#fff}
+.btn-primary:hover{background:var(--color-accent-2)}
+.btn-ghost{border-color:color-mix(in srgb,var(--color-accent) 55%,transparent);color:var(--color-accent-700)}
+.btn-ghost:hover{background:color-mix(in srgb,var(--color-accent) 16%,transparent)}
+.btn-wa{background:#25d366;border-color:#25d366;color:#08090f}
+.btn-wa:hover{background:#20bd5a}
+.btn-block{width:100%}
+
+/* hero */
+.hero{padding:clamp(56px,8vw,104px) 0 clamp(40px,6vw,64px);border-bottom:2px solid var(--color-divider)}
+.hero h1{font-weight:800;font-size:clamp(42px,7vw,92px);line-height:.96;text-transform:uppercase;letter-spacing:-.04em}
+.hero h1 .accent{color:var(--color-accent-700)}
+.hero p.lead{font-size:19px;line-height:1.6;max-width:56ch;margin:28px 0 0;color:color-mix(in srgb,var(--color-text) 74%,transparent)}
+.hero-ctas{display:flex;gap:14px;flex-wrap:wrap;margin-top:34px}
+
+/* notice */
+.notice{margin-top:clamp(40px,6vw,64px);border:2px solid var(--color-divider);background:var(--color-surface);padding:24px clamp(20px,4vw,32px);display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.notice p{margin:0;font-size:15px;line-height:1.5;color:color-mix(in srgb,var(--color-text) 78%,transparent)}
+.notice strong{color:var(--color-text)}
+
+section{padding:clamp(48px,7vw,80px) 0;border-bottom:2px solid var(--color-divider)}
+.kicker{font:700 11px/1 var(--font-body);letter-spacing:.18em;text-transform:uppercase;color:var(--color-accent-700);margin:0 0 14px}
+h2.section-title{font-weight:800;font-size:clamp(28px,3.6vw,44px);line-height:1.04;text-transform:uppercase;letter-spacing:-.03em;max-width:22ch;margin:0 0 14px}
+p.section-sub{font-size:16px;line-height:1.6;max-width:60ch;color:color-mix(in srgb,var(--color-text) 74%,transparent);margin:0 0 40px}
+
+/* form */
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:640px){.field-grid{grid-template-columns:1fr}}
+label.field{display:flex;flex-direction:column;gap:8px;font:600 11px/1 var(--font-body);letter-spacing:.1em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 65%,transparent)}
+label.field input{font-family:var(--font-body);font-size:16px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--color-text);background:#0d1020;border:2px solid var(--color-divider);padding:14px 16px}
+label.field input::placeholder{color:color-mix(in srgb,var(--color-text) 38%,transparent);font-weight:400}
+label.field input:focus{outline:none;border-color:var(--color-accent)}
+.field-note{grid-column:1/-1;font-size:13px;letter-spacing:.02em;text-transform:none;font-weight:400;color:color-mix(in srgb,var(--color-text) 55%,transparent);margin-top:-6px}
+
+/* plan cards */
+.plans{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:36px}
+@media (max-width:720px){.plans{grid-template-columns:1fr}}
+.plan{position:relative;border:2px solid var(--color-divider);padding:30px;cursor:pointer;transition:border-color .2s ease,background .2s ease}
+.plan:hover{border-color:color-mix(in srgb,var(--color-accent) 45%,transparent)}
+.plan.is-selected{border-color:var(--color-accent);background:color-mix(in srgb,var(--color-accent) 8%,transparent)}
+.plan input{position:absolute;opacity:0;pointer-events:none}
+.plan .badge{position:absolute;top:0;right:0;background:var(--color-accent);color:#fff;font:700 10px/1 var(--font-body);letter-spacing:.18em;text-transform:uppercase;padding:8px 12px}
+.plan .dot-radio{width:20px;height:20px;border:2px solid var(--color-divider);display:flex;align-items:center;justify-content:center;margin-bottom:18px}
+.plan.is-selected .dot-radio{border-color:var(--color-accent)}
+.plan .dot-radio::after{content:'';width:10px;height:10px;background:var(--color-accent);opacity:0}
+.plan.is-selected .dot-radio::after{opacity:1}
+.plan .plan-name{font:700 11px/1 var(--font-body);letter-spacing:.16em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 60%,transparent);margin-bottom:10px}
+.plan .plan-price{font-family:var(--font-heading);font-weight:800;font-size:38px;letter-spacing:-.03em;line-height:1}
+.plan .plan-price span{font-size:16px;font-weight:600;letter-spacing:0;color:color-mix(in srgb,var(--color-text) 55%,transparent)}
+.plan .plan-detail{margin-top:12px;font-size:14px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 65%,transparent)}
+.plan .plan-save{margin-top:12px;font:700 12px/1 var(--font-body);color:var(--color-accent-700);letter-spacing:.02em}
+
+.volume-box{margin-top:20px;border:2px solid var(--color-divider);padding:22px 26px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.volume-box p{margin:0;font-size:14px;line-height:1.5;color:color-mix(in srgb,var(--color-text) 70%,transparent)}
+.volume-box strong{color:var(--color-text)}
+
+/* payment options */
+.pay-options{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:36px}
+@media (max-width:720px){.pay-options{grid-template-columns:1fr}}
+.pay-card{border:2px solid var(--color-divider);padding:28px;display:flex;flex-direction:column;gap:14px}
+.pay-card.is-primary{border-color:var(--color-accent)}
+.pay-card h3{font-size:17px;text-transform:uppercase;letter-spacing:-.01em}
+.pay-card p{margin:0;font-size:14px;line-height:1.6;color:color-mix(in srgb,var(--color-text) 68%,transparent);flex-grow:1}
+
+/* trust marquee */
+.trust{padding:20px 0;border-bottom:2px solid var(--color-divider);overflow:hidden}
+.trust-track{display:flex;gap:44px;padding:0 22px;font:700 11px/1 var(--font-body);letter-spacing:.2em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 55%,transparent);white-space:nowrap}
+
+/* faq */
+details{border-bottom:1px solid var(--color-divider);padding:20px 0}
+summary{cursor:pointer;list-style:none;font-family:var(--font-heading);font-weight:700;font-size:17px;display:flex;justify-content:space-between;align-items:center;gap:20px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:'+';font-size:22px;color:var(--color-accent-700);flex-shrink:0}
+details[open] summary::after{content:'–'}
+details p{margin:14px 0 0;font-size:15px;line-height:1.6;color:color-mix(in srgb,var(--color-text) 72%,transparent)}
+
+footer{padding:32px 0}
+.footer-inner{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;font-size:12px;letter-spacing:.04em;color:color-mix(in srgb,var(--color-text) 45%,transparent)}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="logo" href="index.html"><span class="dot"></span>TAPLINK</a>
+    <div class="nav-links">
+      <a href="index.html">Volver a la tienda</a>
+      <a href="panel.html">Mi Taplink</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <section class="hero" style="border-bottom:none">
+    <span class="eyebrow"><span class="dot"></span>Solo para negocios con placa activada</span>
+    <h1 style="margin-top:22px">Ya tengo<br>mi placa<span class="accent">.</span></h1>
+    <p class="lead">Nuestro equipo ya te la entregó en persona. Aquí activas o continúas el pago de tu mensualidad — un espacio aparte, solo para negocios como el tuyo.</p>
+    <div class="hero-ctas">
+      <a href="#activar" class="btn btn-primary">Activar mi mensualidad</a>
+      <a href="#localizar" class="btn btn-ghost">Ya sé mi código →</a>
+    </div>
+  </section>
+
+  <div class="notice">
+    <p>¿Todavía no tienes tu placa? <strong>Este espacio no es para ti.</strong> Nuestro equipo comercial la entrega en mano, o puedes comprarla directamente en la tienda.</p>
+    <a href="index.html" class="btn" style="border-color:var(--color-divider);padding:12px 18px">Ir a la tienda</a>
+  </div>
+
+</div>
+
+<section id="localizar">
+  <div class="wrap">
+    <p class="kicker">Paso 1</p>
+    <h2 class="section-title">Localiza tu negocio</h2>
+    <p class="section-sub">Con el código que te dio nuestro comercial vinculamos el pago directamente a tu placa — así queda todo en un solo sitio, sin duplicados.</p>
+    <div class="field-grid">
+      <label class="field">Nombre del negocio
+        <input type="text" id="campo-negocio" placeholder="Ej. Bar La Esquina">
+      </label>
+      <label class="field">Código de tu placa
+        <input type="text" id="campo-codigo" placeholder="Ej. TPK-4F21">
+      </label>
+      <label class="field">Teléfono de contacto
+        <input type="tel" id="campo-telefono" placeholder="Ej. 600 000 000">
+      </label>
+      <p class="field-note">El código no viene impreso en la placa: te llegó por email al comprarla, o te lo puede confirmar nuestro comercial.</p>
+    </div>
+  </div>
+</section>
+
+<section id="activar">
+  <div class="wrap">
+    <p class="kicker">Paso 2</p>
+    <h2 class="section-title">Elige tu plan</h2>
+    <p class="section-sub">El mismo plan de gestión de siempre: soporte técnico, recambios y el enlace de tu placa siempre editable. Cancelas cuando quieras.</p>
+
+    <div class="plans">
+      <label class="plan is-selected">
+        <input type="radio" name="plan" checked>
+        <span class="dot-radio"></span>
+        <p class="plan-name">Mensual</p>
+        <p class="plan-price">7,99 € <span>/ mes</span></p>
+        <p class="plan-detail">De 1 a 10 placas. Se cobra el día 1 de cada mes.</p>
+      </label>
+      <label class="plan">
+        <input type="radio" name="plan">
+        <span class="badge">Ahorras 16,88 €</span>
+        <span class="dot-radio"></span>
+        <p class="plan-name">Anual</p>
+        <p class="plan-price">79 € <span>/ año</span></p>
+        <p class="plan-detail">Todo el año pagado de una vez, en vez de 95,88 €.</p>
+        <p class="plan-save">Sale a 6,58 € / mes</p>
+      </label>
+    </div>
+
+    <div class="volume-box">
+      <p>¿Tu negocio tiene <strong>más de 10 placas</strong>? Te hacemos un precio a medida.</p>
+      <a href="https://wa.me/34686485535" target="_blank" rel="noopener" class="btn btn-wa">Precio a medida por WhatsApp</a>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="kicker">Paso 3</p>
+    <h2 class="section-title">Activa tu mensualidad</h2>
+    <p class="section-sub">Domicilias el pago con tarjeta y no tienes que acordarte más — nosotros te avisamos si algo falla.</p>
+    <a href="#" class="btn btn-primary" style="padding:20px 34px">Activar mi mensualidad</a>
+  </div>
+</section>
+
+<div class="trust">
+  <div class="trust-track">
+    <span>Activación inmediata</span><span>·</span><span>Sin permanencia</span><span>·</span><span>Soporte en español</span><span>·</span><span>Cancelas cuando quieras</span><span>·</span>
+    <span>Activación inmediata</span><span>·</span><span>Sin permanencia</span><span>·</span><span>Soporte en español</span><span>·</span><span>Cancelas cuando quieras</span><span>·</span>
+  </div>
+</div>
+
+<section>
+  <div class="wrap">
+    <p class="kicker">Dudas frecuentes</p>
+    <h2 class="section-title" style="margin-bottom:32px">Antes de activar</h2>
+
+    <details open>
+      <summary>¿Puedo cambiar de mensual a anual más adelante?</summary>
+      <p>Sí. Cogemos los meses que ya nos has pagado y alargamos tu plan desde ahí — por ejemplo, si pagas en septiembre, tu plan queda cubierto hasta septiembre del año que viene. Sin recalcular nada ni líos con los pagos.</p>
+    </details>
+    <details>
+      <summary>Tengo varias placas en el mismo negocio, ¿cómo lo hago?</summary>
+      <p>Escríbenos por WhatsApp con tus códigos y te preparamos un solo plan que las cubra todas, con el precio por volumen que te corresponda.</p>
+    </details>
+    <details>
+      <summary>¿Y si no encuentro mi código de placa?</summary>
+      <p>Escríbenos por WhatsApp con el nombre de tu negocio y te lo confirmamos al momento.</p>
+    </details>
+  </div>
+</section>
+
+<footer style="border-top:2px solid var(--color-divider)">
+  <div style="max-width:1280px;margin:0 auto;padding:52px clamp(20px,5vw,64px);display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:36px;font-size:14px">
+    <div>
+      <p style="font-family:var(--font-heading);font-weight:800;font-size:18px;margin:0 0 14px;display:flex;align-items:center;gap:10px;letter-spacing:.02em"><span style="width:11px;height:11px;background:var(--color-accent);display:block"></span>TAPLINK</p>
+      <p style="margin:0 0 20px;color:color-mix(in srgb,var(--color-text) 58%,transparent)">Placas NFC para reseñas de Google.<br>Castelló d'Empúries, Girona.</p>
+      <a href="https://instagram.com/taplink.es" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:var(--color-text);padding:8px 14px 8px 8px;border:2px solid var(--color-divider)">
+        <span style="width:30px;height:30px;flex:none;border-radius:9px;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+        </span>
+        <span style="font-size:13px;letter-spacing:.02em">@taplink.es</span>
+      </a>
+    </div>
+    <div>
+      <p style="margin:0 0 16px;font:600 10px/1 var(--font-body);letter-spacing:.22em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 50%,transparent)">Tienda</p>
+      <div style="display:flex;flex-direction:column;gap:10px"><a href="index.html">Volver a la tienda</a><a href="index.html#precios">El plan</a></div>
+    </div>
+    <div>
+      <p style="margin:0 0 16px;font:600 10px/1 var(--font-body);letter-spacing:.22em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 50%,transparent)">Ayuda</p>
+      <div style="display:flex;flex-direction:column;gap:10px"><a href="mailto:info@taplink.es">info@taplink.es</a><a href="https://wa.me/34686485535" target="_blank" rel="noopener">WhatsApp</a><a href="ya-tengo-mi-placa.html">Ya soy cliente</a></div>
+    </div>
+    <div>
+      <p style="margin:0 0 16px;font:600 10px/1 var(--font-body);letter-spacing:.22em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 50%,transparent)">Legal</p>
+      <div style="display:flex;flex-direction:column;gap:10px"><a href="index.html">Aviso legal</a><a href="index.html">Privacidad</a></div>
+    </div>
+  </div>
+  <div style="max-width:1280px;margin:0 auto;padding:0 clamp(20px,5vw,64px) 44px;font-size:12px;letter-spacing:.06em;color:color-mix(in srgb,var(--color-text) 45%,transparent)">© 2026 Taplink · Precios con IVA incluido · Atención: info@taplink.es</div>
+</footer>
+
+<script>
+// Autorrelleno desde el link personalizado que manda el comercial,
+// ej: ya-tengo-mi-placa.html?codigo=TPK-4F21&negocio=Bar%20La%20Esquina&tel=600000000
+(function(){
+  var params = new URLSearchParams(window.location.search);
+  var mapa = {codigo:'campo-codigo', negocio:'campo-negocio', tel:'campo-telefono'};
+  Object.keys(mapa).forEach(function(clave){
+    var valor = params.get(clave);
+    if (valor) document.getElementById(mapa[clave]).value = valor;
+  });
+})();
+
+document.querySelectorAll('.plan').forEach(function(el){
+  el.addEventListener('click', function(){
+    document.querySelectorAll('.plan').forEach(function(p){p.classList.remove('is-selected')});
+    el.classList.add('is-selected');
+    el.querySelector('input').checked = true;
+  });
+});
+</script>
+
+</body>
+</html>
