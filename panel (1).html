@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Taplink — Panel</title>
+<meta name="robots" content="noindex, nofollow" />
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0b0b0c; color: #fff; margin: 0; min-height: 100vh;
+  }
+  .gate { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .gate-card { max-width: 340px; width: 100%; text-align: center; }
+  .gate-card h1 { font-size: 18px; margin-bottom: 20px; }
+  .gate-card input {
+    width: 100%; padding: 12px 14px; border-radius: 8px; border: 1px solid #333;
+    background: #17181a; color: #fff; font-size: 16px; margin-bottom: 12px;
+  }
+  .gate-card button, .refresh {
+    width: 100%; padding: 12px; background: #fff; color: #0b0b0c; border: none;
+    border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer;
+  }
+  .gate-err { color: #ff6b6b; font-size: 13px; margin-top: 10px; min-height: 16px; }
+
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 40px 20px 80px; display: none; }
+  .wrap.show { display: block; }
+  header.top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
+  header.top h1 { font-size: 20px; margin: 0; }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px; }
+  .stat { background: #141416; border: 1px solid #262626; border-radius: 10px; padding: 14px 18px; min-width: 110px; }
+  .stat .n { font-size: 24px; font-weight: 800; }
+  .stat .l { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: rgba(255,255,255,.5); margin-top: 4px; }
+
+  .alta-presencial { margin-bottom: 20px; }
+  .alta-toggle {
+    background: #141416; border: 1px solid #2f2f2f; color: #fff; font-size: 13px; font-weight: 600;
+    padding: 12px 16px; border-radius: 8px; cursor: pointer; width: 100%; text-align: left;
+  }
+  .alta-toggle:hover { background: #1a1a1c; }
+  .alta-form { background: #101012; border: 1px solid #262626; border-top: none; border-radius: 0 0 10px 10px; padding: 18px; }
+  .alta-info { margin: 0 0 16px; font-size: 12.5px; line-height: 1.5; color: rgba(255,255,255,.55); }
+  .alta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+  .field-p { display: flex; flex-direction: column; gap: 6px; }
+  .field-p label { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: rgba(255,255,255,.5); }
+  .field-p input {
+    background: #1a1a1c; border: 1px solid #2f2f2f; color: #fff; border-radius: 8px;
+    padding: 11px 12px; font-size: 14px;
+  }
+  .field-p input:focus { outline: none; border-color: #2b4bff; }
+  .btn-generar {
+    background: #2b4bff; color: #fff; border: none; border-radius: 8px; padding: 12px 20px;
+    font-size: 13px; font-weight: 700; cursor: pointer;
+  }
+  .btn-generar:hover { background: #3d5bff; }
+  .btn-generar:disabled { opacity: .55; cursor: not-allowed; }
+  .alta-err { color: #f87171; font-size: 13px; margin: 10px 0 0; }
+  .alta-resultado { margin-top: 16px; background: #141416; border: 1px solid #262626; border-radius: 10px; padding: 16px; font-size: 13.5px; line-height: 1.6; }
+  .alta-resultado p { margin: 0 0 12px; }
+  .alta-resultado p:last-child { margin-bottom: 0; }
+  .alta-resultado code { background: #1a1a1c; padding: 3px 7px; border-radius: 5px; word-break: break-all; }
+  .btn-copiar {
+    background: transparent; border: 1px solid #2f2f2f; color: #fff; border-radius: 6px;
+    padding: 4px 10px; font-size: 12px; cursor: pointer; margin-left: 6px;
+  }
+  .btn-copiar:hover { background: #1a1a1c; }
+
+  #tableWrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 12px 10px; border-bottom: 1px solid #222; vertical-align: top; }
+  th { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: rgba(255,255,255,.5); font-weight: 600; }
+  td a { color: #9cc4ff; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+  .badge.activo { background: #123b23; color: #4ade80; }
+  .badge.pausado { background: #3b2f12; color: #facc15; }
+  .badge.cancelado { background: #3b1212; color: #f87171; }
+  .empty { color: rgba(255,255,255,.5); padding: 40px 0; text-align: center; }
+  .refresh { width: auto; padding: 10px 18px; font-size: 13px; }
+  .muted { color: rgba(255,255,255,.4); font-size: 12px; }
+  .estado-select {
+    background: #17181a; color: #fff; border: 1px solid #333; border-radius: 6px;
+    padding: 6px 8px; font-size: 12px; cursor: pointer;
+  }
+  .estado-select:disabled { opacity: .5; cursor: wait; }
+  .recom-input {
+    background: #17181a; color: #fff; border: 1px solid #333; border-radius: 6px;
+    padding: 6px 8px; font-size: 13px; width: 64px;
+  }
+  .recom-input:disabled { opacity: .5; cursor: wait; }
+  .recom-nota { margin-top: 4px; font-size: 11px; color: #ffb347; white-space: nowrap; }
+  details summary { cursor: pointer; color: #6ea8ff; font-size: 12px; list-style: none; }
+  details summary::-webkit-details-marker { display: none; }
+  .envio-datos { margin-top: 6px; font-size: 12px; line-height: 1.5; color: rgba(255,255,255,.75); white-space: nowrap; }
+  .manual-tag { font-size: 11px; color: #ffb347; white-space: nowrap; }
+  .buscador {
+    flex: 1 1 240px; max-width: 320px; padding: 10px 14px; border-radius: 8px;
+    border: 1px solid #333; background: #17181a; color: #fff; font-size: 13px;
+  }
+  .btn-eliminar {
+    background: #2a1414; color: #f87171; border: 1px solid #5a2323; border-radius: 6px;
+    padding: 6px 10px; font-size: 12px; cursor: pointer; margin-top: 8px;
+  }
+  .btn-eliminar:hover { background: #3b1a1a; }
+  .btn-eliminar:disabled { opacity: .5; cursor: wait; }
+  .btn-editar {
+    background: none; border: none; cursor: pointer; font-size: 13px; padding: 2px 4px; opacity: .75;
+  }
+  .btn-editar:hover { opacity: 1; }
+  .btn-etiqueta {
+    background: #142a3b; color: #6ea8ff; border: 1px solid #23415a; border-radius: 6px;
+    padding: 6px 10px; font-size: 12px; cursor: pointer; margin-top: 6px;
+  }
+  .btn-etiqueta:hover { background: #1a3548; }
+  .btn-etiqueta:disabled { opacity: .4; cursor: not-allowed; }
+
+  /* — responsive: pantalla completa en desktop, tarjetas en móvil — */
+  @media (max-width: 760px) {
+    .wrap { padding: 24px 14px 60px; }
+    header.top { flex-direction: column; align-items: stretch; gap: 10px; }
+    header.top h1 { font-size: 18px; }
+    .buscador { max-width: none; font-size: 16px; padding: 12px 14px; }
+    .refresh { width: 100%; padding: 13px; }
+    .alta-grid { grid-template-columns: 1fr; }
+    .field-p input { font-size: 16px; }
+    .btn-generar { width: 100%; padding: 13px; }
+    .btn-copiar { display: inline-block; margin: 6px 0 0; }
+    .stats { gap: 8px; }
+    .stat { flex: 1 1 calc(50% - 8px); min-width: 0; }
+
+    #tableWrap table,
+    #tableWrap thead,
+    #tableWrap tbody,
+    #tableWrap tr,
+    #tableWrap td { display: block; width: 100%; }
+    #tableWrap thead { position: absolute; left: -9999px; top: -9999px; }
+    #tableWrap tr {
+      background: #141416; border: 1px solid #262626; border-radius: 10px;
+      padding: 14px; margin-bottom: 12px;
+    }
+    #tableWrap td {
+      border-bottom: none; padding: 8px 0; display: flex;
+      justify-content: space-between; align-items: flex-start; gap: 14px; text-align: right;
+    }
+    #tableWrap td::before {
+      content: attr(data-label); font-size: 11px; text-transform: uppercase; letter-spacing: .06em;
+      color: rgba(255,255,255,.5); font-weight: 600; text-align: left; flex: 0 0 auto; padding-top: 2px;
+    }
+    #tableWrap td.muted { color: rgba(255,255,255,.4); }
+    #tableWrap .envio-datos { white-space: normal; text-align: right; }
+    #tableWrap .estado-select { width: 100%; font-size: 14px; padding: 10px; margin-top: 2px; }
+    #tableWrap .recom-input { width: 100%; font-size: 16px; padding: 10px; }
+    #tableWrap td[data-label="Cambiar estado"] { flex-direction: column; align-items: stretch; text-align: left; }
+    #tableWrap td[data-label="Cambiar estado"]::before { text-align: left; margin-bottom: 4px; }
+    #tableWrap .btn-eliminar { width: 100%; margin-top: 10px; padding: 10px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="gate" id="gate">
+    <div class="gate-card">
+      <h1>Panel privado — Taplink</h1>
+      <input type="password" id="pw" placeholder="Contraseña" />
+      <button onclick="entrar()">Entrar</button>
+      <p class="gate-err" id="gateErr"></p>
+    </div>
+  </div>
+
+  <div class="wrap" id="wrap">
+    <header class="top">
+      <h1>Locales</h1>
+      <input id="buscador" class="buscador" type="text" placeholder="Buscar por nombre, código o email…" oninput="filtrar()" />
+      <button class="refresh" onclick="cargar()">Actualizar</button>
+    </header>
+
+    <section class="alta-presencial">
+      <button type="button" class="alta-toggle" onclick="toggleAlta()">➕ Nuevo cliente presencial (venta en mano)</button>
+      <div class="alta-form" id="altaForm" style="display:none">
+        <p class="alta-info">Para cuando entregas la placa en persona y cobras en efectivo. Esto genera el código y el enlace para grabar la placa — la mensualidad la activa el negocio después, desde "Ya tengo mi placa".</p>
+        <div class="alta-grid">
+          <div class="field-p"><label>Nombre en Google Maps</label><input id="altaNegocio" placeholder="Tal cual sale en Google Maps"></div>
+          <div class="field-p"><label>Dirección en Google Maps</label><input id="altaDireccion" placeholder="Tal cual sale en Google Maps"></div>
+          <div class="field-p"><label>Nombre del cliente (opcional)</label><input id="altaCliente" placeholder="Persona de contacto"></div>
+          <div class="field-p"><label>Teléfono (opcional)</label><input id="altaTelefono" placeholder="Para el enlace personalizado"></div>
+        </div>
+        <button type="button" class="btn-generar" onclick="generarManual(this)">Generar código y enlaces</button>
+        <p class="alta-err" id="altaErr"></p>
+        <div class="alta-resultado" id="altaResultado" style="display:none"></div>
+      </div>
+    </section>
+
+    <div class="stats" id="stats"></div>
+    <div id="tableWrap"></div>
+  </div>
+
+<script>
+function entrar() {
+  const pw = document.getElementById('pw').value;
+  if (!pw) return;
+  sessionStorage.setItem('panel_pw', pw);
+  cargar();
+}
+
+document.getElementById('pw').addEventListener('keydown', (e) => { if (e.key === 'Enter') entrar(); });
+
+async function cargar() {
+  const pw = sessionStorage.getItem('panel_pw');
+  if (!pw) return;
+
+  const res = await fetch('/panel-datos', { headers: { 'x-panel-password': pw } });
+
+  if (res.status === 401) {
+    sessionStorage.removeItem('panel_pw');
+    document.getElementById('gate').style.display = 'flex';
+    document.getElementById('wrap').classList.remove('show');
+    document.getElementById('gateErr').textContent = 'Contraseña incorrecta.';
+    return;
+  }
+
+  const data = await res.json().catch(() => ({}));
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('wrap').classList.add('show');
+
+  if (!res.ok) {
+    document.getElementById('stats').innerHTML = '';
+    document.getElementById('tableWrap').innerHTML =
+      '<p class="empty" style="color:#f87171">Error al cargar los datos: ' + escapeHtml(data.error || res.status) + '</p>';
+    return;
+  }
+
+  TODOS = data.locales || [];
+  render(TODOS);
+}
+
+let TODOS = [];
+
+function toggleAlta() {
+  const f = document.getElementById('altaForm');
+  f.style.display = f.style.display === 'none' ? 'block' : 'none';
+}
+
+async function generarManual(boton) {
+  const pw = sessionStorage.getItem('panel_pw');
+  const negocio = document.getElementById('altaNegocio').value.trim();
+  const negocioDir = document.getElementById('altaDireccion').value.trim();
+  const nombreCliente = document.getElementById('altaCliente').value.trim();
+  const telefono = document.getElementById('altaTelefono').value.trim();
+  const err = document.getElementById('altaErr');
+  const resultado = document.getElementById('altaResultado');
+  err.textContent = '';
+  resultado.style.display = 'none';
+  resultado.innerHTML = '';
+
+  if (!negocio || !negocioDir) {
+    err.textContent = 'Rellena al menos el nombre y la dirección, tal cual en Google Maps.';
+    return;
+  }
+
+  const textoOriginal = boton.textContent;
+  boton.disabled = true;
+  boton.textContent = 'Buscando en Google…';
+
+  try {
+    const res = await fetch('/panel-crear-manual', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-panel-password': pw },
+      body: JSON.stringify({ negocio, negocioDir, nombreCliente, telefono })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      err.textContent = data.error || 'No se pudo generar el código.';
+      return;
+    }
+
+    resultado.style.display = 'block';
+    resultado.innerHTML =
+      '<p><strong>Código:</strong> ' + escapeHtml(data.codigo) + '</p>' +
+      '<p><strong>Para grabar en la placa (NFC Tools):</strong><br>' +
+      '<code>' + escapeHtml(data.nfc_link) + '</code> ' +
+      '<button type="button" class="btn-copiar" data-copy="' + escapeHtml(data.nfc_link) + '" onclick="copiarTexto(this)">Copiar</button></p>' +
+      '<p><strong>Para mandar al cliente (activa su mensualidad):</strong><br>' +
+      '<code>' + escapeHtml(data.activar_mensualidad_link) + '</code> ' +
+      '<button type="button" class="btn-copiar" data-copy="' + escapeHtml(data.activar_mensualidad_link) + '" onclick="copiarTexto(this)">Copiar</button></p>';
+
+    document.getElementById('altaNegocio').value = '';
+    document.getElementById('altaDireccion').value = '';
+    document.getElementById('altaCliente').value = '';
+    document.getElementById('altaTelefono').value = '';
+
+    cargar();
+  } catch (e) {
+    err.textContent = 'No se pudo conectar con el servidor.';
+  } finally {
+    boton.disabled = false;
+    boton.textContent = textoOriginal;
+  }
+}
+
+function copiarTexto(btn) {
+  const texto = btn.getAttribute('data-copy');
+  navigator.clipboard.writeText(texto).then(() => {
+    const original = btn.textContent;
+    btn.textContent = '✓ Copiado';
+    setTimeout(() => { btn.textContent = original; }, 1500);
+  });
+}
+
+function filtrar() {
+  const q = (document.getElementById('buscador').value || '').trim().toLowerCase();
+  if (!q) return render(TODOS);
+  const filtrados = TODOS.filter(l =>
+    (l.nombre_local || '').toLowerCase().includes(q) ||
+    (l.codigo || '').toLowerCase().includes(q) ||
+    (l.nombre_cliente || '').toLowerCase().includes(q) ||
+    (l.email || '').toLowerCase().includes(q) ||
+    (l.slug || '').toLowerCase().includes(q)
+  );
+  render(filtrados);
+}
+
+function render(locales) {
+  const activos = locales.filter(l => l.estado === 'activo').length;
+  const pausados = locales.filter(l => l.estado === 'pausado').length;
+  const cancelados = locales.filter(l => l.estado === 'cancelado').length;
+
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><div class="n">${locales.length}</div><div class="l">Total</div></div>
+    <div class="stat"><div class="n">${activos}</div><div class="l">Activos</div></div>
+    <div class="stat"><div class="n">${pausados}</div><div class="l">Pausados</div></div>
+    <div class="stat"><div class="n">${cancelados}</div><div class="l">Cancelados</div></div>
+  `;
+
+  if (!locales.length) {
+    const q = (document.getElementById('buscador').value || '').trim();
+    document.getElementById('tableWrap').innerHTML = q
+      ? '<p class="empty">Ningún resultado para "' + escapeHtml(q) + '".</p>'
+      : '<p class="empty">Todavía no hay ningún local dado de alta.</p>';
+    return;
+  }
+
+  const rows = locales.map(l => {
+    const link = location.origin + '/go/' + l.slug;
+    const fecha = l.creado ? new Date(l.creado).toLocaleDateString('es-ES') : '—';
+    const slugAttr = escapeHtml(l.slug || '');
+    const errores = l.email_errors || {};
+    const errorKeys = Object.keys(errores);
+    const emailHtml = errorKeys.length
+      ? `<details><summary style="color:#f87171">⚠️ Error</summary><div class="envio-datos">${
+          errorKeys.map(k => escapeHtml(k) + ': ' + escapeHtml(errores[k].mensaje || '')).join('<br>')
+        }</div></details>`
+      : '<span style="color:#4ade80">✅ OK</span>';
+    const tieneEnvio = l.direccion || l.nombre_cliente || l.nif || l.telefono;
+    const etiqueta = l.envio_label;
+    const etiquetaHtml = etiqueta && etiqueta.label_url
+      ? `<div class="envio-datos">
+           ${escapeHtml(etiqueta.carrier)} ${escapeHtml(etiqueta.servicio)} (${escapeHtml(etiqueta.precio)})<br>
+           <a href="${etiqueta.label_url}" target="_blank">🖨️ Ver/Imprimir etiqueta</a><br>
+           ${etiqueta.tracking_number ? 'Track: ' + escapeHtml(etiqueta.tracking_number) : ''}
+         </div>
+         <button class="btn-etiqueta" data-slug="${slugAttr}" onclick="generarEtiqueta(this)">↺ Regenerar</button>`
+      : `<button class="btn-etiqueta" data-slug="${slugAttr}" onclick="generarEtiqueta(this)" ${l.origen === 'efectivo' ? 'disabled title="Venta en efectivo: la placa ya se entregó en mano, no hace falta enviar nada"' : (tieneEnvio ? '' : 'disabled title="Falta la dirección del cliente"')}>📦 Generar etiqueta</button>`;
+    const envioHtml = tieneEnvio ? `
+      <details>
+        <summary>Ver datos</summary>
+        <div class="envio-datos">
+          ${l.nombre_cliente ? escapeHtml(l.nombre_cliente) + '<br>' : ''}
+          ${l.nif ? 'NIF: ' + escapeHtml(l.nif) + '<br>' : ''}
+          ${l.direccion ? escapeHtml(l.direccion) + '<br>' : ''}
+          ${(l.cp || l.ciudad) ? escapeHtml((l.cp || '') + ' ' + (l.ciudad || '')) + '<br>' : ''}
+          ${l.telefono ? 'Tel: ' + escapeHtml(l.telefono) : ''}
+        </div>
+      </details><br>${etiquetaHtml}` : '—';
+
+    const cuotaHtml = l.ultima_cuota
+      ? escapeHtml((l.ultima_cuota / 100).toFixed(2).replace('.', ',')) + ' €/' + (l.ultima_cuota_intervalo === 'year' ? 'año' : 'mes')
+      : '—';
+    const totalPagadoHtml = l.total_pagado
+      ? escapeHtml((l.total_pagado / 100).toFixed(2).replace('.', ',')) + ' €'
+      : '0,00 €';
+    const origenHtml = l.origen === 'efectivo' ? '💵 Efectivo' : '🌐 Web';
+    const recomendaciones = l.recomendaciones || 0;
+    const mesesPendientes = l.meses_gratis_pendientes || 0;
+    let recomNota = '';
+    if (mesesPendientes > 0) {
+      recomNota = '<div class="recom-nota" title="Se aplicará solo en Stripe en cuanto el negocio active su mensualidad">⏳ ' + mesesPendientes + ' meses gratis pendientes</div>';
+    } else if (recomendaciones > 0) {
+      recomNota = '<div class="recom-nota" style="color:#4ade80" title="Ya aplicado como pausa de cobro en Stripe">✓ ' + (recomendaciones * 3) + ' meses gratis aplicados</div>';
+    }
+    const recomHtml = `
+      <input type="number" min="0" class="recom-input" data-slug="${slugAttr}" value="${recomendaciones}" onchange="cambiarRecomendaciones(this)">
+      ${recomNota}`;
+
+    return `
+      <tr>
+        <td data-label="Local">${escapeHtml(l.nombre_local || '—')}</td>
+        <td data-label="Código">${escapeHtml(l.codigo || '—')}</td>
+        <td data-label="Estado"><span class="badge ${l.estado}">${l.estado || '—'}</span>${l.manual ? ' <span class="manual-tag" title="Fijado a mano: Stripe no puede cambiarlo hasta que elijas Automático">🔒 manual</span>' : ''}</td>
+        <td data-label="Cuota">${cuotaHtml}</td>
+        <td data-label="Total pagado">${totalPagadoHtml}</td>
+        <td data-label="Origen">${origenHtml}</td>
+        <td data-label="Link de la placa"><a href="${link}" target="_blank">${link.replace('https://','')}</a></td>
+        <td data-label="Reseñas">${l.review_url ? '<a href="' + l.review_url + '" target="_blank">ver reseñas</a>' : '—'} <button class="btn-editar" data-slug="${slugAttr}" onclick="corregirLink(this)" title="Corregir enlace de reseñas">✏️</button></td>
+        <td data-label="Envío / facturación">${envioHtml}</td>
+        <td data-label="Email">${emailHtml}</td>
+        <td data-label="Alta" class="muted">${fecha}</td>
+        <td data-label="Recomendaciones">${recomHtml}</td>
+        <td data-label="Cambiar estado">
+          <select class="estado-select" data-slug="${slugAttr}" onchange="cambiarEstado(this)">
+            <option value="activo" ${l.estado === 'activo' ? 'selected' : ''}>Activo</option>
+            <option value="pausado" ${l.estado === 'pausado' ? 'selected' : ''}>Pausado</option>
+            <option value="cancelado" ${l.estado === 'cancelado' ? 'selected' : ''}>Cancelado</option>
+            <option value="auto">↺ Volver a automático (Stripe)</option>
+          </select>
+          <br>
+          <button class="btn-eliminar" data-slug="${slugAttr}" onclick="eliminarLocal(this)">🗑 Eliminar</button>
+        </td>
+      </tr>`;
+  }).join('');
+
+  document.getElementById('tableWrap').innerHTML = `
+    <table>
+      <thead><tr><th>Local</th><th>Código</th><th>Estado</th><th>Cuota</th><th>Total pagado</th><th>Origen</th><th>Link de la placa</th><th>Reseñas</th><th>Envío / facturación</th><th>Email</th><th>Alta</th><th>Recomendaciones</th><th>Cambiar estado</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+async function cambiarEstado(select) {
+  const slug = select.dataset.slug;
+  const estado = select.value;
+  const pw = sessionStorage.getItem('panel_pw');
+  select.disabled = true;
+  try {
+    const res = await fetch('/panel-set-estado', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-panel-password': pw },
+      body: JSON.stringify({ slug, estado })
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      alert('No se pudo cambiar el estado: ' + (data.error || res.status));
+    }
+  } catch (e) {
+    alert('No se pudo conectar para cambiar el estado.');
+  }
+  await cargar();
+}
+
+async function cambiarRecomendaciones(input) {
+  const slug = input.dataset.slug;
+  const recomendaciones = input.value;
+  const pw = sessionStorage.getItem('panel_pw');
+  input.disabled = true;
+  try {
+    const res = await fetch('/panel-set-recomendaciones', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-panel-password': pw },
+      body: JSON.stringify({ slug, recomendaciones })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      alert('No se pudo guardar: ' + (data.error || res.status));
+    } else if (data.aviso) {
+      alert(data.aviso);
+    }
+  } catch (e) {
+    alert('No se pudo conectar para guardar la recomendación.');
+  }
+  await cargar();
+}
+
+async function generarEtiqueta(btn) {
+  const slug = btn.dataset.slug;
+  if (!confirm('¿Generar y COMPRAR la etiqueta de envío para este pedido ahora? Esto tiene un coste real en Shippo.')) return;
+  const pw = sessionStorage.getItem('panel_pw');
+  btn.disabled = true;
+  btn.textContent = 'Generando…';
+  try {
+    const res = await fetch('/panel-generar-etiqueta', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-panel-password': pw },
+      body: JSON.stringify({ slug })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      alert('No se pudo generar la etiqueta: ' + (data.error || res.status));
+      btn.disabled = false;
+      btn.textContent = '📦 Generar etiqueta';
+      return;
+    }
+    if (data.etiqueta && data.etiqueta.labelUrl) {
+      window.open(data.etiqueta.labelUrl, '_blank');
+    }
+  } catch (e) {
+    alert('No se pudo conectar para generar la etiqueta.');
+    btn.disabled = false;
+    btn.textContent = '📦 Generar etiqueta';
+    return;
+  }
+  await cargar();
+}
+
+async function corregirLink(btn) {
+  const slug = btn.dataset.slug;
+  const nuevo = prompt('Pega aquí el enlace correcto de reseñas para este negocio:\n\n(Búscalo en Google Maps → toca las estrellas → "Escribir una reseña" → copia la URL de esa pantalla)');
+  if (!nuevo) return;
+  const pw = sessionStorage.getItem('panel_pw');
+  btn.disabled = true;
+  try {
+    const res = await fetch('/panel-set-review', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-panel-password': pw },
+      body: JSON.stringify({ slug, reviewUrl: nuevo.trim() })
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      alert('No se pudo actualizar: ' + (data.error || res.status));
+    }
+  } catch (e) {
+    alert('No se pudo conectar para actualizar el enlace.');
+  }
+  btn.disabled = false;
+  await cargar();
+}
+
+async function eliminarLocal(btn) {
+  const slug = btn.dataset.slug;
+  if (!confirm('¿Eliminar este local de forma PERMANENTE? Esto no se puede deshacer (no cancela la suscripción en Stripe, solo borra sus datos de Taplink).')) return;
+  const pw = sessionStorage.getItem('panel_pw');
+  btn.disabled = true;
+  btn.textContent = 'Eliminando…';
+  try {
+    const res = await fetch('/panel-eliminar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-panel-password': pw },
+      body: JSON.stringify({ slug })
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      alert('No se pudo eliminar: ' + (data.error || res.status));
+      btn.disabled = false;
+      btn.textContent = '🗑 Eliminar';
+      return;
+    }
+  } catch (e) {
+    alert('No se pudo conectar para eliminar.');
+    btn.disabled = false;
+    btn.textContent = '🗑 Eliminar';
+    return;
+  }
+  await cargar();
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// Si ya había una contraseña guardada en esta pestaña, entra directo
+if (sessionStorage.getItem('panel_pw')) cargar();
+</script>
+</body>
+</html>
