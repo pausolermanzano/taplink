@@ -74,52 +74,6 @@ export async function liberarManual(env, slug) {
   return local;
 }
 
-// Guarda los datos de la etiqueta de envío generada con Shippo
-// (tracking, link del PDF, transportista) en el registro del local,
-// para poder verla y reimprimirla desde el panel sin volver a Shippo.
-export async function setEnvioLabel(env, slug, datos) {
-  const local = await getLocalBySlug(env, slug);
-  if (!local) return null;
-  local.envio_label = {
-    tracking_number: datos.trackingNumber || '',
-    tracking_url: datos.trackingUrl || '',
-    label_url: datos.labelUrl || '',
-    carrier: datos.carrier || '',
-    servicio: datos.servicio || '',
-    precio: datos.precio || '',
-    fecha: new Date().toISOString()
-  };
-  await env.LOCALES_KV.put(`local:${slug}`, JSON.stringify(local));
-  return local;
-}
-
-// Permite corregir a mano, desde el panel, el enlace de reseñas de un
-// local concreto — por si la resolución automática con Google Places no
-// ha acertado para ese negocio en particular (fichas nuevas o
-// incompletas en Google, homónimos, etc.).
-export async function setReviewUrl(env, slug, reviewUrl) {
-  const local = await getLocalBySlug(env, slug);
-  if (!local) return null;
-  local.review_url = reviewUrl;
-  await env.LOCALES_KV.put(`local:${slug}`, JSON.stringify(local));
-  return local;
-}
-
-// Elimina un local de forma permanente y sin vuelta atrás: borra tanto su
-// registro (local:{slug}) como el índice que lo relaciona con su
-// suscripción de Stripe (sub:{stripe_subscription_id}). No cancela la
-// suscripción en Stripe (eso se hace aparte, desde el propio Stripe, si
-// hace falta) — solo borra los datos guardados en Taplink.
-export async function deleteLocal(env, slug) {
-  const local = await getLocalBySlug(env, slug);
-  if (!local) return false;
-  await env.LOCALES_KV.delete(`local:${slug}`);
-  if (local.stripe_subscription_id) {
-    await env.LOCALES_KV.delete(`sub:${local.stripe_subscription_id}`);
-  }
-  return true;
-}
-
 export async function listLocales(env) {
   const locales = [];
   let cursor;

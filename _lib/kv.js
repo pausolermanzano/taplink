@@ -23,11 +23,47 @@ export async function getLocalBySubscriptionId(env, subscriptionId) {
   return local ? { ...local, slug } : null;
 }
 
+// Busca un local por su código (TPK-XXXXXX) — el que usa el negocio para
+// identificarse en "Ya tengo mi placa" cuando va a activar su
+// mensualidad. Usa un índice propio (codigo:{codigo} -> slug) igual que
+// ya se hace con las suscripciones de Stripe, para no tener que recorrer
+// todos los locales en cada intento de pago.
+export async function getLocalByCodigo(env, codigo) {
+  const slug = await env.LOCALES_KV.get(`codigo:${codigo}`);
+  if (!slug) return null;
+  const local = await getLocalBySlug(env, slug);
+  return local ? { ...local, slug } : null;
+}
+
 export async function createLocal(env, fields) {
   const record = { ...fields, creado: new Date().toISOString() };
   await env.LOCALES_KV.put(`local:${fields.slug}`, JSON.stringify(record));
-  await env.LOCALES_KV.put(`sub:${fields.stripe_subscription_id}`, fields.slug);
+  // Solo se escriben estos índices si hay algo real que indexar: un
+  // stripe_subscription_id o un codigo vacíos pisarían siempre la misma
+  // clave ("sub:" o "codigo:") y cada local nuevo sin uno de los dos
+  // borraría el índice del anterior que tampoco lo tuviera.
+  if (fields.stripe_subscription_id) {
+    await env.LOCALES_KV.put(`sub:${fields.stripe_subscription_id}`, fields.slug);
+  }
+  if (fields.codigo) {
+    await env.LOCALES_KV.put(`codigo:${fields.codigo}`, fields.slug);
+  }
   return record;
+}
+
+// Vincula una suscripción de Stripe nueva a un local que YA EXISTÍA sin
+// ninguna (el caso de venta presencial: Marc/Pau lo crean desde el panel
+// cuando entregan la placa, y semanas o meses después el negocio activa
+// su mensualidad desde "Ya tengo mi placa"). A diferencia de createLocal,
+// esto no crea un registro nuevo: actualiza el que ya estaba.
+export async function linkSubscription(env, slug, subscriptionId) {
+  const local = await getLocalBySlug(env, slug);
+  if (!local) return null;
+  local.stripe_subscription_id = subscriptionId;
+  local.estado = 'activo';
+  await env.LOCALES_KV.put(`local:${slug}`, JSON.stringify(local));
+  await env.LOCALES_KV.put(`sub:${subscriptionId}`, slug);
+  return local;
 }
 
 export async function setEstado(env, slug, estado) {
@@ -116,6 +152,9 @@ export async function deleteLocal(env, slug) {
   await env.LOCALES_KV.delete(`local:${slug}`);
   if (local.stripe_subscription_id) {
     await env.LOCALES_KV.delete(`sub:${local.stripe_subscription_id}`);
+  }
+  if (local.codigo) {
+    await env.LOCALES_KV.delete(`codigo:${local.codigo}`);
   }
   return true;
 }

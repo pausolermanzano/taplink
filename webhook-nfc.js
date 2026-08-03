@@ -14,7 +14,7 @@
 //   - invoice.paid
 
 import { verifyStripeSignature } from './_lib/stripe-verify.js';
-import { getLocalBySubscriptionId, setEstado, createLocal, setEmailError } from './_lib/kv.js';
+import { getLocalBySubscriptionId, getLocalBySlug, setEstado, createLocal, linkSubscription, setEmailError } from './_lib/kv.js';
 import { enviarConfirmacionPedido, enviarNotificacionInterna } from './_lib/email.js';
 
 function json(data, status) {
@@ -60,58 +60,91 @@ export async function onRequest(context) {
         const session = event.data.object;
         const meta = session.metadata || {};
         console.log('checkout.session.completed recibido. slug=' + meta.slug + ' subscription=' + session.subscription);
-        if (meta.slug && meta.review_url && session.subscription) {
-          const yaExiste = await getLocalBySubscriptionId(env, session.subscription);
-          if (!yaExiste) {
+        if (meta.slug && session.subscription) {
+          const yaVinculado = await getLocalBySubscriptionId(env, session.subscription);
+          if (!yaVinculado) {
             const origin = new URL(request.url).origin;
             const nfcLink = origin + '/go/' + meta.slug;
-            const local = await createLocal(env, {
-              slug: meta.slug,
-              nombre_local: meta.negocio || meta.slug,
-              review_url: meta.review_url,
-              stripe_subscription_id: session.subscription,
-              codigo: meta.code || '',
-              estado: 'activo',
-              nombre_cliente: meta.nombre || '',
-              nif: meta.nif || '',
-              direccion: meta.dir || '',
-              cp: meta.cp || '',
-              ciudad: meta.ciudad || '',
-              telefono: meta.tel || ''
-            });
-            console.log('Local creado en KV: ' + local.slug);
             const email = session.customer_email || (session.customer_details && session.customer_details.email);
-            if (email) {
+
+            // Caso 1: venta presencial que activa su mensualidad ahora.
+            // El local YA EXISTE (lo creó Marc/Pau desde el panel al
+            // entregar la placa) — no creamos uno nuevo, solo enlazamos
+            // esta suscripción al que ya había, buscándolo por el mismo
+            // slug que viaja en el metadata.
+            const localExistente = await getLocalBySlug(env, meta.slug);
+            if (localExistente) {
+              if (!localExistente.stripe_subscription_id) {
+                await linkSubscription(env, meta.slug, session.subscription);
+                console.log('Mensualidad vinculada a local presencial ya existente: ' + meta.slug);
+              }
               try {
-                await enviarConfirmacionPedido(env, {
-                  to: email,
-                  negocio: local.nombre_local,
-                  codigo: meta.code || '',
-                  nfcLink
+                await enviarNotificacionInterna(env, {
+                  negocio: localExistente.nombre_local,
+                  nfcLink,
+                  codigo: localExistente.codigo || meta.codigo || '',
+                  nombreCliente: localExistente.nombre_cliente || '',
+                  emailCliente: email || '',
+                  telefono: localExistente.telefono || ''
                 });
               } catch (mailErr) {
-                // No tumbamos el webhook por un fallo de envío: el local ya
-                // ha quedado creado y activo, que es lo crítico aquí. Guardamos
-                // el motivo exacto en KV para verlo directamente en panel.html,
-                // sin depender de los logs de Cloudflare.
-                console.error('Fallo enviando email de confirmación al cliente:', mailErr && mailErr.message);
-                try { await setEmailError(env, local.slug, 'confirmacion', mailErr && mailErr.message); } catch (e) {}
+                console.error('Fallo enviando notificación interna (mensualidad vinculada):', mailErr && mailErr.message);
+                try { await setEmailError(env, meta.slug, 'interna', mailErr && mailErr.message); } catch (e) {}
               }
-            } else {
-              console.error('checkout.session.completed sin email de cliente: no se pudo enviar confirmación.');
+              break;
             }
-            try {
-              await enviarNotificacionInterna(env, {
-                negocio: local.nombre_local,
-                nfcLink,
+
+            // Caso 2: compra online completa (placa + mensualidad juntas,
+            // el flujo de siempre) — aquí sí toca crear el local desde
+            // cero, con todos los datos de facturación/envío.
+            if (meta.review_url) {
+              const local = await createLocal(env, {
+                slug: meta.slug,
+                nombre_local: meta.negocio || meta.slug,
+                review_url: meta.review_url,
+                stripe_subscription_id: session.subscription,
                 codigo: meta.code || '',
-                nombreCliente: meta.nombre || '',
-                emailCliente: email || '',
+                estado: 'activo',
+                nombre_cliente: meta.nombre || '',
+                nif: meta.nif || '',
+                direccion: meta.dir || '',
+                cp: meta.cp || '',
+                ciudad: meta.ciudad || '',
                 telefono: meta.tel || ''
               });
-            } catch (mailErr) {
-              console.error('Fallo enviando notificación interna a Taplink:', mailErr && mailErr.message);
-              try { await setEmailError(env, local.slug, 'interna', mailErr && mailErr.message); } catch (e) {}
+              console.log('Local creado en KV: ' + local.slug);
+              if (email) {
+                try {
+                  await enviarConfirmacionPedido(env, {
+                    to: email,
+                    negocio: local.nombre_local,
+                    codigo: meta.code || '',
+                    nfcLink
+                  });
+                } catch (mailErr) {
+                  // No tumbamos el webhook por un fallo de envío: el local ya
+                  // ha quedado creado y activo, que es lo crítico aquí. Guardamos
+                  // el motivo exacto en KV para verlo directamente en panel.html,
+                  // sin depender de los logs de Cloudflare.
+                  console.error('Fallo enviando email de confirmación al cliente:', mailErr && mailErr.message);
+                  try { await setEmailError(env, local.slug, 'confirmacion', mailErr && mailErr.message); } catch (e) {}
+                }
+              } else {
+                console.error('checkout.session.completed sin email de cliente: no se pudo enviar confirmación.');
+              }
+              try {
+                await enviarNotificacionInterna(env, {
+                  negocio: local.nombre_local,
+                  nfcLink,
+                  codigo: meta.code || '',
+                  nombreCliente: meta.nombre || '',
+                  emailCliente: email || '',
+                  telefono: meta.tel || ''
+                });
+              } catch (mailErr) {
+                console.error('Fallo enviando notificación interna a Taplink:', mailErr && mailErr.message);
+                try { await setEmailError(env, local.slug, 'interna', mailErr && mailErr.message); } catch (e) {}
+              }
             }
           }
         }

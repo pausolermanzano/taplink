@@ -14,6 +14,7 @@
 // Nunca se expone al navegador.
 
 import { resolveReviewLink } from './_lib/places.js';
+import { slugify, generarCodigo } from './_lib/codes.js';
 
 const PLATES = {
   premium: { name: 'Placa Premium', price: 4999 },
@@ -31,29 +32,6 @@ function json(data, status) {
     status: status || 200,
     headers: { 'Content-Type': 'application/json' }
   });
-}
-
-// Convierte "Bar Nou" en "bar-nou-x7k2": esto es lo que se usará en la URL
-// de las placas NFC de ese local (taplink.es/go/bar-nou-x7k2). El sufijo
-// aleatorio evita choques si dos negocios se llaman igual.
-function slugify(str) {
-  const base = (str || 'local')
-    .toString()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '') || 'local';
-  const suffix = Math.random().toString(36).slice(2, 6);
-  return base + '-' + suffix;
-}
-
-// Código de pedido / acceso al panel (TPK-XXXXXX). Se genera aquí, en el
-// servidor, para que sea el mismo que luego se manda por email y el que
-// activa la cuenta — antes se generaba también en el navegador al volver
-// de Stripe, por su cuenta, sin relación real con ningún envío.
-function generarCodigo() {
-  return 'TPK-' + Math.floor(100000 + Math.random() * 899999);
 }
 
 export async function onRequest(context) {

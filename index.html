@@ -447,7 +447,7 @@ h1[style*="clamp(26px"]{overflow-wrap:anywhere}
 
   <section style="border-top:2px solid var(--color-divider)">
     <div style="max-width:1280px;margin:0 auto;padding:34px clamp(20px,5vw,64px);display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:26px 32px">
-      <div><p style="margin:0 0 8px;font-family:var(--font-heading);font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.02em">Envío gratis 24–48 h</p><p style="margin:0;font-size:13px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 58%,transparent)">Sale de Girona ya grabada.</p></div>
+      <div><p style="margin:0 0 8px;font-family:var(--font-heading);font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.02em">Envío gratis 24–48 h</p><p style="margin:0;font-size:13px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 58%,transparent)">Sale ya grabada.</p></div>
       <div><p style="margin:0 0 8px;font-family:var(--font-heading);font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.02em">30 días de garantía</p><p style="margin:0;font-size:13px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 58%,transparent)">Devolución del importe si te arrepientes, sin preguntas.</p></div>
       <div><p style="margin:0 0 8px;font-family:var(--font-heading);font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.02em">Pago cifrado</p><p style="margin:0;font-size:13px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 58%,transparent)">No guardamos datos de tarjeta.</p></div>
       <div><p style="margin:0 0 8px;font-family:var(--font-heading);font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.02em">Soporte en minutos</p><p style="margin:0;font-size:13px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 58%,transparent)">WhatsApp directo, en español.</p></div>
@@ -575,7 +575,7 @@ h1[style*="clamp(26px"]{overflow-wrap:anywhere}
           <div class="field"><label>Email</label><input class="input" name="email" value="{{ form.email }}" onChange="{{ onField }}" placeholder="hola@minegocio.com" style="min-height:48px;font-size:16px"></div>
           <div class="field"><label>Nombre de tu negocio en Google Maps</label><input class="input" name="negocio" value="{{ form.negocio }}" onChange="{{ onField }}" placeholder="Escríbelo tal cual sale en Google Maps. Ej: Bar Vista Alegre" style="min-height:48px;font-size:16px"></div>
           <div class="field"><label>Dirección en Google Maps</label><input class="input" name="negocioDir" value="{{ form.negocioDir }}" onChange="{{ onField }}" placeholder="Escríbela tal cual sale en Google Maps. Ej: Carrer de la Pau 8, Girona" style="min-height:48px;font-size:16px"></div>
-          <p style="margin:-8px 0 0;font-size:13px;color:color-mix(in srgb,var(--color-text) 58%,transparent)">Busca tu negocio en Google Maps y copia el nombre y la dirección exactamente como salen ahí (mayúsculas, tildes o alguna errata incluidos). Con ese texto exacto localizamos tu ficha y generamos tu enlace de reseñas nosotros solos — no hace falta que pegues ningún enlace.</p>
+          <p style="margin:-8px 0 0;font-size:13px;color:color-mix(in srgb,var(--color-text) 58%,transparent)">Busca tu negocio en Google Maps y copia el nombre y la dirección exactamente como salen ahí (mayúsculas y tildes incluidos). Con ese texto exacto localizamos tu ficha y generamos tu enlace de reseñas nosotros solos — no hace falta que pegues ningún enlace.</p>
         </div>
       </sc-if>
       <sc-if value="{{ isStep2 }}">
@@ -638,7 +638,7 @@ h1[style*="clamp(26px"]{overflow-wrap:anywhere}
 <main style="max-width:1280px;margin:0 auto;padding:clamp(56px,8vw,112px) clamp(20px,5vw,64px) 104px;animation:tpFade .5s ease-out">
   <span style="display:block;font:600 11px/1.2 var(--font-body);letter-spacing:.28em;text-transform:uppercase;color:var(--color-accent-700);margin:0 0 26px">Pedido confirmado</span>
   <h1 style="font-family:var(--font-heading);font-weight:800;font-size:clamp(36px,5.6vw,84px);line-height:.94;letter-spacing:-.045em;text-transform:uppercase;margin:0 0 0 -.05em;max-width:20ch;animation:tpUp .8s cubic-bezier(.2,.7,.2,1) both">Tu placa ya está en producción.</h1>
-  <p style="font-size:18px;line-height:1.65;margin:30px 0 0;max-width:50ch;color:color-mix(in srgb,var(--color-text) 72%,transparent)">Pedido <strong>{{ orderNo }}</strong>. Confirmación enviada a {{ orderEmail }}. La grabamos apuntando a tu ficha de Google y sale de Girona en menos de 24 h.</p>
+  <p style="font-size:18px;line-height:1.65;margin:30px 0 0;max-width:50ch;color:color-mix(in srgb,var(--color-text) 72%,transparent)">Pedido <strong>{{ orderNo }}</strong>. Confirmación enviada a {{ orderEmail }}. La grabamos apuntando a tu ficha de Google y sale en menos de 24 h.</p>
   <sc-if value="{{ nfcLink }}">
   <div style="margin-top:32px;border:2px solid var(--color-text);background:var(--color-text);color:var(--color-bg);padding:28px">
     <p style="margin:0 0 10px;font:600 10px/1 var(--font-body);letter-spacing:.22em;text-transform:uppercase;opacity:.65">Enlace de esta placa (para programarla con NFC Tools)</p>
@@ -1116,7 +1116,7 @@ h1[style*="clamp(26px"]{overflow-wrap:anywhere}
       </div>
       <div>
         <p style="margin:0 0 10px;font:600 11px/1 var(--font-body);letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Envío</p>
-        <p style="margin:0">Los pedidos salen de Girona en menos de 24 h y suelen llegar en 24–48 h dentro de España peninsular.</p>
+        <p style="margin:0">Los pedidos salen en menos de 24 h y suelen llegar en 24–48 h dentro de España peninsular.</p>
       </div>
       <div>
         <p style="margin:0 0 10px;font:600 11px/1 var(--font-body);letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Garantías y devoluciones</p>
@@ -1911,7 +1911,7 @@ class Component extends DCLogic {
       progRef: el => { this._prog = el; },
       cutoffTxt: this.cutoff().txt,
       cutoffLead: this.cutoff().today ? 'Pídelo en' : 'Próxima salida en',
-      cutoffNote: this.cutoff().today ? 'y sale hoy de Girona' : 'para el envío de mañana',
+      cutoffNote: this.cutoff().today ? 'y sale hoy' : 'para el envío de mañana',
       stockNote: 'Lote de julio · 37 placas grabadas listas',
       showUpsell: st.cart.length > 0 && !st.cart.some(c => c.id === 'pack'),
       upsellAdd:() => this.add('pack', 1),

@@ -136,6 +136,10 @@ footer{padding:32px 0}
 
 <div class="wrap">
 
+  <div id="banner-activado" style="display:none;margin-bottom:28px;border:2px solid var(--color-accent);background:color-mix(in srgb,var(--color-accent) 12%,transparent);padding:20px 24px;font-size:15px">
+    ✅ Mensualidad activada. Ya está todo en marcha — cualquier duda, escríbenos por WhatsApp.
+  </div>
+
   <section class="hero" style="border-bottom:none">
     <span class="eyebrow"><span class="dot"></span>Solo para negocios con placa activada</span>
     <h1 style="margin-top:22px">Ya tengo<br>mi placa<span class="accent">.</span></h1>
@@ -168,6 +172,9 @@ footer{padding:32px 0}
       <label class="field">Teléfono de contacto
         <input type="tel" id="campo-telefono" placeholder="Ej. 600 000 000">
       </label>
+      <label class="field">Tu email
+        <input type="email" id="campo-email" placeholder="Para el recibo y la confirmación">
+      </label>
       <p class="field-note">El código no viene impreso en la placa: te llegó por email al comprarla, o te lo puede confirmar nuestro comercial.</p>
     </div>
   </div>
@@ -181,14 +188,14 @@ footer{padding:32px 0}
 
     <div class="plans">
       <label class="plan is-selected">
-        <input type="radio" name="plan" checked>
+        <input type="radio" name="plan" value="mensual" checked>
         <span class="dot-radio"></span>
         <p class="plan-name">Mensual</p>
         <p class="plan-price">7,99 € <span>/ mes</span></p>
         <p class="plan-detail">De 1 a 10 placas. Se cobra el día 1 de cada mes.</p>
       </label>
       <label class="plan">
-        <input type="radio" name="plan">
+        <input type="radio" name="plan" value="anual">
         <span class="badge">Ahorras 16,88 €</span>
         <span class="dot-radio"></span>
         <p class="plan-name">Anual</p>
@@ -210,7 +217,8 @@ footer{padding:32px 0}
     <p class="kicker">Paso 3</p>
     <h2 class="section-title">Activa tu mensualidad</h2>
     <p class="section-sub">Domicilias el pago con tarjeta y no tienes que acordarte más — nosotros te avisamos si algo falla.</p>
-    <a href="#" class="btn btn-primary" style="padding:20px 34px">Activar mi mensualidad</a>
+    <button type="button" id="btn-activar" class="btn btn-primary" style="padding:20px 34px">Activar mi mensualidad</button>
+    <p id="activar-error" style="display:none;margin-top:16px;font-size:14px;color:#ff8080;max-width:56ch"></p>
   </div>
 </section>
 
@@ -279,6 +287,9 @@ footer{padding:32px 0}
     var valor = params.get(clave);
     if (valor) document.getElementById(mapa[clave]).value = valor;
   });
+  if (params.get('activado') === '1') {
+    document.getElementById('banner-activado').style.display = 'block';
+  }
 })();
 
 document.querySelectorAll('.plan').forEach(function(el){
@@ -287,6 +298,55 @@ document.querySelectorAll('.plan').forEach(function(el){
     el.classList.add('is-selected');
     el.querySelector('input').checked = true;
   });
+});
+
+document.getElementById('btn-activar').addEventListener('click', async function(){
+  var boton = this;
+  var errorBox = document.getElementById('activar-error');
+  errorBox.style.display = 'none';
+
+  var codigo = document.getElementById('campo-codigo').value.trim();
+  var email = document.getElementById('campo-email').value.trim();
+  var plan = (document.querySelector('input[name="plan"]:checked') || {}).value || 'mensual';
+
+  if (!codigo) {
+    errorBox.textContent = 'Escribe el código de tu placa en el paso 1 antes de activar la mensualidad.';
+    errorBox.style.display = 'block';
+    document.getElementById('campo-codigo').focus();
+    return;
+  }
+  if (!email) {
+    errorBox.textContent = 'Escribe tu email en el paso 1: lo necesitamos para el recibo y la confirmación.';
+    errorBox.style.display = 'block';
+    document.getElementById('campo-email').focus();
+    return;
+  }
+
+  var textoOriginal = boton.textContent;
+  boton.disabled = true;
+  boton.textContent = 'Conectando con el banco…';
+
+  try {
+    var res = await fetch('/create-checkout-session-mensualidad', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ codigo: codigo, email: email, plan: plan })
+    });
+    var data = await res.json().catch(function(){ return {}; });
+    if (!res.ok || !data.url) {
+      errorBox.textContent = data.error || 'No se pudo activar la mensualidad. Inténtalo de nuevo o escríbenos por WhatsApp.';
+      errorBox.style.display = 'block';
+      boton.disabled = false;
+      boton.textContent = textoOriginal;
+      return;
+    }
+    window.location.href = data.url;
+  } catch (e) {
+    errorBox.textContent = 'No se pudo conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.';
+    errorBox.style.display = 'block';
+    boton.disabled = false;
+    boton.textContent = textoOriginal;
+  }
 });
 </script>
 
