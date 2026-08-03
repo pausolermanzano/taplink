@@ -14,7 +14,7 @@
 //   - invoice.paid
 
 import { verifyStripeSignature } from './_lib/stripe-verify.js';
-import { getLocalBySubscriptionId, getLocalBySlug, setEstado, createLocal, linkSubscription, sumarPago, limpiarMesesPendientes, setEmailError } from './_lib/kv.js';
+import { getLocalBySubscriptionId, getLocalBySlug, setEstado, createLocal, linkSubscription, sumarPago, marcarMesesAplicados, setEmailError } from './_lib/kv.js';
 import { ampliarPausaMeses } from './_lib/stripe.js';
 import { enviarConfirmacionPedido, enviarNotificacionInterna } from './_lib/email.js';
 
@@ -87,7 +87,7 @@ export async function onRequest(context) {
                 if (localExistente.meses_gratis_pendientes) {
                   try {
                     await ampliarPausaMeses(env, session.subscription, localExistente.meses_gratis_pendientes);
-                    await limpiarMesesPendientes(env, meta.slug);
+                    await marcarMesesAplicados(env, meta.slug, localExistente.meses_gratis_pendientes);
                   } catch (pausaErr) {
                     console.error('Fallo aplicando meses gratis pendientes:', pausaErr && pausaErr.message);
                   }

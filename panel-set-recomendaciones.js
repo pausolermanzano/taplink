@@ -8,7 +8,7 @@
 // Protegido igual que el resto de rutas del panel: requiere la
 // cabecera "x-panel-password" con ADMIN_PASSWORD.
 
-import { aplicarRecomendaciones } from './_lib/kv.js';
+import { aplicarRecomendaciones, marcarMesesAplicados } from './_lib/kv.js';
 import { ampliarPausaMeses } from './_lib/stripe.js';
 
 function json(data, status) {
@@ -51,9 +51,12 @@ export async function onRequest(context) {
   // no tiene suscripción (venta en efectivo sin activar aún), los
   // meses ya han quedado guardados como pendientes — se aplican solos
   // en cuanto el negocio active su mensualidad (ver webhook-nfc.js).
+  let mesesPendientesFinal = resultado.local.meses_gratis_pendientes || 0;
   if (resultado.mesesNuevos > 0 && resultado.subscriptionId) {
     try {
       await ampliarPausaMeses(env, resultado.subscriptionId, resultado.mesesNuevos);
+      const actualizado = await marcarMesesAplicados(env, slug, resultado.mesesNuevos);
+      if (actualizado) mesesPendientesFinal = actualizado.meses_gratis_pendientes || 0;
     } catch (err) {
       return json({
         ok: true,
@@ -66,6 +69,6 @@ export async function onRequest(context) {
   return json({
     ok: true,
     recomendaciones: resultado.local.recomendaciones,
-    meses_gratis_pendientes: resultado.local.meses_gratis_pendientes || 0
+    meses_gratis_pendientes: mesesPendientesFinal
   });
 }

@@ -381,11 +381,12 @@ function render(locales) {
     const origenHtml = l.origen === 'efectivo' ? '💵 Efectivo' : '🌐 Web';
     const recomendaciones = l.recomendaciones || 0;
     const mesesPendientes = l.meses_gratis_pendientes || 0;
+    const mesesAplicados = l.meses_aplicados || 0;
     let recomNota = '';
     if (mesesPendientes > 0) {
       recomNota = '<div class="recom-nota" title="Se aplicará solo en Stripe en cuanto el negocio active su mensualidad">⏳ ' + mesesPendientes + ' meses gratis pendientes</div>';
-    } else if (recomendaciones > 0) {
-      recomNota = '<div class="recom-nota" style="color:#4ade80" title="Ya aplicado como pausa de cobro en Stripe">✓ ' + (recomendaciones * 3) + ' meses gratis aplicados</div>';
+    } else if (mesesAplicados > 0) {
+      recomNota = '<div class="recom-nota" style="color:#4ade80" title="Ya aplicado como pausa de cobro en Stripe">✓ ' + mesesAplicados + ' meses gratis aplicados</div>';
     }
     const recomHtml = `
       <input type="number" min="0" class="recom-input" data-slug="${slugAttr}" value="${recomendaciones}" onchange="cambiarRecomendaciones(this)">
