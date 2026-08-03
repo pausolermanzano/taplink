@@ -83,6 +83,12 @@
     padding: 6px 8px; font-size: 12px; cursor: pointer;
   }
   .estado-select:disabled { opacity: .5; cursor: wait; }
+  .recom-input {
+    background: #17181a; color: #fff; border: 1px solid #333; border-radius: 6px;
+    padding: 6px 8px; font-size: 13px; width: 64px;
+  }
+  .recom-input:disabled { opacity: .5; cursor: wait; }
+  .recom-nota { margin-top: 4px; font-size: 11px; color: #ffb347; white-space: nowrap; }
   details summary { cursor: pointer; color: #6ea8ff; font-size: 12px; list-style: none; }
   details summary::-webkit-details-marker { display: none; }
   .envio-datos { margin-top: 6px; font-size: 12px; line-height: 1.5; color: rgba(255,255,255,.75); white-space: nowrap; }
@@ -143,6 +149,7 @@
     #tableWrap td.muted { color: rgba(255,255,255,.4); }
     #tableWrap .envio-datos { white-space: normal; text-align: right; }
     #tableWrap .estado-select { width: 100%; font-size: 14px; padding: 10px; margin-top: 2px; }
+    #tableWrap .recom-input { width: 100%; font-size: 16px; padding: 10px; }
     #tableWrap td[data-label="Cambiar estado"] { flex-direction: column; align-items: stretch; text-align: left; }
     #tableWrap td[data-label="Cambiar estado"]::before { text-align: left; margin-bottom: 4px; }
     #tableWrap .btn-eliminar { width: 100%; margin-top: 10px; padding: 10px; }
@@ -352,7 +359,7 @@ function render(locales) {
            ${etiqueta.tracking_number ? 'Track: ' + escapeHtml(etiqueta.tracking_number) : ''}
          </div>
          <button class="btn-etiqueta" data-slug="${slugAttr}" onclick="generarEtiqueta(this)">↺ Regenerar</button>`
-      : `<button class="btn-etiqueta" data-slug="${slugAttr}" onclick="generarEtiqueta(this)" ${l.origen === 'presencial' ? 'disabled title="Venta presencial: la placa ya se entregó en mano, no hace falta enviar nada"' : (tieneEnvio ? '' : 'disabled title="Falta la dirección del cliente"')}>📦 Generar etiqueta</button>`;
+      : `<button class="btn-etiqueta" data-slug="${slugAttr}" onclick="generarEtiqueta(this)" ${l.origen === 'efectivo' ? 'disabled title="Venta en efectivo: la placa ya se entregó en mano, no hace falta enviar nada"' : (tieneEnvio ? '' : 'disabled title="Falta la dirección del cliente"')}>📦 Generar etiqueta</button>`;
     const envioHtml = tieneEnvio ? `
       <details>
         <summary>Ver datos</summary>
@@ -364,16 +371,40 @@ function render(locales) {
           ${l.telefono ? 'Tel: ' + escapeHtml(l.telefono) : ''}
         </div>
       </details><br>${etiquetaHtml}` : '—';
+
+    const cuotaHtml = l.ultima_cuota
+      ? escapeHtml((l.ultima_cuota / 100).toFixed(2).replace('.', ',')) + ' €/' + (l.ultima_cuota_intervalo === 'year' ? 'año' : 'mes')
+      : '—';
+    const totalPagadoHtml = l.total_pagado
+      ? escapeHtml((l.total_pagado / 100).toFixed(2).replace('.', ',')) + ' €'
+      : '0,00 €';
+    const origenHtml = l.origen === 'efectivo' ? '💵 Efectivo' : '🌐 Web';
+    const recomendaciones = l.recomendaciones || 0;
+    const mesesPendientes = l.meses_gratis_pendientes || 0;
+    let recomNota = '';
+    if (mesesPendientes > 0) {
+      recomNota = '<div class="recom-nota" title="Se aplicará solo en Stripe en cuanto el negocio active su mensualidad">⏳ ' + mesesPendientes + ' meses gratis pendientes</div>';
+    } else if (recomendaciones > 0) {
+      recomNota = '<div class="recom-nota" style="color:#4ade80" title="Ya aplicado como pausa de cobro en Stripe">✓ ' + (recomendaciones * 3) + ' meses gratis aplicados</div>';
+    }
+    const recomHtml = `
+      <input type="number" min="0" class="recom-input" data-slug="${slugAttr}" value="${recomendaciones}" onchange="cambiarRecomendaciones(this)">
+      ${recomNota}`;
+
     return `
       <tr>
-        <td data-label="Local">${escapeHtml(l.nombre_local || '—')}${l.origen === 'presencial' ? ' <span class="manual-tag" title="Dado de alta en persona por un comercial">🤝 presencial</span>' : ''}</td>
+        <td data-label="Local">${escapeHtml(l.nombre_local || '—')}</td>
         <td data-label="Código">${escapeHtml(l.codigo || '—')}</td>
         <td data-label="Estado"><span class="badge ${l.estado}">${l.estado || '—'}</span>${l.manual ? ' <span class="manual-tag" title="Fijado a mano: Stripe no puede cambiarlo hasta que elijas Automático">🔒 manual</span>' : ''}</td>
+        <td data-label="Cuota">${cuotaHtml}</td>
+        <td data-label="Total pagado">${totalPagadoHtml}</td>
+        <td data-label="Origen">${origenHtml}</td>
         <td data-label="Link de la placa"><a href="${link}" target="_blank">${link.replace('https://','')}</a></td>
         <td data-label="Reseñas">${l.review_url ? '<a href="' + l.review_url + '" target="_blank">ver reseñas</a>' : '—'} <button class="btn-editar" data-slug="${slugAttr}" onclick="corregirLink(this)" title="Corregir enlace de reseñas">✏️</button></td>
         <td data-label="Envío / facturación">${envioHtml}</td>
         <td data-label="Email">${emailHtml}</td>
         <td data-label="Alta" class="muted">${fecha}</td>
+        <td data-label="Recomendaciones">${recomHtml}</td>
         <td data-label="Cambiar estado">
           <select class="estado-select" data-slug="${slugAttr}" onchange="cambiarEstado(this)">
             <option value="activo" ${l.estado === 'activo' ? 'selected' : ''}>Activo</option>
@@ -389,7 +420,7 @@ function render(locales) {
 
   document.getElementById('tableWrap').innerHTML = `
     <table>
-      <thead><tr><th>Local</th><th>Código</th><th>Estado</th><th>Link de la placa</th><th>Reseñas</th><th>Envío / facturación</th><th>Email</th><th>Alta</th><th>Cambiar estado</th></tr></thead>
+      <thead><tr><th>Local</th><th>Código</th><th>Estado</th><th>Cuota</th><th>Total pagado</th><th>Origen</th><th>Link de la placa</th><th>Reseñas</th><th>Envío / facturación</th><th>Email</th><th>Alta</th><th>Recomendaciones</th><th>Cambiar estado</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>`;
 }
@@ -411,6 +442,29 @@ async function cambiarEstado(select) {
     }
   } catch (e) {
     alert('No se pudo conectar para cambiar el estado.');
+  }
+  await cargar();
+}
+
+async function cambiarRecomendaciones(input) {
+  const slug = input.dataset.slug;
+  const recomendaciones = input.value;
+  const pw = sessionStorage.getItem('panel_pw');
+  input.disabled = true;
+  try {
+    const res = await fetch('/panel-set-recomendaciones', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-panel-password': pw },
+      body: JSON.stringify({ slug, recomendaciones })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      alert('No se pudo guardar: ' + (data.error || res.status));
+    } else if (data.aviso) {
+      alert(data.aviso);
+    }
+  } catch (e) {
+    alert('No se pudo conectar para guardar la recomendación.');
   }
   await cargar();
 }

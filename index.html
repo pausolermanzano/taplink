@@ -29,8 +29,8 @@
   --color-accent-2-700:#7f92ff;--color-accent-2-800:#c3cdff;--color-accent-2-900:#e6ebff;
   --shadow-sm:0 1px 2px rgba(0,0,0,.5);--shadow-md:0 8px 26px rgba(0,0,0,.55);--shadow-lg:0 24px 70px rgba(0,0,0,.7);
 }
-html{scroll-behavior:smooth;background:#08090f}
-body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);font-size:16px;text-wrap:pretty;-webkit-font-smoothing:antialiased}
+html{scroll-behavior:smooth;background:#08090f;overflow-x:clip}
+body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);font-size:16px;text-wrap:pretty;-webkit-font-smoothing:antialiased;overflow-x:clip}
 a{color:var(--color-accent-700);text-underline-offset:3px}
 a:hover{color:var(--color-accent-800)}
 ::selection{background:color-mix(in srgb,var(--color-accent) 45%,transparent)}
@@ -80,6 +80,22 @@ a:hover{color:var(--color-accent-800)}
 
 .table-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
 .table-wrap .table{min-width:480px}
+
+/* — Tablas: en escritorio se ven tal cual; en móvil se convierten en
+   tarjetas apiladas (una por fila) en vez de obligar a deslizar hacia
+   el lado para leerlas — */
+@media (max-width:640px){
+  .table-wrap{overflow-x:visible}
+  .table-wrap .table{min-width:0;width:100%}
+  .table-wrap .table thead{position:absolute;left:-9999px;top:-9999px}
+  .table-wrap .table,.table-wrap .table tbody,.table-wrap .table tr,.table-wrap .table td{display:block;width:100%}
+  .table-wrap .table tr{border:2px solid var(--color-divider);padding:14px 16px;margin-bottom:10px}
+  .table-wrap .table td{border:none!important;padding:8px 0!important;display:flex;justify-content:space-between;align-items:flex-start;gap:14px;text-align:right}
+  .table-wrap .table td[data-label]::before{content:attr(data-label);font:600 10px/1.3 var(--font-body);letter-spacing:.1em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 50%,transparent);text-align:left;flex:0 0 auto;padding-top:2px}
+  .table-wrap .table td:not([data-label])::before{content:none}
+  .table-wrap .table td[colspan]{flex-direction:column;align-items:flex-start;text-align:left}
+  .table-wrap .table td.fila-titulo{font-family:var(--font-heading);font-weight:800;letter-spacing:-.01em;border-bottom:2px solid var(--color-divider)!important;padding-bottom:10px!important;margin-bottom:4px}
+}
 
 @media (max-width:640px){
   .step-row{grid-template-columns:1fr;gap:6px}
@@ -212,12 +228,12 @@ h1[style*="clamp(26px"]{overflow-wrap:anywhere}
       <div class="table-wrap"><table class="table" style="margin:0">
         <thead><tr><th></th><th>Placa Premium</th><th>Pack Doble</th></tr></thead>
         <tbody>
-          <tr><td style="color:color-mix(in srgb,var(--color-text) 60%,transparent)">Formato</td><td>1 placa de mostrador</td><td style="color:var(--color-accent-700)">2 placas: mostrador + segundo punto</td></tr>
-          <tr><td style="color:color-mix(in srgb,var(--color-text) 60%,transparent)">Material</td><td>Metacrilato 98 × 98 mm</td><td style="color:var(--color-accent-700)">Metacrilato 98 × 98 mm</td></tr>
-          <tr><td style="color:color-mix(in srgb,var(--color-text) 60%,transparent)">Lectura</td><td>NFC + QR de respaldo</td><td style="color:var(--color-accent-700)">NFC + QR de respaldo</td></tr>
-          <tr><td style="color:color-mix(in srgb,var(--color-text) 60%,transparent)">Cobertura</td><td>Barra o recepción</td><td style="color:var(--color-accent-700)">Barra y punto de pago o terraza</td></tr>
-          <tr><td style="color:color-mix(in srgb,var(--color-text) 60%,transparent)">Reseñas / mes (media)</td><td>≈ 74</td><td style="color:var(--color-accent-700)">≈ 126</td></tr>
-          <tr><td style="color:color-mix(in srgb,var(--color-text) 60%,transparent)">Precio por placa</td><td>49,99 €</td><td style="color:var(--color-accent-700)">37,49 €</td></tr>
+          <tr><td class="fila-titulo" style="color:color-mix(in srgb,var(--color-text) 60%,transparent)">Formato</td><td data-label="Placa Premium">1 placa de mostrador</td><td data-label="Pack Doble" style="color:var(--color-accent-700)">2 placas: mostrador + segundo punto</td></tr>
+          <tr><td class="fila-titulo" style="color:color-mix(in srgb,var(--color-text) 60%,transparent)">Material</td><td data-label="Placa Premium">Metacrilato 98 × 98 mm</td><td data-label="Pack Doble" style="color:var(--color-accent-700)">Metacrilato 98 × 98 mm</td></tr>
+          <tr><td class="fila-titulo" style="color:color-mix(in srgb,var(--color-text) 60%,transparent)">Lectura</td><td data-label="Placa Premium">NFC + QR de respaldo</td><td data-label="Pack Doble" style="color:var(--color-accent-700)">NFC + QR de respaldo</td></tr>
+          <tr><td class="fila-titulo" style="color:color-mix(in srgb,var(--color-text) 60%,transparent)">Cobertura</td><td data-label="Placa Premium">Barra o recepción</td><td data-label="Pack Doble" style="color:var(--color-accent-700)">Barra y punto de pago o terraza</td></tr>
+          <tr><td class="fila-titulo" style="color:color-mix(in srgb,var(--color-text) 60%,transparent)">Reseñas / mes (media)</td><td data-label="Placa Premium">≈ 74</td><td data-label="Pack Doble" style="color:var(--color-accent-700)">≈ 126</td></tr>
+          <tr><td class="fila-titulo" style="color:color-mix(in srgb,var(--color-text) 60%,transparent)">Precio por placa</td><td data-label="Placa Premium">49,99 €</td><td data-label="Pack Doble" style="color:var(--color-accent-700)">37,49 €</td></tr>
         </tbody>
       </table></div>
     </div>
@@ -291,8 +307,8 @@ h1[style*="clamp(26px"]{overflow-wrap:anywhere}
         <div class="table-wrap"><table class="table" style="margin-top:34px">
           <thead><tr><th>Placas activas</th><th>Mensual</th><th>Anual</th></tr></thead>
           <tbody>
-            <tr><td>De 1 a 10</td><td>7,99 € / mes</td><td><span style="text-decoration:line-through;text-decoration-thickness:2px;color:color-mix(in srgb,var(--color-text) 42%,transparent)">95,88 €</span> 79 €</td></tr>
-            <tr><td>Más de 10 placas</td><td colspan="2">Precio a medida — te lo damos por WhatsApp</td></tr>
+            <tr><td class="fila-titulo">De 1 a 10</td><td data-label="Mensual">7,99 € / mes</td><td data-label="Anual"><span style="text-decoration:line-through;text-decoration-thickness:2px;color:color-mix(in srgb,var(--color-text) 42%,transparent)">95,88 €</span> 79 €</td></tr>
+            <tr><td class="fila-titulo">Más de 10 placas</td><td colspan="2">Precio a medida — te lo damos por WhatsApp</td></tr>
           </tbody>
         </table></div>
         <div style="margin-top:28px;padding:26px;background:var(--color-surface);border:2px solid var(--color-divider);display:flex;gap:22px;align-items:center;flex-wrap:wrap">
@@ -746,7 +762,7 @@ h1[style*="clamp(26px"]{overflow-wrap:anywhere}
           <thead><tr><th>ID</th><th>Modelo</th><th>Ubicación</th><th></th></tr></thead>
           <tbody>
             <sc-for list="{{ plates }}" as="pl" hint-placeholder-count="0">
-              <tr><td>{{ pl.id }}</td><td>{{ pl.name }}</td><td>{{ pl.place }}</td><td><button type="button" class="btn btn-ghost" onClick="{{ pl.del }}" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase">Quitar</button></td></tr>
+              <tr><td class="fila-titulo" data-label="ID">{{ pl.id }}</td><td data-label="Modelo">{{ pl.name }}</td><td data-label="Ubicación">{{ pl.place }}</td><td><button type="button" class="btn btn-ghost" onClick="{{ pl.del }}" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase">Quitar</button></td></tr>
             </sc-for>
           </tbody>
         </table></div>
@@ -853,7 +869,7 @@ h1[style*="clamp(26px"]{overflow-wrap:anywhere}
             <thead><tr><th>Placa</th><th>Ubicación</th><th>Toques</th><th>Reseñas</th><th>Conversión</th><th>Estado</th></tr></thead>
             <tbody>
               <sc-for list="{{ plates }}" as="pl" hint-placeholder-count="3">
-                <tr><td>{{ pl.name }}</td><td>{{ pl.place }}</td><td>{{ pl.taps }}</td><td>{{ pl.reviews }}</td><td>{{ pl.conv }}</td><td><span class="tag" style="background:{{ pl.tagBg }};color:{{ pl.tagFg }};letter-spacing:.1em">{{ pl.status }}</span></td></tr>
+                <tr><td class="fila-titulo" data-label="Placa">{{ pl.name }}</td><td data-label="Ubicación">{{ pl.place }}</td><td data-label="Toques">{{ pl.taps }}</td><td data-label="Reseñas">{{ pl.reviews }}</td><td data-label="Conversión">{{ pl.conv }}</td><td data-label="Estado"><span class="tag" style="background:{{ pl.tagBg }};color:{{ pl.tagFg }};letter-spacing:.1em">{{ pl.status }}</span></td></tr>
               </sc-for>
             </tbody>
           </table></div>
@@ -977,7 +993,7 @@ h1[style*="clamp(26px"]{overflow-wrap:anywhere}
               <thead><tr><th>Fecha</th><th>Concepto</th><th>Importe</th></tr></thead>
               <tbody>
                 <sc-for list="{{ invoices }}" as="iv" hint-placeholder-count="3">
-                  <tr><td>{{ iv.date }}</td><td>{{ iv.concept }}</td><td>{{ iv.amount }}</td></tr>
+                  <tr><td class="fila-titulo" data-label="Fecha">{{ iv.date }}</td><td data-label="Concepto">{{ iv.concept }}</td><td data-label="Importe">{{ iv.amount }}</td></tr>
                 </sc-for>
               </tbody>
             </table></div>

@@ -10,6 +10,56 @@
 //   local:{slug}               -> JSON con los datos del local
 //   sub:{stripe_subscription_id} -> el slug al que pertenece esa suscripción
 
+// Se llama en cada evento "invoice.paid" de Stripe: suma el importe de
+// esa cuota al acumulado histórico del local (para verlo en el panel:
+// "cuánto lleva pagado en total") y guarda el importe de la última
+// cuota (para ver cuánto paga ahora mismo — 7,99€, o más si tiene un
+// precio a medida por volumen).
+export async function sumarPago(env, slug, amountCents, intervalo) {
+  const local = await getLocalBySlug(env, slug);
+  if (!local) return null;
+  local.total_pagado = (local.total_pagado || 0) + (amountCents || 0);
+  local.ultima_cuota = amountCents || 0;
+  if (intervalo) local.ultima_cuota_intervalo = intervalo;
+  local.ultimo_pago_fecha = new Date().toISOString();
+  await env.LOCALES_KV.put(`local:${slug}`, JSON.stringify(local));
+  return local;
+}
+
+// Actualiza el número de recomendaciones y calcula cuántos MESES
+// NUEVOS de gratuidad hay que conceder (solo si el número sube — si se
+// corrige hacia abajo por error, no se retira nada automáticamente).
+// Si el local todavía no tiene suscripción de Stripe (venta en
+// efectivo sin mensualidad activada aún), los meses se acumulan en
+// meses_gratis_pendientes para aplicarlos en cuanto la tenga — ver
+// linkSubscription() y webhook-nfc.js.
+export async function aplicarRecomendaciones(env, slug, nuevoValor) {
+  const local = await getLocalBySlug(env, slug);
+  if (!local) return null;
+  const anterior = local.recomendaciones || 0;
+  const valor = Math.max(0, parseInt(nuevoValor, 10) || 0);
+  const deltaRecomendaciones = valor - anterior;
+  const mesesNuevos = deltaRecomendaciones > 0 ? deltaRecomendaciones * 3 : 0;
+
+  local.recomendaciones = valor;
+  if (mesesNuevos > 0 && !local.stripe_subscription_id) {
+    local.meses_gratis_pendientes = (local.meses_gratis_pendientes || 0) + mesesNuevos;
+  }
+  await env.LOCALES_KV.put(`local:${slug}`, JSON.stringify(local));
+
+  return { local, mesesNuevos, subscriptionId: local.stripe_subscription_id || null };
+}
+
+// Pone a cero los meses gratis pendientes de un local, una vez ya se
+// ha aplicado la pausa correspondiente en Stripe.
+export async function limpiarMesesPendientes(env, slug) {
+  const local = await getLocalBySlug(env, slug);
+  if (!local) return null;
+  local.meses_gratis_pendientes = 0;
+  await env.LOCALES_KV.put(`local:${slug}`, JSON.stringify(local));
+  return local;
+}
+
 export async function getLocalBySlug(env, slug) {
   const raw = await env.LOCALES_KV.get(`local:${slug}`);
   if (!raw) return null;

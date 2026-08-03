@@ -87,7 +87,7 @@ export async function onRequest(context) {
     stripe_subscription_id: '',
     nombre_cliente: nombreCliente,
     telefono,
-    origen: 'presencial'
+    origen: 'efectivo'
   });
 
   return json({

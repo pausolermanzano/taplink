@@ -14,7 +14,8 @@
 //   - invoice.paid
 
 import { verifyStripeSignature } from './_lib/stripe-verify.js';
-import { getLocalBySubscriptionId, getLocalBySlug, setEstado, createLocal, linkSubscription, setEmailError } from './_lib/kv.js';
+import { getLocalBySubscriptionId, getLocalBySlug, setEstado, createLocal, linkSubscription, sumarPago, limpiarMesesPendientes, setEmailError } from './_lib/kv.js';
+import { ampliarPausaMeses } from './_lib/stripe.js';
 import { enviarConfirmacionPedido, enviarNotificacionInterna } from './_lib/email.js';
 
 function json(data, status) {
@@ -77,6 +78,20 @@ export async function onRequest(context) {
               if (!localExistente.stripe_subscription_id) {
                 await linkSubscription(env, meta.slug, session.subscription);
                 console.log('Mensualidad vinculada a local presencial ya existente: ' + meta.slug);
+
+                // Si este local ya tenía recomendaciones guardadas de
+                // antes (venta en efectivo, sin mensualidad activa
+                // todavía), los meses gratis se quedaron "pendientes" —
+                // se aplican ahora mismo, en cuanto existe una
+                // suscripción real de Stripe a la que aplicarlos.
+                if (localExistente.meses_gratis_pendientes) {
+                  try {
+                    await ampliarPausaMeses(env, session.subscription, localExistente.meses_gratis_pendientes);
+                    await limpiarMesesPendientes(env, meta.slug);
+                  } catch (pausaErr) {
+                    console.error('Fallo aplicando meses gratis pendientes:', pausaErr && pausaErr.message);
+                  }
+                }
               }
               try {
                 await enviarNotificacionInterna(env, {
@@ -105,6 +120,7 @@ export async function onRequest(context) {
                 stripe_subscription_id: session.subscription,
                 codigo: meta.code || '',
                 estado: 'activo',
+                origen: 'web',
                 nombre_cliente: meta.nombre || '',
                 nif: meta.nif || '',
                 direccion: meta.dir || '',
@@ -168,7 +184,9 @@ export async function onRequest(context) {
         break;
       }
       case 'invoice.paid': {
-        await actualizarEstado(env, event.data.object.subscription, 'activo');
+        const invoice = event.data.object;
+        await actualizarEstado(env, invoice.subscription, 'activo');
+        await registrarPago(env, invoice.subscription, invoice);
         break;
       }
       default:
@@ -187,4 +205,17 @@ async function actualizarEstado(env, subscriptionId, estado) {
   if (!local) return; // suscripción de otra cosa, o local aún no creado: se ignora
   if (local.manual) return; // alguien lo ha fijado a mano desde el panel: Stripe no lo toca
   await setEstado(env, local.slug, estado);
+}
+
+// Suma el importe de una factura cobrada (invoice.paid) al acumulado
+// histórico del local, para poder ver en el panel cuánto lleva pagado
+// en total y cuánto paga en su cuota actual (útil también para precios
+// a medida por volumen, que no son ni 7,99€ ni 79€).
+async function registrarPago(env, subscriptionId, invoice) {
+  if (!subscriptionId) return;
+  const local = await getLocalBySubscriptionId(env, subscriptionId);
+  if (!local) return;
+  const linea = invoice.lines && invoice.lines.data && invoice.lines.data[0];
+  const intervalo = linea && linea.price && linea.price.recurring && linea.price.recurring.interval;
+  await sumarPago(env, local.slug, invoice.amount_paid || 0, intervalo || '');
 }
