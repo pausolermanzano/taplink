@@ -42,10 +42,18 @@ export async function aplicarRecomendaciones(env, slug, nuevoValor) {
   const valor = Math.max(0, parseInt(nuevoValor, 10) || 0);
   const deltaRecomendaciones = valor - anterior;
   const mesesNuevos = deltaRecomendaciones > 0 ? deltaRecomendaciones * 3 : 0;
-  const mesesAplicados = local.meses_aplicados || 0;
 
   local.recomendaciones = valor;
-  local.meses_gratis_pendientes = Math.max(0, (valor * 3) - mesesAplicados);
+  if (valor === 0) {
+    // Poner el número a 0 se trata como un reinicio completo: borra
+    // también el contador de "meses ya aplicados", para poder limpiar
+    // de un vistazo cualquier dato de pruebas o corrección de un error.
+    local.meses_aplicados = 0;
+    local.meses_gratis_pendientes = 0;
+  } else {
+    const mesesAplicados = local.meses_aplicados || 0;
+    local.meses_gratis_pendientes = Math.max(0, (valor * 3) - mesesAplicados);
+  }
   await env.LOCALES_KV.put(`local:${slug}`, JSON.stringify(local));
 
   return { local, mesesNuevos, subscriptionId: local.stripe_subscription_id || null };
