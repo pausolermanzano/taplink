@@ -29,8 +29,8 @@
   --color-accent-2-700:#7f92ff;--color-accent-2-800:#c3cdff;--color-accent-2-900:#e6ebff;
   --shadow-sm:0 1px 2px rgba(0,0,0,.5);--shadow-md:0 8px 26px rgba(0,0,0,.55);--shadow-lg:0 24px 70px rgba(0,0,0,.7);
 }
-html{scroll-behavior:smooth;background:#08090f;overflow-x:clip}
-body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);font-size:16px;text-wrap:pretty;-webkit-font-smoothing:antialiased;overflow-x:clip}
+html{scroll-behavior:smooth;background:#08090f}
+body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);font-size:16px;text-wrap:pretty;-webkit-font-smoothing:antialiased}
 a{color:var(--color-accent-700);text-underline-offset:3px}
 a:hover{color:var(--color-accent-800)}
 ::selection{background:color-mix(in srgb,var(--color-accent) 45%,transparent)}
@@ -81,22 +81,6 @@ a:hover{color:var(--color-accent-800)}
 .table-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
 .table-wrap .table{min-width:480px}
 
-/* — Tablas: en escritorio se ven tal cual; en móvil se convierten en
-   tarjetas apiladas (una por fila) en vez de obligar a deslizar hacia
-   el lado para leerlas — */
-@media (max-width:640px){
-  .table-wrap{overflow-x:visible}
-  .table-wrap .table{min-width:0;width:100%}
-  .table-wrap .table thead{position:absolute;left:-9999px;top:-9999px}
-  .table-wrap .table,.table-wrap .table tbody,.table-wrap .table tr,.table-wrap .table td{display:block;width:100%}
-  .table-wrap .table tr{border:2px solid var(--color-divider);padding:14px 16px;margin-bottom:10px}
-  .table-wrap .table td{border:none!important;padding:8px 0!important;display:flex;justify-content:space-between;align-items:flex-start;gap:14px;text-align:right}
-  .table-wrap .table td[data-label]::before{content:attr(data-label);font:600 10px/1.3 var(--font-body);letter-spacing:.1em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 50%,transparent);text-align:left;flex:0 0 auto;padding-top:2px}
-  .table-wrap .table td:not([data-label])::before{content:none}
-  .table-wrap .table td[colspan]{flex-direction:column;align-items:flex-start;text-align:left}
-  .table-wrap .table td.fila-titulo{font-family:var(--font-heading);font-weight:800;letter-spacing:-.01em;border-bottom:2px solid var(--color-divider)!important;padding-bottom:10px!important;margin-bottom:4px}
-}
-
 @media (max-width:640px){
   .step-row{grid-template-columns:1fr;gap:6px}
   .step-row h3{font-size:22px}
@@ -112,17 +96,6 @@ summary::marker{content:''}
 @media (max-width:640px){
   .review-card,.rec-card{grid-template-columns:1fr}
   .rec-card > div:last-child{text-align:left}
-}
-
-/* — Mi Taplink: cabecera y selector de rango en móvil — */
-h1[style*="clamp(26px"]{overflow-wrap:anywhere}
-@media (max-width:760px){
-  .seg{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch}
-  .seg-opt{white-space:nowrap}
-}
-@media (max-width:560px){
-  .panel-header-row{flex-direction:column;align-items:stretch !important}
-  .panel-subheader-row{flex-direction:column;align-items:stretch !important}
 }
 </style>
 </helmet>
@@ -228,12 +201,12 @@ h1[style*="clamp(26px"]{overflow-wrap:anywhere}
       <div class="table-wrap"><table class="table" style="margin:0">
         <thead><tr><th></th><th>Placa Premium</th><th>Pack Doble</th></tr></thead>
         <tbody>
-          <tr><td class="fila-titulo" style="color:color-mix(in srgb,var(--color-text) 60%,transparent)">Formato</td><td data-label="Placa Premium">1 placa de mostrador</td><td data-label="Pack Doble" style="color:var(--color-accent-700)">2 placas: mostrador + segundo punto</td></tr>
-          <tr><td class="fila-titulo" style="color:color-mix(in srgb,var(--color-text) 60%,transparent)">Material</td><td data-label="Placa Premium">Metacrilato 98 × 98 mm</td><td data-label="Pack Doble" style="color:var(--color-accent-700)">Metacrilato 98 × 98 mm</td></tr>
-          <tr><td class="fila-titulo" style="color:color-mix(in srgb,var(--color-text) 60%,transparent)">Lectura</td><td data-label="Placa Premium">NFC + QR de respaldo</td><td data-label="Pack Doble" style="color:var(--color-accent-700)">NFC + QR de respaldo</td></tr>
-          <tr><td class="fila-titulo" style="color:color-mix(in srgb,var(--color-text) 60%,transparent)">Cobertura</td><td data-label="Placa Premium">Barra o recepción</td><td data-label="Pack Doble" style="color:var(--color-accent-700)">Barra y punto de pago o terraza</td></tr>
-          <tr><td class="fila-titulo" style="color:color-mix(in srgb,var(--color-text) 60%,transparent)">Reseñas / mes (media)</td><td data-label="Placa Premium">≈ 74</td><td data-label="Pack Doble" style="color:var(--color-accent-700)">≈ 126</td></tr>
-          <tr><td class="fila-titulo" style="color:color-mix(in srgb,var(--color-text) 60%,transparent)">Precio por placa</td><td data-label="Placa Premium">49,99 €</td><td data-label="Pack Doble" style="color:var(--color-accent-700)">37,49 €</td></tr>
+          <tr><td style="color:color-mix(in srgb,var(--color-text) 60%,transparent)">Formato</td><td>1 placa de mostrador</td><td style="color:var(--color-accent-700)">2 placas: mostrador + segundo punto</td></tr>
+          <tr><td style="color:color-mix(in srgb,var(--color-text) 60%,transparent)">Material</td><td>Metacrilato 98 × 98 mm</td><td style="color:var(--color-accent-700)">Metacrilato 98 × 98 mm</td></tr>
+          <tr><td style="color:color-mix(in srgb,var(--color-text) 60%,transparent)">Lectura</td><td>NFC + QR de respaldo</td><td style="color:var(--color-accent-700)">NFC + QR de respaldo</td></tr>
+          <tr><td style="color:color-mix(in srgb,var(--color-text) 60%,transparent)">Cobertura</td><td>Barra o recepción</td><td style="color:var(--color-accent-700)">Barra y punto de pago o terraza</td></tr>
+          <tr><td style="color:color-mix(in srgb,var(--color-text) 60%,transparent)">Reseñas / mes (media)</td><td>≈ 74</td><td style="color:var(--color-accent-700)">≈ 126</td></tr>
+          <tr><td style="color:color-mix(in srgb,var(--color-text) 60%,transparent)">Precio por placa</td><td>49,99 €</td><td style="color:var(--color-accent-700)">37,49 €</td></tr>
         </tbody>
       </table></div>
     </div>
@@ -307,8 +280,8 @@ h1[style*="clamp(26px"]{overflow-wrap:anywhere}
         <div class="table-wrap"><table class="table" style="margin-top:34px">
           <thead><tr><th>Placas activas</th><th>Mensual</th><th>Anual</th></tr></thead>
           <tbody>
-            <tr><td class="fila-titulo">De 1 a 10</td><td data-label="Mensual">7,99 € / mes</td><td data-label="Anual"><span style="text-decoration:line-through;text-decoration-thickness:2px;color:color-mix(in srgb,var(--color-text) 42%,transparent)">95,88 €</span> 79 €</td></tr>
-            <tr><td class="fila-titulo">Más de 10 placas</td><td colspan="2">Precio a medida — te lo damos por WhatsApp</td></tr>
+            <tr><td>De 1 a 10</td><td>7,99 € / mes</td><td><span style="text-decoration:line-through;text-decoration-thickness:2px;color:color-mix(in srgb,var(--color-text) 42%,transparent)">95,88 €</span> 79 €</td></tr>
+            <tr><td>Más de 10 placas</td><td colspan="2">Precio a medida — te lo damos por WhatsApp</td></tr>
           </tbody>
         </table></div>
         <div style="margin-top:28px;padding:26px;background:var(--color-surface);border:2px solid var(--color-divider);display:flex;gap:22px;align-items:center;flex-wrap:wrap">
@@ -463,7 +436,7 @@ h1[style*="clamp(26px"]{overflow-wrap:anywhere}
 
   <section style="border-top:2px solid var(--color-divider)">
     <div style="max-width:1280px;margin:0 auto;padding:34px clamp(20px,5vw,64px);display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:26px 32px">
-      <div><p style="margin:0 0 8px;font-family:var(--font-heading);font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.02em">Envío gratis 24–48 h</p><p style="margin:0;font-size:13px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 58%,transparent)">Sale ya grabada.</p></div>
+      <div><p style="margin:0 0 8px;font-family:var(--font-heading);font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.02em">Envío gratis 24–48 h</p><p style="margin:0;font-size:13px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 58%,transparent)">Sale de Girona ya grabada.</p></div>
       <div><p style="margin:0 0 8px;font-family:var(--font-heading);font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.02em">30 días de garantía</p><p style="margin:0;font-size:13px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 58%,transparent)">Devolución del importe si te arrepientes, sin preguntas.</p></div>
       <div><p style="margin:0 0 8px;font-family:var(--font-heading);font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.02em">Pago cifrado</p><p style="margin:0;font-size:13px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 58%,transparent)">No guardamos datos de tarjeta.</p></div>
       <div><p style="margin:0 0 8px;font-family:var(--font-heading);font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.02em">Soporte en minutos</p><p style="margin:0;font-size:13px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 58%,transparent)">WhatsApp directo, en español.</p></div>
@@ -589,9 +562,9 @@ h1[style*="clamp(26px"]{overflow-wrap:anywhere}
       <sc-if value="{{ isStep1 }}">
         <div style="display:flex;flex-direction:column;gap:20px;max-width:540px;animation:tpUp .45s cubic-bezier(.2,.7,.2,1) both">
           <div class="field"><label>Email</label><input class="input" name="email" value="{{ form.email }}" onChange="{{ onField }}" placeholder="hola@minegocio.com" style="min-height:48px;font-size:16px"></div>
-          <div class="field"><label>Nombre de tu negocio en Google Maps</label><input class="input" name="negocio" value="{{ form.negocio }}" onChange="{{ onField }}" placeholder="Escríbelo tal cual sale en Google Maps. Ej: Bar Vista Alegre" style="min-height:48px;font-size:16px"></div>
-          <div class="field"><label>Dirección en Google Maps</label><input class="input" name="negocioDir" value="{{ form.negocioDir }}" onChange="{{ onField }}" placeholder="Escríbela tal cual sale en Google Maps. Ej: Carrer de la Pau 8, Girona" style="min-height:48px;font-size:16px"></div>
-          <p style="margin:-8px 0 0;font-size:13px;color:color-mix(in srgb,var(--color-text) 58%,transparent)">Busca tu negocio en Google Maps y copia el nombre y la dirección exactamente como salen ahí (mayúsculas y tildes incluidos). Con ese texto exacto localizamos tu ficha y generamos tu enlace de reseñas nosotros solos — no hace falta que pegues ningún enlace.</p>
+          <div class="field"><label>Nombre del negocio (tal cual en Google)</label><input class="input" name="negocio" value="{{ form.negocio }}" onChange="{{ onField }}" placeholder="Bar Nou" style="min-height:48px;font-size:16px"></div>
+          <div class="field"><label>Dirección del negocio (la de tu ficha de Google)</label><input class="input" name="negocioDir" value="{{ form.negocioDir }}" onChange="{{ onField }}" placeholder="Carrer Major 12, Girona" style="min-height:48px;font-size:16px"></div>
+          <p style="margin:-8px 0 0;font-size:13px;color:color-mix(in srgb,var(--color-text) 58%,transparent)">Con esto localizamos tu ficha de Google automáticamente y generamos el enlace de reseñas. No hace falta ningún enlace.</p>
         </div>
       </sc-if>
       <sc-if value="{{ isStep2 }}">
@@ -654,7 +627,7 @@ h1[style*="clamp(26px"]{overflow-wrap:anywhere}
 <main style="max-width:1280px;margin:0 auto;padding:clamp(56px,8vw,112px) clamp(20px,5vw,64px) 104px;animation:tpFade .5s ease-out">
   <span style="display:block;font:600 11px/1.2 var(--font-body);letter-spacing:.28em;text-transform:uppercase;color:var(--color-accent-700);margin:0 0 26px">Pedido confirmado</span>
   <h1 style="font-family:var(--font-heading);font-weight:800;font-size:clamp(36px,5.6vw,84px);line-height:.94;letter-spacing:-.045em;text-transform:uppercase;margin:0 0 0 -.05em;max-width:20ch;animation:tpUp .8s cubic-bezier(.2,.7,.2,1) both">Tu placa ya está en producción.</h1>
-  <p style="font-size:18px;line-height:1.65;margin:30px 0 0;max-width:50ch;color:color-mix(in srgb,var(--color-text) 72%,transparent)">Pedido <strong>{{ orderNo }}</strong>. Confirmación enviada a {{ orderEmail }}. La grabamos apuntando a tu ficha de Google y sale en menos de 24 h.</p>
+  <p style="font-size:18px;line-height:1.65;margin:30px 0 0;max-width:50ch;color:color-mix(in srgb,var(--color-text) 72%,transparent)">Pedido <strong>{{ orderNo }}</strong>. Confirmación enviada a {{ orderEmail }}. La grabamos apuntando a tu ficha de Google y sale de Girona en menos de 24 h.</p>
   <sc-if value="{{ nfcLink }}">
   <div style="margin-top:32px;border:2px solid var(--color-text);background:var(--color-text);color:var(--color-bg);padding:28px">
     <p style="margin:0 0 10px;font:600 10px/1 var(--font-body);letter-spacing:.22em;text-transform:uppercase;opacity:.65">Enlace de esta placa (para programarla con NFC Tools)</p>
@@ -762,7 +735,7 @@ h1[style*="clamp(26px"]{overflow-wrap:anywhere}
           <thead><tr><th>ID</th><th>Modelo</th><th>Ubicación</th><th></th></tr></thead>
           <tbody>
             <sc-for list="{{ plates }}" as="pl" hint-placeholder-count="0">
-              <tr><td class="fila-titulo" data-label="ID">{{ pl.id }}</td><td data-label="Modelo">{{ pl.name }}</td><td data-label="Ubicación">{{ pl.place }}</td><td><button type="button" class="btn btn-ghost" onClick="{{ pl.del }}" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase">Quitar</button></td></tr>
+              <tr><td>{{ pl.id }}</td><td>{{ pl.name }}</td><td>{{ pl.place }}</td><td><button type="button" class="btn btn-ghost" onClick="{{ pl.del }}" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase">Quitar</button></td></tr>
             </sc-for>
           </tbody>
         </table></div>
@@ -787,7 +760,7 @@ h1[style*="clamp(26px"]{overflow-wrap:anywhere}
 
 <sc-if value="{{ isPanel }}">
 <main style="max-width:1440px;margin:0 auto;padding:0 clamp(16px,3vw,40px) 80px;animation:tpFade .4s ease-out">
-  <div class="panel-header-row" style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;padding:34px 0 26px;border-bottom:2px solid var(--color-divider)">
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;padding:34px 0 26px;border-bottom:2px solid var(--color-divider)">
     <div>
       <span style="display:block;font:600 10px/1 var(--font-body);letter-spacing:.24em;text-transform:uppercase;color:var(--color-accent-700);margin:0 0 14px">Mi Taplink</span>
       <h1 style="font-family:var(--font-heading);font-weight:800;font-size:clamp(26px,3.2vw,42px);line-height:1;letter-spacing:-.035em;text-transform:uppercase;margin:0">{{ bizName }}</h1>
@@ -869,7 +842,7 @@ h1[style*="clamp(26px"]{overflow-wrap:anywhere}
             <thead><tr><th>Placa</th><th>Ubicación</th><th>Toques</th><th>Reseñas</th><th>Conversión</th><th>Estado</th></tr></thead>
             <tbody>
               <sc-for list="{{ plates }}" as="pl" hint-placeholder-count="3">
-                <tr><td class="fila-titulo" data-label="Placa">{{ pl.name }}</td><td data-label="Ubicación">{{ pl.place }}</td><td data-label="Toques">{{ pl.taps }}</td><td data-label="Reseñas">{{ pl.reviews }}</td><td data-label="Conversión">{{ pl.conv }}</td><td data-label="Estado"><span class="tag" style="background:{{ pl.tagBg }};color:{{ pl.tagFg }};letter-spacing:.1em">{{ pl.status }}</span></td></tr>
+                <tr><td>{{ pl.name }}</td><td>{{ pl.place }}</td><td>{{ pl.taps }}</td><td>{{ pl.reviews }}</td><td>{{ pl.conv }}</td><td><span class="tag" style="background:{{ pl.tagBg }};color:{{ pl.tagFg }};letter-spacing:.1em">{{ pl.status }}</span></td></tr>
               </sc-for>
             </tbody>
           </table></div>
@@ -877,7 +850,7 @@ h1[style*="clamp(26px"]{overflow-wrap:anywhere}
       </sc-if>
 
       <sc-if value="{{ tabResenas }}">
-        <div class="panel-subheader-row" style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:24px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:24px">
           <p style="margin:0;font-family:var(--font-heading);font-weight:800;font-size:22px;text-transform:uppercase;letter-spacing:-.02em">Últimas reseñas</p>
           <p style="margin:0;font-size:13px;color:color-mix(in srgb,var(--color-text) 58%,transparent)">{{ pendingNote }}</p>
         </div>
@@ -913,8 +886,8 @@ h1[style*="clamp(26px"]{overflow-wrap:anywhere}
         <div style="border:2px solid var(--color-divider);background:var(--color-surface);padding:24px;margin-bottom:24px">
           <p style="margin:0 0 18px;font:600 10px/1 var(--font-body);letter-spacing:.2em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 55%,transparent)">Dar de alta una placa nueva</p>
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;align-items:end">
-            <div class="field"><label>Modelo</label><input class="input" name="name" value="{{ newPlateName }}" onChange="{{ onNewPlate }}" style="min-height:46px;font-size:16px"></div>
-            <div class="field"><label>Ubicación</label><input class="input" name="place" value="{{ newPlatePlace }}" onChange="{{ onNewPlate }}" placeholder="Punto de pago" style="min-height:46px;font-size:16px"></div>
+            <div class="field"><label>Modelo</label><input class="input" name="name" value="{{ newPlateName }}" onChange="{{ onNewPlate }}" style="min-height:46px;font-size:15px"></div>
+            <div class="field"><label>Ubicación</label><input class="input" name="place" value="{{ newPlatePlace }}" onChange="{{ onNewPlate }}" placeholder="Punto de pago" style="min-height:46px;font-size:15px"></div>
             <button type="button" class="btn btn-primary" onClick="{{ addPlate }}" style="padding:14px 20px;font-size:12px;letter-spacing:.1em;text-transform:uppercase">Añadir placa</button>
           </div>
           <sc-if value="{{ onbErr }}"><p style="margin:16px 0 0;font-size:13px;color:var(--color-accent-800)">{{ onbErrMsg }}</p></sc-if>
@@ -983,7 +956,7 @@ h1[style*="clamp(26px"]{overflow-wrap:anywhere}
             <hr class="hr" style="margin:24px 0">
             <p style="margin:0 0 22px;font-size:14px;line-height:1.6;color:color-mix(in srgb,var(--color-text) 62%,transparent)">Próximo cargo: {{ nextCharge }}. Cancelas cuando quieras desde aquí; la placa sigue siendo tuya.</p>
             <div style="display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap">
-              <div class="field" style="max-width:170px"><label>Objetivo mensual</label><input class="input" value="{{ goalDraft }}" onChange="{{ onGoal }}" placeholder="120" style="min-height:46px;font-size:16px"></div>
+              <div class="field" style="max-width:170px"><label>Objetivo mensual</label><input class="input" value="{{ goalDraft }}" onChange="{{ onGoal }}" placeholder="120" style="min-height:46px;font-size:15px"></div>
               <button type="button" class="btn btn-secondary" onClick="{{ saveGoal }}" style="padding:13px 18px;font-size:11px;letter-spacing:.1em;text-transform:uppercase">Guardar objetivo</button>
             </div>
           </div>
@@ -993,7 +966,7 @@ h1[style*="clamp(26px"]{overflow-wrap:anywhere}
               <thead><tr><th>Fecha</th><th>Concepto</th><th>Importe</th></tr></thead>
               <tbody>
                 <sc-for list="{{ invoices }}" as="iv" hint-placeholder-count="3">
-                  <tr><td class="fila-titulo" data-label="Fecha">{{ iv.date }}</td><td data-label="Concepto">{{ iv.concept }}</td><td data-label="Importe">{{ iv.amount }}</td></tr>
+                  <tr><td>{{ iv.date }}</td><td>{{ iv.concept }}</td><td>{{ iv.amount }}</td></tr>
                 </sc-for>
               </tbody>
             </table></div>
@@ -1132,7 +1105,7 @@ h1[style*="clamp(26px"]{overflow-wrap:anywhere}
       </div>
       <div>
         <p style="margin:0 0 10px;font:600 11px/1 var(--font-body);letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Envío</p>
-        <p style="margin:0">Los pedidos salen en menos de 24 h y suelen llegar en 24–48 h dentro de España peninsular.</p>
+        <p style="margin:0">Los pedidos salen de Girona en menos de 24 h y suelen llegar en 24–48 h dentro de España peninsular.</p>
       </div>
       <div>
         <p style="margin:0 0 10px;font:600 11px/1 var(--font-body);letter-spacing:.16em;text-transform:uppercase;color:var(--color-accent-700)">Garantías y devoluciones</p>
@@ -1185,7 +1158,7 @@ h1[style*="clamp(26px"]{overflow-wrap:anywhere}
     </div>
     <div>
       <p style="margin:0 0 16px;font:600 10px/1 var(--font-body);letter-spacing:.22em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 50%,transparent)">Ayuda</p>
-      <div style="display:flex;flex-direction:column;gap:10px"><a onClick="{{ jumpFaq }}" style="cursor:pointer">Preguntas frecuentes</a><a href="mailto:info@taplink.es">info@taplink.es</a><a onClick="{{ jumpComo }}" style="cursor:pointer">Cómo funciona</a><a href="ya-tengo-mi-placa.html">Ya soy cliente</a></div>
+      <div style="display:flex;flex-direction:column;gap:10px"><a onClick="{{ jumpFaq }}" style="cursor:pointer">Preguntas frecuentes</a><a href="mailto:info@taplink.es">info@taplink.es</a><a onClick="{{ jumpComo }}" style="cursor:pointer">Cómo funciona</a></div>
     </div>
     <div>
       <p style="margin:0 0 16px;font:600 10px/1 var(--font-body);letter-spacing:.22em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 50%,transparent)">Legal</p>
@@ -1927,7 +1900,7 @@ class Component extends DCLogic {
       progRef: el => { this._prog = el; },
       cutoffTxt: this.cutoff().txt,
       cutoffLead: this.cutoff().today ? 'Pídelo en' : 'Próxima salida en',
-      cutoffNote: this.cutoff().today ? 'y sale hoy' : 'para el envío de mañana',
+      cutoffNote: this.cutoff().today ? 'y sale hoy de Girona' : 'para el envío de mañana',
       stockNote: 'Lote de julio · 37 placas grabadas listas',
       showUpsell: st.cart.length > 0 && !st.cart.some(c => c.id === 'pack'),
       upsellAdd:() => this.add('pack', 1),
