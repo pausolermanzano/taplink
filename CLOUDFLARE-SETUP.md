@@ -44,3 +44,4 @@ desactivado en el Dashboard de Stripe). No hay que tocar nada más del código.
 Cuando quieras usar `taplink.com` en vez de `taplink.pages.dev`: en el
 proyecto de Cloudflare Pages, `Custom domains → Set up a custom domain`, y
 sigue el asistente. No afecta a la función ni a la clave de Stripe.
+ 
