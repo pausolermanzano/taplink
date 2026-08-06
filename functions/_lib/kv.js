@@ -23,10 +23,26 @@ export async function getLocalBySubscriptionId(env, subscriptionId) {
   return local ? { ...local, slug } : null;
 }
 
+// No hay un índice codigo:{codigo} dedicado (los códigos TPK-XXXXXX son
+// pocos en volumen), así que se busca recorriendo todos los locales. Se
+// usa para comprobar colisiones al generar un código nuevo (panel-crear-
+// manual.js) y para encontrar el local al activar la mensualidad desde
+// /ya-tengo-mi-placa.html (create-checkout-session-mensualidad.js).
+export async function getLocalByCodigo(env, codigo) {
+  const locales = await listLocales(env);
+  return locales.find(l => l.codigo === codigo) || null;
+}
+
 export async function createLocal(env, fields) {
   const record = { ...fields, creado: new Date().toISOString() };
   await env.LOCALES_KV.put(`local:${fields.slug}`, JSON.stringify(record));
-  await env.LOCALES_KV.put(`sub:${fields.stripe_subscription_id}`, fields.slug);
+  // Los locales creados a mano (venta en persona) no tienen suscripción de
+  // Stripe real -- si guardáramos sub:"" para todos, el segundo cliente
+  // manual pisaría el índice del primero. Solo se guarda el índice sub:{id}
+  // cuando hay un ID de verdad.
+  if (fields.stripe_subscription_id) {
+    await env.LOCALES_KV.put(`sub:${fields.stripe_subscription_id}`, fields.slug);
+  }
   return record;
 }
 
