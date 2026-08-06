@@ -13,12 +13,29 @@ import { getLocalBySlug } from '../_lib/kv.js';
 // probabilidades de quedarse en el navegador que un salto automático por
 // script -- Android decide con más frecuencia "abrir con Google Maps" en
 // los saltos automáticos que en los toques directos de la persona.
-// Aun así, esto no es infalible: Android puede seguir abriendo la app de
-// Maps en vez del navegador según el móvil. Por eso se añade también una
-// instrucción de respaldo, por si la reseña no se abre directa a las
-// estrellas y hay que tocarlas una vez más desde la ficha del negocio.
-function paginaSalto(destino) {
+//
+// Además, en Android, el botón usa el esquema especial "intent://" para
+// pedirle EXPLÍCITAMENTE a Android que abra el enlace con Chrome (en vez
+// de dejar que decida solo qué app usar) -- esto puede saltarse el
+// "secuestro" de la app de Maps en bastantes casos, aunque según el
+// fabricante (ej. Xiaomi/MIUI) el propio sistema puede seguir imponiendo
+// su criterio por encima de esta petición.
+//
+// Aun con esto, no es infalible. Por eso se añade también una instrucción
+// de respaldo, por si la reseña no se abre directa a las estrellas y hay
+// que tocarlas una vez más desde la ficha del negocio.
+function paginaSalto(destino, esAndroid) {
   const safe = destino.replace(/"/g, '&quot;');
+  let href = safe;
+  if (esAndroid) {
+    try {
+      const u = new URL(destino);
+      const resto = u.pathname + u.search;
+      href = `intent://${u.host}${resto}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent(destino)};end`;
+    } catch (e) {
+      href = safe;
+    }
+  }
   return `<!doctype html>
 <html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -33,7 +50,7 @@ p.ayuda{margin-top:22px;font-size:13px;color:#777;max-width:320px;line-height:1.
 </style></head>
 <body>
 <h1>¡Gracias por tu visita! ⭐</h1>
-<a class="btn" href="${safe}">Dejar mi reseña en Google</a>
+<a class="btn" href="${href}">Dejar mi reseña en Google</a>
 <p class="ayuda">Si se abre la ficha del negocio en vez de las estrellas, solo tienes que tocar las estrellas de arriba para escribir tu reseña.</p>
 </body></html>`;
 }
@@ -56,6 +73,7 @@ export async function onRequest(context) {
 
   try {
     const local = await getLocalBySlug(env, slug);
+    const esAndroid = /Android/i.test(request.headers.get('user-agent') || '');
 
     if (!local) {
       // Placa no registrada (todavía) en Cloudflare KV
@@ -65,11 +83,12 @@ export async function onRequest(context) {
     const { estado, review_url } = local;
 
     if (estado === 'activo' && review_url) {
-      return respuestaHTML(paginaSalto(review_url));
+      return respuestaHTML(paginaSalto(review_url, esAndroid));
     }
 
-    return respuestaHTML(paginaSalto(fallback));
+    return respuestaHTML(paginaSalto(fallback, esAndroid));
   } catch (err) {
-    return respuestaHTML(paginaSalto(fallback));
+    const esAndroid = /Android/i.test(request.headers.get('user-agent') || '');
+    return respuestaHTML(paginaSalto(fallback, esAndroid));
   }
 }
