@@ -8,27 +8,33 @@
 
 import { getLocalBySlug } from '../_lib/kv.js';
 
-// Página intermedia mínima: en vez de un 302 directo, carga esta página
-// y desde AHÍ lanza el salto al destino. Esto evita que Android intercepte
-// el enlace de Google (search.google.com/local/writereview) y lo abra con
-// la app de Maps en vez del navegador -- la app de Maps a veces no lleva
-// directo a las estrellas, solo abre la ficha del negocio.
+// Página intermedia: en vez de saltar SOLA, muestra un botón grande que
+// hay que tocar. Un toque real del usuario sobre un enlace tiene más
+// probabilidades de quedarse en el navegador que un salto automático por
+// script -- Android decide con más frecuencia "abrir con Google Maps" en
+// los saltos automáticos que en los toques directos de la persona.
+// Aun así, esto no es infalible: Android puede seguir abriendo la app de
+// Maps en vez del navegador según el móvil. Por eso se añade también una
+// instrucción de respaldo, por si la reseña no se abre directa a las
+// estrellas y hay que tocarlas una vez más desde la ficha del negocio.
 function paginaSalto(destino) {
   const safe = destino.replace(/"/g, '&quot;');
   return `<!doctype html>
 <html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Redirigiendo...</title>
-<meta http-equiv="refresh" content="0; url=${safe}">
+<title>Dejar una reseña</title>
 <style>
 body{font-family:-apple-system,system-ui,sans-serif;display:flex;flex-direction:column;
-align-items:center;justify-content:center;height:100vh;margin:0;background:#fafafa;color:#333;text-align:center;padding:20px}
-a{margin-top:16px;color:#2563eb;font-weight:600;text-decoration:none}
+align-items:center;justify-content:center;height:100vh;margin:0;background:#fafafa;color:#222;text-align:center;padding:24px}
+h1{font-size:19px;margin:0 0 22px}
+a.btn{display:inline-block;padding:16px 32px;background:#2563eb;color:#fff;font-size:17px;
+font-weight:700;text-decoration:none;border-radius:10px}
+p.ayuda{margin-top:22px;font-size:13px;color:#777;max-width:320px;line-height:1.5}
 </style></head>
 <body>
-<p>Abriendo...</p>
-<a href="${safe}">Toca aquí si no se abre automáticamente</a>
-<script>window.location.replace(${JSON.stringify(destino)});</script>
+<h1>¡Gracias por tu visita! ⭐</h1>
+<a class="btn" href="${safe}">Dejar mi reseña en Google</a>
+<p class="ayuda">Si se abre la ficha del negocio en vez de las estrellas, solo tienes que tocar las estrellas de arriba para escribir tu reseña.</p>
 </body></html>`;
 }
 
