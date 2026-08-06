@@ -14,8 +14,7 @@
 //   - invoice.paid
 
 import { verifyStripeSignature } from './_lib/stripe-verify.js';
-import { getLocalBySubscriptionId, getLocalBySlug, setEstado, createLocal, linkSubscription, sumarPago, marcarMesesAplicados, setEmailError } from './_lib/kv.js';
-import { ampliarPausaMeses } from './_lib/stripe.js';
+import { getLocalBySubscriptionId, setEstado, createLocal, setEmailError } from './_lib/kv.js';
 import { enviarConfirmacionPedido, enviarNotificacionInterna } from './_lib/email.js';
 
 function json(data, status) {
@@ -61,106 +60,58 @@ export async function onRequest(context) {
         const session = event.data.object;
         const meta = session.metadata || {};
         console.log('checkout.session.completed recibido. slug=' + meta.slug + ' subscription=' + session.subscription);
-        if (meta.slug && session.subscription) {
-          const yaVinculado = await getLocalBySubscriptionId(env, session.subscription);
-          if (!yaVinculado) {
+        if (meta.slug && meta.review_url && session.subscription) {
+          const yaExiste = await getLocalBySubscriptionId(env, session.subscription);
+          if (!yaExiste) {
             const origin = new URL(request.url).origin;
             const nfcLink = origin + '/go/' + meta.slug;
+            const local = await createLocal(env, {
+              slug: meta.slug,
+              nombre_local: meta.negocio || meta.slug,
+              review_url: meta.review_url,
+              stripe_subscription_id: session.subscription,
+              codigo: meta.code || '',
+              estado: 'activo',
+              nombre_cliente: meta.nombre || '',
+              nif: meta.nif || '',
+              direccion: meta.dir || '',
+              cp: meta.cp || '',
+              ciudad: meta.ciudad || '',
+              telefono: meta.tel || ''
+            });
+            console.log('Local creado en KV: ' + local.slug);
             const email = session.customer_email || (session.customer_details && session.customer_details.email);
-
-            // Caso 1: venta presencial que activa su mensualidad ahora.
-            // El local YA EXISTE (lo creó Marc/Pau desde el panel al
-            // entregar la placa) — no creamos uno nuevo, solo enlazamos
-            // esta suscripción al que ya había, buscándolo por el mismo
-            // slug que viaja en el metadata.
-            const localExistente = await getLocalBySlug(env, meta.slug);
-            if (localExistente) {
-              if (!localExistente.stripe_subscription_id) {
-                await linkSubscription(env, meta.slug, session.subscription);
-                console.log('Mensualidad vinculada a local presencial ya existente: ' + meta.slug);
-
-                // Si este local ya tenía recomendaciones guardadas de
-                // antes (venta en efectivo, sin mensualidad activa
-                // todavía), los meses gratis se quedaron "pendientes" —
-                // se aplican ahora mismo, en cuanto existe una
-                // suscripción real de Stripe a la que aplicarlos.
-                if (localExistente.meses_gratis_pendientes) {
-                  try {
-                    await ampliarPausaMeses(env, session.subscription, localExistente.meses_gratis_pendientes);
-                    await marcarMesesAplicados(env, meta.slug, localExistente.meses_gratis_pendientes);
-                  } catch (pausaErr) {
-                    console.error('Fallo aplicando meses gratis pendientes:', pausaErr && pausaErr.message);
-                  }
-                }
-              }
+            if (email) {
               try {
-                await enviarNotificacionInterna(env, {
-                  negocio: localExistente.nombre_local,
-                  nfcLink,
-                  codigo: localExistente.codigo || meta.codigo || '',
-                  nombreCliente: localExistente.nombre_cliente || '',
-                  emailCliente: email || '',
-                  telefono: localExistente.telefono || ''
+                await enviarConfirmacionPedido(env, {
+                  to: email,
+                  negocio: local.nombre_local,
+                  codigo: meta.code || '',
+                  nfcLink
                 });
               } catch (mailErr) {
-                console.error('Fallo enviando notificación interna (mensualidad vinculada):', mailErr && mailErr.message);
-                try { await setEmailError(env, meta.slug, 'interna', mailErr && mailErr.message); } catch (e) {}
+                // No tumbamos el webhook por un fallo de envío: el local ya
+                // ha quedado creado y activo, que es lo crítico aquí. Guardamos
+                // el motivo exacto en KV para verlo directamente en panel.html,
+                // sin depender de los logs de Cloudflare.
+                console.error('Fallo enviando email de confirmación al cliente:', mailErr && mailErr.message);
+                try { await setEmailError(env, local.slug, 'confirmacion', mailErr && mailErr.message); } catch (e) {}
               }
-              break;
+            } else {
+              console.error('checkout.session.completed sin email de cliente: no se pudo enviar confirmación.');
             }
-
-            // Caso 2: compra online completa (placa + mensualidad juntas,
-            // el flujo de siempre) — aquí sí toca crear el local desde
-            // cero, con todos los datos de facturación/envío.
-            if (meta.review_url) {
-              const local = await createLocal(env, {
-                slug: meta.slug,
-                nombre_local: meta.negocio || meta.slug,
-                review_url: meta.review_url,
-                stripe_subscription_id: session.subscription,
+            try {
+              await enviarNotificacionInterna(env, {
+                negocio: local.nombre_local,
+                nfcLink,
                 codigo: meta.code || '',
-                estado: 'activo',
-                origen: 'web',
-                nombre_cliente: meta.nombre || '',
-                nif: meta.nif || '',
-                direccion: meta.dir || '',
-                cp: meta.cp || '',
-                ciudad: meta.ciudad || '',
+                nombreCliente: meta.nombre || '',
+                emailCliente: email || '',
                 telefono: meta.tel || ''
               });
-              console.log('Local creado en KV: ' + local.slug);
-              if (email) {
-                try {
-                  await enviarConfirmacionPedido(env, {
-                    to: email,
-                    negocio: local.nombre_local,
-                    codigo: meta.code || '',
-                    nfcLink
-                  });
-                } catch (mailErr) {
-                  // No tumbamos el webhook por un fallo de envío: el local ya
-                  // ha quedado creado y activo, que es lo crítico aquí. Guardamos
-                  // el motivo exacto en KV para verlo directamente en panel.html,
-                  // sin depender de los logs de Cloudflare.
-                  console.error('Fallo enviando email de confirmación al cliente:', mailErr && mailErr.message);
-                  try { await setEmailError(env, local.slug, 'confirmacion', mailErr && mailErr.message); } catch (e) {}
-                }
-              } else {
-                console.error('checkout.session.completed sin email de cliente: no se pudo enviar confirmación.');
-              }
-              try {
-                await enviarNotificacionInterna(env, {
-                  negocio: local.nombre_local,
-                  nfcLink,
-                  codigo: meta.code || '',
-                  nombreCliente: meta.nombre || '',
-                  emailCliente: email || '',
-                  telefono: meta.tel || ''
-                });
-              } catch (mailErr) {
-                console.error('Fallo enviando notificación interna a Taplink:', mailErr && mailErr.message);
-                try { await setEmailError(env, local.slug, 'interna', mailErr && mailErr.message); } catch (e) {}
-              }
+            } catch (mailErr) {
+              console.error('Fallo enviando notificación interna a Taplink:', mailErr && mailErr.message);
+              try { await setEmailError(env, local.slug, 'interna', mailErr && mailErr.message); } catch (e) {}
             }
           }
         }
@@ -184,9 +135,7 @@ export async function onRequest(context) {
         break;
       }
       case 'invoice.paid': {
-        const invoice = event.data.object;
-        await actualizarEstado(env, invoice.subscription, 'activo');
-        await registrarPago(env, invoice.subscription, invoice);
+        await actualizarEstado(env, event.data.object.subscription, 'activo');
         break;
       }
       default:
@@ -205,17 +154,4 @@ async function actualizarEstado(env, subscriptionId, estado) {
   if (!local) return; // suscripción de otra cosa, o local aún no creado: se ignora
   if (local.manual) return; // alguien lo ha fijado a mano desde el panel: Stripe no lo toca
   await setEstado(env, local.slug, estado);
-}
-
-// Suma el importe de una factura cobrada (invoice.paid) al acumulado
-// histórico del local, para poder ver en el panel cuánto lleva pagado
-// en total y cuánto paga en su cuota actual (útil también para precios
-// a medida por volumen, que no son ni 7,99€ ni 79€).
-async function registrarPago(env, subscriptionId, invoice) {
-  if (!subscriptionId) return;
-  const local = await getLocalBySubscriptionId(env, subscriptionId);
-  if (!local) return;
-  const linea = invoice.lines && invoice.lines.data && invoice.lines.data[0];
-  const intervalo = linea && linea.price && linea.price.recurring && linea.price.recurring.interval;
-  await sumarPago(env, local.slug, invoice.amount_paid || 0, intervalo || '');
 }

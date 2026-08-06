@@ -73,6 +73,27 @@
   }
   .btn-etiqueta:hover { background: #1a3548; }
   .btn-etiqueta:disabled { opacity: .4; cursor: not-allowed; }
+  .crear-wrap {
+    background: #141416; border: 1px solid #262626; border-radius: 10px;
+    padding: 18px 20px; margin-bottom: 24px;
+  }
+  .crear-wrap h2 { font-size: 15px; margin: 0 0 4px; }
+  .crear-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px; margin-top: 12px;
+  }
+  .crear-grid input {
+    padding: 10px 12px; border-radius: 8px; border: 1px solid #333;
+    background: #17181a; color: #fff; font-size: 13px;
+  }
+  .crear-err { color: #f87171; font-size: 13px; margin: 10px 0 0; min-height: 16px; }
+  .crear-botones { margin-top: 14px; display: flex; gap: 10px; }
+  .crear-botones .refresh { padding: 10px 18px; }
+  .crear-ok {
+    background: #0f2416; border: 1px solid #1e4a2c; border-radius: 8px;
+    padding: 14px 16px; margin-top: 14px; font-size: 13px; line-height: 1.7;
+  }
+  .crear-ok a { color: #6ea8ff; word-break: break-all; }
 </style>
 </head>
 <body>
@@ -90,8 +111,27 @@
     <header class="top">
       <h1>Locales</h1>
       <input id="buscador" class="buscador" type="text" placeholder="Buscar por nombre, código o email…" oninput="filtrar()" />
+      <button class="refresh" style="width:auto;background:#4ade80" onclick="mostrarFormCrear()">➕ Añadir cliente</button>
       <button class="refresh" onclick="cargar()">Actualizar</button>
     </header>
+
+    <div id="formCrear" class="crear-wrap" style="display:none">
+      <h2>Añadir cliente a mano</h2>
+      <p class="muted">Para venta en persona / cobro en efectivo. Escribe el negocio y la dirección tal cual salen en Google Maps — el enlace de reseñas se busca solo, igual que en la compra online.</p>
+      <div class="crear-grid">
+        <input id="c-negocio" placeholder="Nombre del negocio *" />
+        <input id="c-dir" placeholder="Dirección (tal cual en Google Maps) *" />
+        <input id="c-nombre" placeholder="Nombre del cliente" />
+        <input id="c-tel" placeholder="Teléfono" />
+      </div>
+      <p class="crear-err" id="crearErr"></p>
+      <div id="crearOk" class="crear-ok" style="display:none"></div>
+      <div class="crear-botones">
+        <button class="refresh" style="width:auto;background:#4ade80" onclick="crearLocal()" id="btnCrear">Crear cliente</button>
+        <button class="refresh" style="width:auto;background:#333;color:#fff" onclick="ocultarFormCrear()">Cerrar</button>
+      </div>
+    </div>
+
     <div class="stats" id="stats"></div>
     <div id="tableWrap"></div>
   </div>
@@ -105,6 +145,68 @@ function entrar() {
 }
 
 document.getElementById('pw').addEventListener('keydown', (e) => { if (e.key === 'Enter') entrar(); });
+
+function mostrarFormCrear() {
+  document.getElementById('formCrear').style.display = 'block';
+  document.getElementById('c-negocio').focus();
+}
+
+function ocultarFormCrear() {
+  document.getElementById('formCrear').style.display = 'none';
+  document.getElementById('crearErr').textContent = '';
+  document.getElementById('crearOk').style.display = 'none';
+  ['c-negocio','c-dir','c-nombre','c-tel'].forEach(id => { document.getElementById(id).value = ''; });
+}
+
+async function crearLocal() {
+  const negocio = document.getElementById('c-negocio').value.trim();
+  const negocioDir = document.getElementById('c-dir').value.trim();
+  const errEl = document.getElementById('crearErr');
+  const okEl = document.getElementById('crearOk');
+  errEl.textContent = '';
+  okEl.style.display = 'none';
+
+  if (!negocio) { errEl.textContent = 'Falta el nombre del negocio.'; return; }
+  if (!negocioDir) { errEl.textContent = 'Falta la dirección (tal cual en Google Maps).'; return; }
+
+  const pw = sessionStorage.getItem('panel_pw');
+  const btn = document.getElementById('btnCrear');
+  btn.disabled = true;
+  btn.textContent = 'Buscando en Google y creando…';
+  try {
+    const res = await fetch('/panel-crear-manual', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-panel-password': pw },
+      body: JSON.stringify({
+        negocio,
+        negocioDir,
+        nombreCliente: document.getElementById('c-nombre').value.trim(),
+        telefono: document.getElementById('c-tel').value.trim()
+      })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      errEl.textContent = data.error || 'No se pudo crear el cliente.';
+      btn.disabled = false;
+      btn.textContent = 'Crear cliente';
+      return;
+    }
+    okEl.innerHTML =
+      '✅ Cliente creado.<br>' +
+      'Código: <b>' + escapeHtml(data.codigo) + '</b><br>' +
+      'Enlace para grabar en la placa NFC: <a href="' + data.nfc_link + '" target="_blank">' + data.nfc_link + '</a><br>' +
+      'Enlace para que active la mensualidad: <a href="' + data.activar_mensualidad_link + '" target="_blank">' + data.activar_mensualidad_link + '</a>';
+    okEl.style.display = 'block';
+  } catch (e) {
+    errEl.textContent = 'No se pudo conectar para crear el cliente.';
+    btn.disabled = false;
+    btn.textContent = 'Crear cliente';
+    return;
+  }
+  btn.disabled = false;
+  btn.textContent = 'Crear cliente';
+  await cargar();
+}
 
 async function cargar() {
   const pw = sessionStorage.getItem('panel_pw');
