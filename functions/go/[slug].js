@@ -8,22 +8,19 @@
 
 import { getLocalBySlug } from '../_lib/kv.js';
 
-// Página intermedia: en vez de saltar SOLA, muestra un botón grande que
-// hay que tocar. Un toque real del usuario sobre un enlace tiene más
-// probabilidades de quedarse en el navegador que un salto automático por
-// script -- Android decide con más frecuencia "abrir con Google Maps" en
-// los saltos automáticos que en los toques directos de la persona.
+// EXPERIMENTAL: además del botón (que ya funciona en iPhone y Android
+// normal), se intenta cargar la página de reseñas de Google dentro de un
+// iframe en esta misma pantalla. La idea es que Android solo entrega la
+// navegación a otra app cuando el salto ocurre en la pantalla principal
+// del navegador -- si Google se carga DENTRO de un recuadro de nuestra
+// propia página, en teoría no debería secuestrarlo ninguna app.
 //
-// Además, en Android, el botón usa el esquema especial "intent://" para
-// pedirle EXPLÍCITAMENTE a Android que abra el enlace con Chrome (en vez
-// de dejar que decida solo qué app usar) -- esto puede saltarse el
-// "secuestro" de la app de Maps en bastantes casos, aunque según el
-// fabricante (ej. Xiaomi/MIUI) el propio sistema puede seguir imponiendo
-// su criterio por encima de esta petición.
-//
-// Aun con esto, no es infalible. Por eso se añade también una instrucción
-// de respaldo, por si la reseña no se abre directa a las estrellas y hay
-// que tocarlas una vez más desde la ficha del negocio.
+// Riesgo conocido y asumido: es muy posible que Google bloquee que sus
+// páginas se carguen dentro de webs ajenas (X-Frame-Options / CSP), y en
+// ese caso el recuadro saldría en blanco o con un error de Google. Por
+// eso el botón de siempre se queda debajo, intacto, como red de
+// seguridad -- si el iframe falla, la persona simplemente usa el botón
+// como hasta ahora.
 function paginaSalto(destino, esAndroid) {
   const safe = destino.replace(/"/g, '&quot;');
   let href = safe;
@@ -41,17 +38,20 @@ function paginaSalto(destino, esAndroid) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Dejar una reseña</title>
 <style>
-body{font-family:-apple-system,system-ui,sans-serif;display:flex;flex-direction:column;
-align-items:center;justify-content:center;height:100vh;margin:0;background:#fafafa;color:#222;text-align:center;padding:24px}
-h1{font-size:19px;margin:0 0 22px}
-a.btn{display:inline-block;padding:16px 32px;background:#2563eb;color:#fff;font-size:17px;
+*{box-sizing:border-box}
+body{font-family:-apple-system,system-ui,sans-serif;margin:0;background:#fafafa;color:#222;
+padding:20px;min-height:100vh;display:flex;flex-direction:column;align-items:center}
+h1{font-size:18px;margin:6px 0 14px;text-align:center}
+iframe{width:100%;max-width:480px;height:46vh;border:1px solid #ddd;border-radius:12px;background:#fff}
+a.btn{display:inline-block;margin-top:18px;padding:16px 32px;background:#2563eb;color:#fff;font-size:17px;
 font-weight:700;text-decoration:none;border-radius:10px}
-p.ayuda{margin-top:22px;font-size:13px;color:#777;max-width:320px;line-height:1.5}
+p.ayuda{margin-top:16px;font-size:13px;color:#777;max-width:320px;line-height:1.5;text-align:center}
 </style></head>
 <body>
 <h1>¡Gracias por tu visita! ⭐</h1>
+<iframe src="${safe}" loading="eager" referrerpolicy="no-referrer-when-downgrade"></iframe>
 <a class="btn" href="${href}">Dejar mi reseña en Google</a>
-<p class="ayuda">Si se abre la ficha del negocio en vez de las estrellas, solo tienes que tocar las estrellas de arriba para escribir tu reseña.</p>
+<p class="ayuda">Si el recuadro de arriba sale en blanco, usa el botón. Y si se abre la ficha del negocio en vez de las estrellas, tócalas arriba para escribir tu reseña.</p>
 </body></html>`;
 }
 
