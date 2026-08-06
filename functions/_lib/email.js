@@ -24,14 +24,14 @@ export async function enviarConfirmacionPedido(env, { to, negocio, codigo, nfcLi
       <p style="margin:26px 0;padding:18px 20px;background:#f2f3f7;border-left:4px solid #2b4bff;font-size:22px;font-weight:700;letter-spacing:.02em">${escapeHtml(codigo)}</p>
       <p style="font-size:15px;line-height:1.6">Este es el enlace que llevará tu placa a las reseñas de Google:</p>
       <p style="font-size:14px;word-break:break-all"><a href="${nfcLink}" style="color:#2b4bff">${nfcLink}</a></p>
-      <p style="font-size:14px;line-height:1.6;margin-top:30px;color:#555">Grabamos tu placa y sale en menos de 24 h. Cualquier duda, respóndenos a este email o escríbenos a info@taplink.es.</p>
+      <p style="font-size:14px;line-height:1.6;margin-top:30px;color:#555">Grabamos tu placa y sale de Girona en menos de 24 h. Cualquier duda, respóndenos a este email o escríbenos a info@taplink.es.</p>
       <p style="font-size:13px;color:#888;margin-top:34px">Taplink · Placas NFC para reseñas de Google</p>
     </div>`;
 
   const texto = `¡Gracias por tu pedido!\n\n` +
     `Tu código de acceso al panel: ${codigo}\n\n` +
     `Enlace de tu placa: ${nfcLink}\n\n` +
-    `Grabamos tu placa y sale en menos de 24 h.\n` +
+    `Grabamos tu placa y sale de Girona en menos de 24 h.\n` +
     `Dudas: info@taplink.es`;
 
   const res = await fetch('https://api.resend.com/emails', {
