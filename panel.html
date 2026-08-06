@@ -195,7 +195,8 @@ async function crearLocal() {
       '✅ Cliente creado.<br>' +
       'Código: <b>' + escapeHtml(data.codigo) + '</b><br>' +
       'Enlace para grabar en la placa NFC: <a href="' + data.nfc_link + '" target="_blank">' + data.nfc_link + '</a><br>' +
-      'Enlace para que active la mensualidad: <a href="' + data.activar_mensualidad_link + '" target="_blank">' + data.activar_mensualidad_link + '</a>';
+      'Enlace para que active la mensualidad: <a href="' + data.activar_mensualidad_link + '" target="_blank">' + data.activar_mensualidad_link + '</a><br>' +
+      'Enlace para que pegue su propio enlace de reseñas: <a href="' + data.mi_resena_link + '" target="_blank">' + data.mi_resena_link + '</a>';
     okEl.style.display = 'block';
   } catch (e) {
     errEl.textContent = 'No se pudo conectar para crear el cliente.';

@@ -96,6 +96,7 @@ export async function onRequest(context) {
     codigo: local.codigo,
     review_url: local.review_url,
     nfc_link: origin + '/go/' + slug,
+    mi_resena_link: origin + '/mi-resena.html?codigo=' + encodeURIComponent(codigo),
     activar_mensualidad_link: origin + '/ya-tengo-mi-placa.html?codigo=' + encodeURIComponent(codigo) + '&negocio=' + encodeURIComponent(negocio) + (telefono ? '&tel=' + encodeURIComponent(telefono) : '')
   });
 }

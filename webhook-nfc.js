@@ -87,7 +87,8 @@ export async function onRequest(context) {
                   to: email,
                   negocio: local.nombre_local,
                   codigo: meta.code || '',
-                  nfcLink
+                  nfcLink,
+                  miResenaLink: meta.code ? (origin + '/mi-resena.html?codigo=' + encodeURIComponent(meta.code)) : ''
                 });
               } catch (mailErr) {
                 // No tumbamos el webhook por un fallo de envío: el local ya

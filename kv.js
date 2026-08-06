@@ -23,6 +23,45 @@ export async function getLocalBySubscriptionId(env, subscriptionId) {
   return local ? { ...local, slug } : null;
 }
 
+// No hay un índice codigo:{codigo} dedicado (los códigos TPK-XXXXXX son
+// pocos en volumen), así que se busca recorriendo todos los locales. Se
+// usa para comprobar colisiones al generar un código nuevo (panel-crear-
+// manual.js) y para encontrar el local al activar la mensualidad desde
+// /ya-tengo-mi-placa.html (create-checkout-session-mensualidad.js).
+export async function getLocalByCodigo(env, codigo) {
+  const locales = await listLocales(env);
+  return locales.find(l => l.codigo === codigo) || null;
+}
+
+// Suma o corrige el número de recomendaciones de un local (otros
+// negocios que ha convencido de comprar Taplink). Cada recomendación
+// NUEVA (por encima de las que ya tenía) da 3 meses gratis, que se
+// guardan en meses_gratis_pendientes hasta que se aplican de verdad en
+// Stripe (ver marcarMesesAplicados) o hasta que el negocio activa su
+// mensualidad por primera vez (venta en efectivo).
+export async function aplicarRecomendaciones(env, slug, recomendaciones) {
+  const local = await getLocalBySlug(env, slug);
+  if (!local) return null;
+  const anterior = local.recomendaciones || 0;
+  const nuevo = Math.max(0, Number(recomendaciones) || 0);
+  const mesesNuevos = nuevo > anterior ? (nuevo - anterior) * 3 : 0;
+  local.recomendaciones = nuevo;
+  local.meses_gratis_pendientes = (local.meses_gratis_pendientes || 0) + mesesNuevos;
+  await env.LOCALES_KV.put(`local:${slug}`, JSON.stringify(local));
+  return { local, mesesNuevos, subscriptionId: local.stripe_subscription_id || null };
+}
+
+// Descuenta de meses_gratis_pendientes los meses que ya se han aplicado
+// de verdad (pausando el cobro en Stripe), para no volver a aplicarlos
+// dos veces si se repite la operación.
+export async function marcarMesesAplicados(env, slug, mesesAplicados) {
+  const local = await getLocalBySlug(env, slug);
+  if (!local) return null;
+  local.meses_gratis_pendientes = Math.max(0, (local.meses_gratis_pendientes || 0) - (Number(mesesAplicados) || 0));
+  await env.LOCALES_KV.put(`local:${slug}`, JSON.stringify(local));
+  return local;
+}
+
 export async function createLocal(env, fields) {
   const record = { ...fields, creado: new Date().toISOString() };
   await env.LOCALES_KV.put(`local:${fields.slug}`, JSON.stringify(record));

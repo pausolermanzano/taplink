@@ -9,7 +9,7 @@
 
 const FROM = 'Taplink <pedidos@taplink.es>';
 
-export async function enviarConfirmacionPedido(env, { to, negocio, codigo, nfcLink }) {
+export async function enviarConfirmacionPedido(env, { to, negocio, codigo, nfcLink, miResenaLink }) {
   if (!env.RESEND_API_KEY) {
     throw new Error('Falta RESEND_API_KEY en las variables de entorno.');
   }
@@ -24,6 +24,10 @@ export async function enviarConfirmacionPedido(env, { to, negocio, codigo, nfcLi
       <p style="margin:26px 0;padding:18px 20px;background:#f2f3f7;border-left:4px solid #2b4bff;font-size:22px;font-weight:700;letter-spacing:.02em">${escapeHtml(codigo)}</p>
       <p style="font-size:15px;line-height:1.6">Este es el enlace que llevará tu placa a las reseñas de Google:</p>
       <p style="font-size:14px;word-break:break-all"><a href="${nfcLink}" style="color:#2b4bff">${nfcLink}</a></p>
+      ${miResenaLink ? `
+      <p style="font-size:15px;line-height:1.6;margin-top:24px"><strong>Importante:</strong> para que la placa lleve directo a las estrellas (y no solo a la ficha de tu negocio), péganos tú mismo el enlace oficial de reseñas de Google:</p>
+      <p style="font-size:14px;word-break:break-all"><a href="${miResenaLink}" style="color:#2b4bff">${miResenaLink}</a></p>
+      <p style="font-size:13px;line-height:1.6;color:#555">En esa página te explicamos paso a paso cómo conseguirlo desde la app de Google Maps — es cosa de 1 minuto.</p>` : ''}
       <p style="font-size:14px;line-height:1.6;margin-top:30px;color:#555">Grabamos tu placa y sale de Girona en menos de 24 h. Cualquier duda, respóndenos a este email o escríbenos a info@taplink.es.</p>
       <p style="font-size:13px;color:#888;margin-top:34px">Taplink · Placas NFC para reseñas de Google</p>
     </div>`;
@@ -31,6 +35,7 @@ export async function enviarConfirmacionPedido(env, { to, negocio, codigo, nfcLi
   const texto = `¡Gracias por tu pedido!\n\n` +
     `Tu código de acceso al panel: ${codigo}\n\n` +
     `Enlace de tu placa: ${nfcLink}\n\n` +
+    (miResenaLink ? `Importante: péganos tú mismo el enlace oficial de reseñas de Google para que la placa lleve directo a las estrellas: ${miResenaLink}\n\n` : '') +
     `Grabamos tu placa y sale de Girona en menos de 24 h.\n` +
     `Dudas: info@taplink.es`;
 

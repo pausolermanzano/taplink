@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Configura tu enlace de reseñas — Taplink</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0b0b0c; color: #fff; margin: 0; min-height: 100vh;
+    display: flex; align-items: center; justify-content: center; padding: 24px;
+  }
+  .card { max-width: 460px; width: 100%; }
+  h1 { font-size: 21px; margin: 0 0 10px; }
+  p { color: rgba(255,255,255,.7); line-height: 1.6; font-size: 14px; }
+  .pasos { background: #141416; border: 1px solid #262626; border-radius: 10px; padding: 16px 18px; margin: 20px 0; }
+  .pasos li { margin-bottom: 8px; font-size: 13.5px; color: rgba(255,255,255,.85); }
+  label { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: rgba(255,255,255,.5); margin: 18px 0 6px; }
+  input {
+    width: 100%; padding: 13px 14px; border-radius: 8px; border: 1px solid #333;
+    background: #17181a; color: #fff; font-size: 15px;
+  }
+  button {
+    width: 100%; margin-top: 20px; padding: 14px; background: #fff; color: #0b0b0c;
+    border: none; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer;
+  }
+  button:disabled { opacity: .5; cursor: wait; }
+  .msg { margin-top: 14px; font-size: 13.5px; min-height: 18px; }
+  .msg.err { color: #f87171; }
+  .msg.ok { color: #4ade80; }
+  a { color: #9cc4ff; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>Configura el enlace de tu placa</h1>
+    <p>Pega aquí el enlace oficial de "escribir una reseña" de tu negocio en Google, para que tu placa NFC lleve directo a las estrellas.</p>
+
+    <div class="pasos">
+      <p style="margin:0 0 10px;color:#fff;font-weight:600">¿Cómo consigo ese enlace?</p>
+      <ol style="margin:0;padding-left:18px">
+        <li class="pasos">Abre <b>Google Maps</b> (la app, en tu móvil) y busca tu negocio.</li>
+        <li class="pasos">Toca tu ficha, luego <b>"Pedir reseñas"</b> o el icono de compartir junto a las estrellas.</li>
+        <li class="pasos">Elige <b>"Copiar enlace"</b> (o compártelo contigo mismo por WhatsApp/email y cópialo desde ahí).</li>
+        <li class="pasos">Vuelve aquí y pégalo abajo.</li>
+      </ol>
+    </div>
+
+    <label for="codigo">Tu código Taplink</label>
+    <input id="codigo" placeholder="TPK-123456" />
+
+    <label for="link">Enlace de reseñas de Google</label>
+    <input id="link" placeholder="https://g.page/r/.../review" />
+
+    <button id="btnGuardar" onclick="guardar()">Guardar mi enlace</button>
+    <p class="msg" id="msg"></p>
+
+    <p style="margin-top:26px;font-size:13px">¿No te aparece la opción en Google Maps, o tienes dudas? Escríbenos a <a href="mailto:info@taplink.es">info@taplink.es</a> o por <a href="https://wa.me/34686485535" target="_blank" rel="noopener">WhatsApp</a> y te ayudamos.</p>
+  </div>
+
+<script>
+// Si se llega aquí desde un enlace con ?codigo=TPK-XXXXXX (ej. el del email
+// de confirmación, o el que da panel-crear-manual.js), se rellena solo.
+const params = new URLSearchParams(location.search);
+if (params.get('codigo')) document.getElementById('codigo').value = params.get('codigo');
+
+async function guardar() {
+  const codigo = document.getElementById('codigo').value.trim();
+  const link = document.getElementById('link').value.trim();
+  const msg = document.getElementById('msg');
+  msg.className = 'msg';
+  msg.textContent = '';
+
+  if (!codigo) { msg.className = 'msg err'; msg.textContent = 'Falta tu código Taplink.'; return; }
+  if (!/^https?:\/\//i.test(link)) { msg.className = 'msg err'; msg.textContent = 'Pega el enlace completo (tiene que empezar por https://).'; return; }
+
+  const btn = document.getElementById('btnGuardar');
+  btn.disabled = true;
+  btn.textContent = 'Guardando…';
+  try {
+    const res = await fetch('/actualizar-review-cliente', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ codigo, reviewUrl: link })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      msg.className = 'msg err';
+      msg.textContent = data.error || 'No se pudo guardar. Revisa el código e inténtalo de nuevo.';
+      btn.disabled = false;
+      btn.textContent = 'Guardar mi enlace';
+      return;
+    }
+    msg.className = 'msg ok';
+    msg.textContent = '✅ ¡Listo! Tu placa ya lleva a este enlace de reseñas.';
+    btn.textContent = 'Guardado';
+  } catch (e) {
+    msg.className = 'msg err';
+    msg.textContent = 'No se pudo conectar. Prueba otra vez en unos segundos.';
+    btn.disabled = false;
+    btn.textContent = 'Guardar mi enlace';
+  }
+}
+</script>
+</body>
+</html>
