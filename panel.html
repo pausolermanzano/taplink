@@ -94,6 +94,20 @@
     padding: 14px 16px; margin-top: 14px; font-size: 13px; line-height: 1.7;
   }
   .crear-ok a { color: #6ea8ff; word-break: break-all; }
+  .facturacion { display: flex; flex-direction: column; gap: 2px; font-size: 12.5px; white-space: nowrap; }
+  .facturacion .precio { color: rgba(255,255,255,.85); }
+  .facturacion .total { color: #4ade80; font-weight: 700; }
+  .origen-tag { font-size: 10.5px; padding: 2px 7px; border-radius: 999px; text-transform: uppercase; letter-spacing: .04em; font-weight: 700; }
+  .origen-tag.stripe { background: #1a1b3b; color: #a5b4fc; }
+  .origen-tag.efectivo { background: #1b3b1e; color: #86efac; }
+  .btn-mini {
+    background: none; border: 1px solid #333; border-radius: 6px; color: #ccc;
+    cursor: pointer; font-size: 11px; padding: 3px 8px; margin-top: 4px; margin-right: 4px;
+  }
+  .btn-mini:hover { background: #1c1d1f; }
+  .pagos-lista { margin-top: 6px; font-size: 12px; line-height: 1.6; color: rgba(255,255,255,.7); }
+  .lock-tag { font-size: 11px; cursor: pointer; opacity: .8; }
+  .lock-tag:hover { opacity: 1; }
 </style>
 </head>
 <body>
@@ -123,6 +137,15 @@
         <input id="c-dir" placeholder="Dirección (tal cual en Google Maps) *" />
         <input id="c-nombre" placeholder="Nombre del cliente" />
         <input id="c-tel" placeholder="Teléfono" />
+        <input id="c-precio" type="number" step="0.01" min="0" placeholder="Precio mensual (€)" />
+        <input id="c-cobro" type="number" step="0.01" min="0" placeholder="Cobrado hoy (€, opcional)" />
+        <select id="c-metodo" style="padding:10px 12px;border-radius:8px;border:1px solid #333;background:#17181a;color:#fff;font-size:13px">
+          <option value="efectivo">Efectivo</option>
+          <option value="bizum">Bizum</option>
+          <option value="transferencia">Transferencia</option>
+          <option value="tarjeta">Tarjeta (en persona)</option>
+          <option value="otro">Otro</option>
+        </select>
       </div>
       <p class="crear-err" id="crearErr"></p>
       <div id="crearOk" class="crear-ok" style="display:none"></div>
@@ -155,7 +178,7 @@ function ocultarFormCrear() {
   document.getElementById('formCrear').style.display = 'none';
   document.getElementById('crearErr').textContent = '';
   document.getElementById('crearOk').style.display = 'none';
-  ['c-negocio','c-dir','c-nombre','c-tel'].forEach(id => { document.getElementById(id).value = ''; });
+  ['c-negocio','c-dir','c-nombre','c-tel','c-precio','c-cobro'].forEach(id => { document.getElementById(id).value = ''; });
 }
 
 async function crearLocal() {
@@ -181,7 +204,10 @@ async function crearLocal() {
         negocio,
         negocioDir,
         nombreCliente: document.getElementById('c-nombre').value.trim(),
-        telefono: document.getElementById('c-tel').value.trim()
+        telefono: document.getElementById('c-tel').value.trim(),
+        precioMensual: document.getElementById('c-precio').value.trim(),
+        importeCobrado: document.getElementById('c-cobro').value.trim(),
+        metodoCobro: document.getElementById('c-metodo').value
       })
     });
     const data = await res.json().catch(() => ({}));
@@ -257,11 +283,27 @@ function render(locales) {
   const pausados = locales.filter(l => l.estado === 'pausado').length;
   const cancelados = locales.filter(l => l.estado === 'cancelado').length;
 
+  const ahora = new Date();
+  let facturacionMes = 0;
+  let totalAcumulado = 0;
+  locales.forEach(l => {
+    totalAcumulado += Number(l.total_cobrado) || 0;
+    (l.pagos || []).forEach(p => {
+      const f = new Date(p.fecha);
+      if (f.getFullYear() === ahora.getFullYear() && f.getMonth() === ahora.getMonth()) {
+        facturacionMes += Number(p.importe) || 0;
+      }
+    });
+  });
+  const fmtEur = n => n.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
+
   document.getElementById('stats').innerHTML = `
     <div class="stat"><div class="n">${locales.length}</div><div class="l">Total</div></div>
     <div class="stat"><div class="n">${activos}</div><div class="l">Activos</div></div>
     <div class="stat"><div class="n">${pausados}</div><div class="l">Pausados</div></div>
     <div class="stat"><div class="n">${cancelados}</div><div class="l">Cancelados</div></div>
+    <div class="stat" style="border-color:#1e4a2c"><div class="n" style="color:#4ade80">${fmtEur(facturacionMes)}</div><div class="l">Facturación este mes</div></div>
+    <div class="stat" style="border-color:#1e4a2c"><div class="n" style="color:#4ade80">${fmtEur(totalAcumulado)}</div><div class="l">Total acumulado</div></div>
   `;
 
   if (!locales.length) {
@@ -304,14 +346,41 @@ function render(locales) {
           ${l.telefono ? 'Tel: ' + escapeHtml(l.telefono) : ''}
         </div>
       </details><br>${etiquetaHtml}` : '—';
+
+    const fmtEur2 = n => (Number(n) || 0).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
+    const origen = l.origen === 'stripe' || l.stripe_subscription_id ? 'stripe' : 'efectivo';
+    const pagos = Array.isArray(l.pagos) ? l.pagos : [];
+    const pagosHtml = pagos.length
+      ? `<details><summary>Ver ${pagos.length} cobro${pagos.length === 1 ? '' : 's'}</summary>
+          <div class="pagos-lista">${pagos.slice().reverse().map(p =>
+            new Date(p.fecha).toLocaleDateString('es-ES') + ' — ' + fmtEur2(p.importe) + ' (' + escapeHtml(p.metodo) + (p.nota ? ': ' + escapeHtml(p.nota) : '') + ')'
+          ).join('<br>')}</div>
+        </details>`
+      : '<span class="muted">Sin cobros</span>';
+    const facturacionHtml = `
+      <div class="facturacion">
+        <span class="origen-tag ${origen}">${origen === 'stripe' ? 'Stripe' : 'Manual'}</span>
+        <span class="precio">${l.precio_mensual ? fmtEur2(l.precio_mensual) + '/mes' : 'sin precio'} <button class="btn-mini" data-slug="${slugAttr}" onclick="editarPrecio(this)" title="Cambiar precio">✏️</button></span>
+        <span class="total">${fmtEur2(l.total_cobrado)} cobrado</span>
+        ${pagosHtml}
+        <button class="btn-mini" data-slug="${slugAttr}" onclick="abrirCobro(this)">💰 Registrar cobro</button>
+      </div>`;
+
+    const notasHtml = `<div class="muted" style="max-width:160px;white-space:normal">${l.notas ? escapeHtml(l.notas) : '<i>sin notas</i>'}</div>
+      <button class="btn-mini" data-slug="${slugAttr}" data-notas="${escapeHtml(l.notas || '')}" onclick="editarNotas(this)">✏️ Notas</button>`;
+
+    const bloqueado = !!l.review_bloqueado;
     return `
       <tr>
-        <td>${escapeHtml(l.nombre_local || '—')}</td>
+        <td>${escapeHtml(l.nombre_local || '—')}${notasHtml}</td>
         <td>${escapeHtml(l.codigo || '—')}</td>
         <td><span class="badge ${l.estado}">${l.estado || '—'}</span>${l.manual ? ' <span class="manual-tag" title="Fijado a mano: Stripe no puede cambiarlo hasta que elijas Automático">🔒 manual</span>' : ''}</td>
         <td><a href="${link}" target="_blank">${link.replace('https://','')}</a></td>
-        <td>${l.review_url ? '<a href="' + l.review_url + '" target="_blank">ver reseñas</a>' : '—'} <button class="btn-editar" data-slug="${slugAttr}" onclick="corregirLink(this)" title="Corregir enlace de reseñas">✏️</button></td>
+        <td>${l.review_url ? '<a href="' + l.review_url + '" target="_blank">ver reseñas</a>' : '—'} <button class="btn-editar" data-slug="${slugAttr}" onclick="corregirLink(this)" title="Corregir enlace de reseñas">✏️</button>
+          <span class="lock-tag" data-slug="${slugAttr}" data-bloqueado="${bloqueado ? '1' : '0'}" onclick="toggleBloqueo(this)" title="${bloqueado ? 'Bloqueado: el cliente no puede cambiarlo desde mi-resena.html. Toca para desbloquear.' : 'Desbloqueado: el cliente puede cambiarlo desde mi-resena.html. Toca para bloquear.'}">${bloqueado ? '🔒' : '🔓'}</span>
+        </td>
         <td>${envioHtml}</td>
+        <td>${facturacionHtml}</td>
         <td>${emailHtml}</td>
         <td class="muted">${fecha}</td>
         <td>
@@ -329,7 +398,7 @@ function render(locales) {
 
   document.getElementById('tableWrap').innerHTML = `
     <table>
-      <thead><tr><th>Local</th><th>Código</th><th>Estado</th><th>Link de la placa</th><th>Reseñas</th><th>Envío / facturación</th><th>Email</th><th>Alta</th><th>Cambiar estado</th></tr></thead>
+      <thead><tr><th>Local</th><th>Código</th><th>Estado</th><th>Link de la placa</th><th>Reseñas</th><th>Envío</th><th>Facturación</th><th>Email</th><th>Alta</th><th>Cambiar estado</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>`;
 }
@@ -388,7 +457,7 @@ async function generarEtiqueta(btn) {
 
 async function corregirLink(btn) {
   const slug = btn.dataset.slug;
-  const nuevo = prompt('Pega aquí el enlace correcto de reseñas para este negocio:\n\n(Búscalo en Google Maps → toca las estrellas → "Escribir una reseña" → copia la URL de esa pantalla)');
+  const nuevo = prompt('Pega aquí el enlace correcto de reseñas para este negocio:\n\n(Búscalo en Google Maps → toca las estrellas → "Escribir una reseña" → copia la URL de esa pantalla)\n\nOjo: esto lo deja BLOQUEADO para que el cliente no pueda pisarlo desde su propia página.');
   if (!nuevo) return;
   const pw = sessionStorage.getItem('panel_pw');
   btn.disabled = true;
@@ -404,6 +473,102 @@ async function corregirLink(btn) {
     }
   } catch (e) {
     alert('No se pudo conectar para actualizar el enlace.');
+  }
+  btn.disabled = false;
+  await cargar();
+}
+
+async function toggleBloqueo(el) {
+  const slug = el.dataset.slug;
+  const bloqueadoActual = el.dataset.bloqueado === '1';
+  const pw = sessionStorage.getItem('panel_pw');
+  try {
+    const res = await fetch('/panel-set-review', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-panel-password': pw },
+      body: JSON.stringify({ slug, bloqueado: !bloqueadoActual })
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      alert('No se pudo cambiar el candado: ' + (data.error || res.status));
+    }
+  } catch (e) {
+    alert('No se pudo conectar.');
+  }
+  await cargar();
+}
+
+async function editarPrecio(btn) {
+  const slug = btn.dataset.slug;
+  const nuevo = prompt('Precio mensual (€) para este local:');
+  if (nuevo === null) return;
+  const precio = nuevo.trim().replace(',', '.');
+  if (precio !== '' && isNaN(Number(precio))) { alert('Escribe un número válido.'); return; }
+  const pw = sessionStorage.getItem('panel_pw');
+  btn.disabled = true;
+  try {
+    const res = await fetch('/panel-set-precio', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-panel-password': pw },
+      body: JSON.stringify({ slug, precio: precio || 0 })
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      alert('No se pudo actualizar el precio: ' + (data.error || res.status));
+    }
+  } catch (e) {
+    alert('No se pudo conectar.');
+  }
+  btn.disabled = false;
+  await cargar();
+}
+
+async function editarNotas(btn) {
+  const slug = btn.dataset.slug;
+  const actual = btn.dataset.notas || '';
+  const nuevo = prompt('Notas sobre este cliente (acuerdos especiales, recordatorios, lo que sea):', actual);
+  if (nuevo === null) return;
+  const pw = sessionStorage.getItem('panel_pw');
+  btn.disabled = true;
+  try {
+    const res = await fetch('/panel-set-notas', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-panel-password': pw },
+      body: JSON.stringify({ slug, notas: nuevo })
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      alert('No se pudo guardar la nota: ' + (data.error || res.status));
+    }
+  } catch (e) {
+    alert('No se pudo conectar.');
+  }
+  btn.disabled = false;
+  await cargar();
+}
+
+async function abrirCobro(btn) {
+  const slug = btn.dataset.slug;
+  const importe = prompt('Importe cobrado (€):');
+  if (importe === null || importe.trim() === '') return;
+  if (isNaN(Number(importe.trim().replace(',', '.')))) { alert('Escribe un número válido.'); return; }
+  const metodo = prompt('Método (efectivo / bizum / transferencia / tarjeta / otro):', 'efectivo');
+  if (metodo === null) return;
+  const nota = prompt('Nota (opcional):', '') || '';
+  const pw = sessionStorage.getItem('panel_pw');
+  btn.disabled = true;
+  try {
+    const res = await fetch('/panel-registrar-cobro', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-panel-password': pw },
+      body: JSON.stringify({ slug, importe: importe.trim().replace(',', '.'), metodo: metodo.trim() || 'otro', nota })
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      alert('No se pudo registrar el cobro: ' + (data.error || res.status));
+    }
+  } catch (e) {
+    alert('No se pudo conectar.');
   }
   btn.disabled = false;
   await cargar();

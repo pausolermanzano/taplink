@@ -8,6 +8,59 @@
 
 import { getLocalBySlug } from '../_lib/kv.js';
 
+// Página intermedia: en vez de saltar SOLA, muestra un botón grande que
+// hay que tocar. Un toque real del usuario sobre un enlace tiene más
+// probabilidades de quedarse en el navegador que un salto automático por
+// script -- Android decide con más frecuencia "abrir con Google Maps" en
+// los saltos automáticos que en los toques directos de la persona.
+//
+// Además, en Android, el botón usa el esquema especial "intent://" para
+// pedirle EXPLÍCITAMENTE a Android que abra el enlace con Chrome (en vez
+// de dejar que decida solo qué app usar) -- esto puede saltarse el
+// "secuestro" de la app de Maps en bastantes casos, aunque según el
+// fabricante (ej. Xiaomi/MIUI) el propio sistema puede seguir imponiendo
+// su criterio por encima de esta petición.
+//
+// Aun con esto, no es infalible. Por eso se añade también una instrucción
+// de respaldo, por si la reseña no se abre directa a las estrellas y hay
+// que tocarlas una vez más desde la ficha del negocio.
+function paginaSalto(destino, esAndroid) {
+  const safe = destino.replace(/"/g, '&quot;');
+  let href = safe;
+  if (esAndroid) {
+    try {
+      const u = new URL(destino);
+      const resto = u.pathname + u.search;
+      href = `intent://${u.host}${resto}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent(destino)};end`;
+    } catch (e) {
+      href = safe;
+    }
+  }
+  return `<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dejar una reseña</title>
+<style>
+body{font-family:-apple-system,system-ui,sans-serif;display:flex;flex-direction:column;
+align-items:center;justify-content:center;height:100vh;margin:0;background:#fafafa;color:#222;text-align:center;padding:24px}
+h1{font-size:19px;margin:0 0 22px}
+a.btn{display:inline-block;padding:16px 32px;background:#2563eb;color:#fff;font-size:17px;
+font-weight:700;text-decoration:none;border-radius:10px}
+p.ayuda{margin-top:22px;font-size:13px;color:#777;max-width:320px;line-height:1.5}
+</style></head>
+<body>
+<h1>¡Gracias por tu visita! ⭐</h1>
+<a class="btn" href="${href}">Dejar mi reseña en Google</a>
+<p class="ayuda">Si se abre la ficha del negocio en vez de las estrellas, solo tienes que tocar las estrellas de arriba para escribir tu reseña.</p>
+</body></html>`;
+}
+
+function respuestaHTML(html) {
+  return new Response(html, {
+    headers: { 'content-type': 'text/html; charset=utf-8' },
+  });
+}
+
 export async function onRequest(context) {
   const { params, env, request } = context;
   const slug = params.slug;
@@ -20,6 +73,7 @@ export async function onRequest(context) {
 
   try {
     const local = await getLocalBySlug(env, slug);
+    const esAndroid = /Android/i.test(request.headers.get('user-agent') || '');
 
     if (!local) {
       // Placa no registrada (todavía) en Cloudflare KV
@@ -29,11 +83,12 @@ export async function onRequest(context) {
     const { estado, review_url } = local;
 
     if (estado === 'activo' && review_url) {
-      return Response.redirect(review_url, 302);
+      return respuestaHTML(paginaSalto(review_url, esAndroid));
     }
 
-    return Response.redirect(fallback, 302);
+    return respuestaHTML(paginaSalto(fallback, esAndroid));
   } catch (err) {
-    return Response.redirect(fallback, 302);
+    const esAndroid = /Android/i.test(request.headers.get('user-agent') || '');
+    return respuestaHTML(paginaSalto(fallback, esAndroid));
   }
 }

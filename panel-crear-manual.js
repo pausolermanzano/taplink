@@ -15,7 +15,7 @@
 // Protegido igual que el resto de rutas del panel: requiere la cabecera
 // "x-panel-password" con ADMIN_PASSWORD.
 
-import { createLocal, getLocalByCodigo } from './_lib/kv.js';
+import { createLocal, getLocalByCodigo, registrarCobro } from './_lib/kv.js';
 import { resolveReviewLink } from './_lib/places.js';
 import { slugify, generarCodigo } from './_lib/codes.js';
 
@@ -46,6 +46,9 @@ export async function onRequest(context) {
   const negocioDir = ((payload && payload.negocioDir) || '').trim();
   const nombreCliente = ((payload && payload.nombreCliente) || '').trim();
   const telefono = ((payload && payload.telefono) || '').trim();
+  const importeCobrado = Number(payload && payload.importeCobrado) || 0;
+  const metodoCobro = ((payload && payload.metodoCobro) || 'efectivo').trim();
+  const precioMensual = Number(payload && payload.precioMensual) || 0;
 
   if (!negocio) return json({ error: 'Falta el nombre del negocio.' }, 400);
   if (!negocioDir) return json({ error: 'Falta la dirección (tal cual en Google Maps).' }, 400);
@@ -87,8 +90,24 @@ export async function onRequest(context) {
     stripe_subscription_id: '',
     nombre_cliente: nombreCliente,
     telefono,
-    origen: 'efectivo'
+    origen: 'efectivo',
+    precio_mensual: precioMensual
   });
+
+  if (importeCobrado > 0) {
+    try {
+      await registrarCobro(env, local.slug, {
+        importe: importeCobrado,
+        moneda: 'eur',
+        metodo: metodoCobro,
+        nota: 'Cobro inicial (venta en persona)'
+      });
+    } catch (e) {
+      // No bloqueamos el alta del cliente por un fallo aquí -- el local
+      // ya está creado, que es lo importante; el cobro se puede añadir
+      // luego a mano desde el panel si hace falta.
+    }
+  }
 
   return json({
     ok: true,

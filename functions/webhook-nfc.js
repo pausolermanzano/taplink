@@ -14,7 +14,7 @@
 //   - invoice.paid
 
 import { verifyStripeSignature } from './_lib/stripe-verify.js';
-import { getLocalBySubscriptionId, setEstado, createLocal, setEmailError } from './_lib/kv.js';
+import { getLocalBySubscriptionId, getLocalByCodigo, setEstado, createLocal, setEmailError, registrarCobro, setPrecioMensual, vincularSuscripcion } from './_lib/kv.js';
 import { enviarConfirmacionPedido, enviarNotificacionInterna } from './_lib/email.js';
 
 function json(data, status) {
@@ -72,6 +72,8 @@ export async function onRequest(context) {
               stripe_subscription_id: session.subscription,
               codigo: meta.code || '',
               estado: 'activo',
+              origen: 'stripe',
+              precio_mensual: (session.amount_total || 0) / 100,
               nombre_cliente: meta.nombre || '',
               nif: meta.nif || '',
               direccion: meta.dir || '',
@@ -80,6 +82,16 @@ export async function onRequest(context) {
               telefono: meta.tel || ''
             });
             console.log('Local creado en KV: ' + local.slug);
+            try {
+              await registrarCobro(env, local.slug, {
+                importe: (session.amount_total || 0) / 100,
+                moneda: session.currency || 'eur',
+                metodo: 'stripe',
+                nota: 'Pago inicial (placa + primera mensualidad)'
+              });
+            } catch (e) {
+              console.error('No se pudo registrar el cobro inicial:', e && e.message);
+            }
             const email = session.customer_email || (session.customer_details && session.customer_details.email);
             if (email) {
               try {
@@ -87,7 +99,8 @@ export async function onRequest(context) {
                   to: email,
                   negocio: local.nombre_local,
                   codigo: meta.code || '',
-                  nfcLink
+                  nfcLink,
+                  miResenaLink: meta.code ? (origin + '/mi-resena.html?codigo=' + encodeURIComponent(meta.code)) : ''
                 });
               } catch (mailErr) {
                 // No tumbamos el webhook por un fallo de envío: el local ya
@@ -114,6 +127,30 @@ export async function onRequest(context) {
               try { await setEmailError(env, local.slug, 'interna', mailErr && mailErr.message); } catch (e) {}
             }
           }
+        } else if (meta.codigo && session.subscription) {
+          // Caso ya-tengo-mi-placa.html: local de venta manual que activa
+          // su mensualidad. No hay que crear nada, solo vincular esta
+          // suscripción nueva al local que ya existía por su código.
+          const yaExiste = await getLocalBySubscriptionId(env, session.subscription);
+          if (!yaExiste) {
+            const local = await vincularSuscripcion(env, meta.slug, session.subscription);
+            if (local) {
+              console.log('Suscripción vinculada a local existente: ' + local.slug);
+              try {
+                await setPrecioMensual(env, local.slug, (session.amount_total || 0) / 100);
+                await registrarCobro(env, local.slug, {
+                  importe: (session.amount_total || 0) / 100,
+                  moneda: session.currency || 'eur',
+                  metodo: 'stripe',
+                  nota: 'Activación de mensualidad'
+                });
+              } catch (e) {
+                console.error('No se pudo registrar el cobro de activación:', e && e.message);
+              }
+            } else {
+              console.error('checkout.session.completed de mensualidad con slug desconocido: ' + meta.slug);
+            }
+          }
         }
         break;
       }
@@ -135,7 +172,27 @@ export async function onRequest(context) {
         break;
       }
       case 'invoice.paid': {
-        await actualizarEstado(env, event.data.object.subscription, 'activo');
+        const invoice = event.data.object;
+        await actualizarEstado(env, invoice.subscription, 'activo');
+        if (invoice.subscription) {
+          const local = await getLocalBySubscriptionId(env, invoice.subscription);
+          // Evitamos duplicar el cobro de la primerísima factura, que ya
+          // se registra al crear/activar el local más arriba (Stripe
+          // dispara invoice.paid también para la primera factura, justo
+          // después de checkout.session.completed).
+          if (local && !(local.pagos && local.pagos.length === 1)) {
+            try {
+              await registrarCobro(env, local.slug, {
+                importe: (invoice.amount_paid || 0) / 100,
+                moneda: invoice.currency || 'eur',
+                metodo: 'stripe',
+                nota: 'Factura mensual'
+              });
+            } catch (e) {
+              console.error('No se pudo registrar el cobro de la factura:', e && e.message);
+            }
+          }
+        }
         break;
       }
       default:

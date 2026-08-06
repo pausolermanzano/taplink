@@ -3,7 +3,7 @@
 // reseñas de un local concreto. Protegido igual que el resto de rutas
 // del panel: requiere la cabecera "x-panel-password" con ADMIN_PASSWORD.
 
-import { setReviewUrl } from './_lib/kv.js';
+import { setReviewUrl, setReviewBloqueado } from './_lib/kv.js';
 
 function json(data, status) {
   return new Response(JSON.stringify(data), {
@@ -29,12 +29,29 @@ export async function onRequest(context) {
   }
 
   const slug = (payload && payload.slug || '').trim();
-  const reviewUrl = (payload && payload.reviewUrl || '').trim();
   if (!slug) return json({ error: 'Falta slug' }, 400);
+
+  // Acción "solo bloquear/desbloquear" (sin tocar el enlace): se usa desde
+  // el candado 🔒/🔓 del panel, para reactivar el autoservicio del cliente
+  // sin tener que volver a escribir el enlace.
+  if (typeof payload.bloqueado === 'boolean' && !payload.reviewUrl) {
+    try {
+      const local = await setReviewBloqueado(env, slug, payload.bloqueado);
+      if (!local) return json({ error: 'No existe ningún local con ese slug.' }, 404);
+      return json({ ok: true, bloqueado: local.review_bloqueado });
+    } catch (err) {
+      return json({ error: 'Error interno: ' + (err && err.message) }, 500);
+    }
+  }
+
+  const reviewUrl = (payload && payload.reviewUrl || '').trim();
   if (!/^https?:\/\//i.test(reviewUrl)) return json({ error: 'El enlace debe empezar por http:// o https://' }, 400);
 
   try {
-    const local = await setReviewUrl(env, slug, reviewUrl);
+    // El admin, al poner el enlace a mano desde el panel, lo deja
+    // bloqueado por defecto -- es "el bueno", así que se protege de que
+    // el cliente lo pise desde mi-resena.html sin querer.
+    const local = await setReviewUrl(env, slug, reviewUrl, true);
     if (!local) return json({ error: 'No existe ningún local con ese slug.' }, 404);
     return json({ ok: true });
   } catch (err) {

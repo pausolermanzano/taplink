@@ -10,70 +10,6 @@
 //   local:{slug}               -> JSON con los datos del local
 //   sub:{stripe_subscription_id} -> el slug al que pertenece esa suscripción
 
-// Se llama en cada evento "invoice.paid" de Stripe: suma el importe de
-// esa cuota al acumulado histórico del local (para verlo en el panel:
-// "cuánto lleva pagado en total") y guarda el importe de la última
-// cuota (para ver cuánto paga ahora mismo — 7,99€, o más si tiene un
-// precio a medida por volumen).
-export async function sumarPago(env, slug, amountCents, intervalo) {
-  const local = await getLocalBySlug(env, slug);
-  if (!local) return null;
-  local.total_pagado = (local.total_pagado || 0) + (amountCents || 0);
-  local.ultima_cuota = amountCents || 0;
-  if (intervalo) local.ultima_cuota_intervalo = intervalo;
-  local.ultimo_pago_fecha = new Date().toISOString();
-  await env.LOCALES_KV.put(`local:${slug}`, JSON.stringify(local));
-  return local;
-}
-
-// Actualiza el número de recomendaciones. Los meses pendientes se
-// RECALCULAN siempre desde cero (recomendaciones × 3 − meses ya
-// aplicados de verdad en Stripe), en vez de ir sumando — así, si
-// corriges el número hacia abajo por error, el aviso de "meses
-// pendientes" baja también, en vez de quedarse colgado con un valor
-// antiguo. Lo único que NO se deshace nunca es una pausa que YA se
-// haya aplicado en Stripe (eso habría que revertirlo a mano si hiciera
-// falta) — pero mientras el negocio no tenga mensualidad activa, no
-// hay nada aplicado todavía, así que corregir el número es 100% seguro.
-export async function aplicarRecomendaciones(env, slug, nuevoValor) {
-  const local = await getLocalBySlug(env, slug);
-  if (!local) return null;
-  const anterior = local.recomendaciones || 0;
-  const valor = Math.max(0, parseInt(nuevoValor, 10) || 0);
-  const deltaRecomendaciones = valor - anterior;
-  const mesesNuevos = deltaRecomendaciones > 0 ? deltaRecomendaciones * 3 : 0;
-
-  local.recomendaciones = valor;
-  if (valor === 0) {
-    // Poner el número a 0 se trata como un reinicio completo: borra
-    // también el contador de "meses ya aplicados", para poder limpiar
-    // de un vistazo cualquier dato de pruebas o corrección de un error.
-    local.meses_aplicados = 0;
-    local.meses_gratis_pendientes = 0;
-  } else {
-    const mesesAplicados = local.meses_aplicados || 0;
-    local.meses_gratis_pendientes = Math.max(0, (valor * 3) - mesesAplicados);
-  }
-  await env.LOCALES_KV.put(`local:${slug}`, JSON.stringify(local));
-
-  return { local, mesesNuevos, subscriptionId: local.stripe_subscription_id || null };
-}
-
-// Registra que se han aplicado N meses de verdad en Stripe (ya sea al
-// momento, o al activar la mensualidad de un local que tenía meses
-// pendientes) y recalcula lo que queda pendiente a partir de ahí. Esto
-// es lo que hace que, si luego se corrige el número de recomendaciones
-// hacia abajo, el pendiente se recalcule bien en vez de quedarse
-// colgado con un valor antiguo.
-export async function marcarMesesAplicados(env, slug, mesesAplicadosAhora) {
-  const local = await getLocalBySlug(env, slug);
-  if (!local) return null;
-  local.meses_aplicados = (local.meses_aplicados || 0) + (mesesAplicadosAhora || 0);
-  local.meses_gratis_pendientes = Math.max(0, ((local.recomendaciones || 0) * 3) - local.meses_aplicados);
-  await env.LOCALES_KV.put(`local:${slug}`, JSON.stringify(local));
-  return local;
-}
-
 export async function getLocalBySlug(env, slug) {
   const raw = await env.LOCALES_KV.get(`local:${slug}`);
   if (!raw) return null;
@@ -87,47 +23,56 @@ export async function getLocalBySubscriptionId(env, subscriptionId) {
   return local ? { ...local, slug } : null;
 }
 
-// Busca un local por su código (TPK-XXXXXX) — el que usa el negocio para
-// identificarse en "Ya tengo mi placa" cuando va a activar su
-// mensualidad. Usa un índice propio (codigo:{codigo} -> slug) igual que
-// ya se hace con las suscripciones de Stripe, para no tener que recorrer
-// todos los locales en cada intento de pago.
+// No hay un índice codigo:{codigo} dedicado (los códigos TPK-XXXXXX son
+// pocos en volumen), así que se busca recorriendo todos los locales. Se
+// usa para comprobar colisiones al generar un código nuevo (panel-crear-
+// manual.js) y para encontrar el local al activar la mensualidad desde
+// /ya-tengo-mi-placa.html (create-checkout-session-mensualidad.js).
 export async function getLocalByCodigo(env, codigo) {
-  const slug = await env.LOCALES_KV.get(`codigo:${codigo}`);
-  if (!slug) return null;
+  const locales = await listLocales(env);
+  return locales.find(l => l.codigo === codigo) || null;
+}
+
+// Suma o corrige el número de recomendaciones de un local (otros
+// negocios que ha convencido de comprar Taplink). Cada recomendación
+// NUEVA (por encima de las que ya tenía) da 3 meses gratis, que se
+// guardan en meses_gratis_pendientes hasta que se aplican de verdad en
+// Stripe (ver marcarMesesAplicados) o hasta que el negocio activa su
+// mensualidad por primera vez (venta en efectivo).
+export async function aplicarRecomendaciones(env, slug, recomendaciones) {
   const local = await getLocalBySlug(env, slug);
-  return local ? { ...local, slug } : null;
+  if (!local) return null;
+  const anterior = local.recomendaciones || 0;
+  const nuevo = Math.max(0, Number(recomendaciones) || 0);
+  const mesesNuevos = nuevo > anterior ? (nuevo - anterior) * 3 : 0;
+  local.recomendaciones = nuevo;
+  local.meses_gratis_pendientes = (local.meses_gratis_pendientes || 0) + mesesNuevos;
+  await env.LOCALES_KV.put(`local:${slug}`, JSON.stringify(local));
+  return { local, mesesNuevos, subscriptionId: local.stripe_subscription_id || null };
+}
+
+// Descuenta de meses_gratis_pendientes los meses que ya se han aplicado
+// de verdad (pausando el cobro en Stripe), para no volver a aplicarlos
+// dos veces si se repite la operación.
+export async function marcarMesesAplicados(env, slug, mesesAplicados) {
+  const local = await getLocalBySlug(env, slug);
+  if (!local) return null;
+  local.meses_gratis_pendientes = Math.max(0, (local.meses_gratis_pendientes || 0) - (Number(mesesAplicados) || 0));
+  await env.LOCALES_KV.put(`local:${slug}`, JSON.stringify(local));
+  return local;
 }
 
 export async function createLocal(env, fields) {
   const record = { ...fields, creado: new Date().toISOString() };
   await env.LOCALES_KV.put(`local:${fields.slug}`, JSON.stringify(record));
-  // Solo se escriben estos índices si hay algo real que indexar: un
-  // stripe_subscription_id o un codigo vacíos pisarían siempre la misma
-  // clave ("sub:" o "codigo:") y cada local nuevo sin uno de los dos
-  // borraría el índice del anterior que tampoco lo tuviera.
+  // Los locales creados a mano (venta en persona) no tienen suscripción de
+  // Stripe real -- si guardáramos sub:"" para todos, el segundo cliente
+  // manual pisaría el índice del primero. Solo se guarda el índice sub:{id}
+  // cuando hay un ID de verdad.
   if (fields.stripe_subscription_id) {
     await env.LOCALES_KV.put(`sub:${fields.stripe_subscription_id}`, fields.slug);
   }
-  if (fields.codigo) {
-    await env.LOCALES_KV.put(`codigo:${fields.codigo}`, fields.slug);
-  }
   return record;
-}
-
-// Vincula una suscripción de Stripe nueva a un local que YA EXISTÍA sin
-// ninguna (el caso de venta presencial: Marc/Pau lo crean desde el panel
-// cuando entregan la placa, y semanas o meses después el negocio activa
-// su mensualidad desde "Ya tengo mi placa"). A diferencia de createLocal,
-// esto no crea un registro nuevo: actualiza el que ya estaba.
-export async function linkSubscription(env, slug, subscriptionId) {
-  const local = await getLocalBySlug(env, slug);
-  if (!local) return null;
-  local.stripe_subscription_id = subscriptionId;
-  local.estado = 'activo';
-  await env.LOCALES_KV.put(`local:${slug}`, JSON.stringify(local));
-  await env.LOCALES_KV.put(`sub:${subscriptionId}`, slug);
-  return local;
 }
 
 export async function setEstado(env, slug, estado) {
@@ -197,10 +142,26 @@ export async function setEnvioLabel(env, slug, datos) {
 // local concreto — por si la resolución automática con Google Places no
 // ha acertado para ese negocio en particular (fichas nuevas o
 // incompletas en Google, homónimos, etc.).
-export async function setReviewUrl(env, slug, reviewUrl) {
+// Guarda el enlace de reseñas. Cuando lo pone el ADMIN desde el panel
+// (bloquear=true), queda "bloqueado": el cliente ya no podrá pisarlo
+// desde mi-resena.html hasta que el admin lo desbloquee. Cuando lo pone
+// el propio cliente (bloquear=false, por defecto), no se toca el bloqueo.
+export async function setReviewUrl(env, slug, reviewUrl, bloquear) {
   const local = await getLocalBySlug(env, slug);
   if (!local) return null;
   local.review_url = reviewUrl;
+  if (bloquear) local.review_bloqueado = true;
+  await env.LOCALES_KV.put(`local:${slug}`, JSON.stringify(local));
+  return local;
+}
+
+// Permite al admin desbloquear un enlace (para que el cliente pueda
+// volver a configurarlo él mismo desde mi-resena.html) sin tener que
+// tocar el enlace en sí.
+export async function setReviewBloqueado(env, slug, bloqueado) {
+  const local = await getLocalBySlug(env, slug);
+  if (!local) return null;
+  local.review_bloqueado = !!bloqueado;
   await env.LOCALES_KV.put(`local:${slug}`, JSON.stringify(local));
   return local;
 }
@@ -210,15 +171,72 @@ export async function setReviewUrl(env, slug, reviewUrl) {
 // suscripción de Stripe (sub:{stripe_subscription_id}). No cancela la
 // suscripción en Stripe (eso se hace aparte, desde el propio Stripe, si
 // hace falta) — solo borra los datos guardados en Taplink.
+// Añade un cobro al historial de un local (tanto si viene de Stripe como
+// si lo registra el admin a mano por un pago en efectivo/Bizum/etc.) y
+// mantiene el total acumulado. importe siempre en euros (no céntimos).
+export async function registrarCobro(env, slug, { importe, moneda, metodo, nota }) {
+  const local = await getLocalBySlug(env, slug);
+  if (!local) return null;
+  const cobro = {
+    fecha: new Date().toISOString(),
+    importe: Number(importe) || 0,
+    moneda: moneda || 'eur',
+    metodo: metodo || 'otro',
+    nota: nota || ''
+  };
+  local.pagos = Array.isArray(local.pagos) ? local.pagos : [];
+  local.pagos.push(cobro);
+  // Los locales llevan años activos y esto podría crecer sin límite --
+  // nos quedamos con los últimos 200 cobros (de sobra para cualquier
+  // cliente de Taplink) para que el registro en KV no crezca sin freno.
+  if (local.pagos.length > 200) local.pagos = local.pagos.slice(-200);
+  local.total_cobrado = (Number(local.total_cobrado) || 0) + cobro.importe;
+  await env.LOCALES_KV.put(`local:${slug}`, JSON.stringify(local));
+  return local;
+}
+
+export async function setPrecioMensual(env, slug, precio) {
+  const local = await getLocalBySlug(env, slug);
+  if (!local) return null;
+  local.precio_mensual = Number(precio) || 0;
+  await env.LOCALES_KV.put(`local:${slug}`, JSON.stringify(local));
+  return local;
+}
+
+// Guarda cualquier nota libre del admin sobre el local (texto libre,
+// para lo que no encaje en ningún otro campo).
+export async function setNotas(env, slug, notas) {
+  const local = await getLocalBySlug(env, slug);
+  if (!local) return null;
+  local.notas = notas || '';
+  await env.LOCALES_KV.put(`local:${slug}`, JSON.stringify(local));
+  return local;
+}
+
+// Vincula una suscripción de Stripe nueva a un local que YA EXISTÍA (caso
+// de una venta manual que activa la mensualidad después, desde
+// /ya-tengo-mi-placa.html). A diferencia de createLocal, aquí el local ya
+// tiene slug e historial -- solo hay que guardar el ID de suscripción y
+// el índice sub:{id} para que los eventos futuros de Stripe (facturas,
+// bajas, etc.) lo encuentren.
+export async function vincularSuscripcion(env, slug, subscriptionId) {
+  const local = await getLocalBySlug(env, slug);
+  if (!local) return null;
+  local.stripe_subscription_id = subscriptionId;
+  local.origen = 'stripe';
+  await env.LOCALES_KV.put(`local:${slug}`, JSON.stringify(local));
+  await env.LOCALES_KV.put(`sub:${subscriptionId}`, slug);
+  return local;
+}
+
+// Elimina un local de forma permanente y sin vuelta atrás: borra tanto su
+// registro principal como el índice por suscripción de Stripe, si tenía.
 export async function deleteLocal(env, slug) {
   const local = await getLocalBySlug(env, slug);
   if (!local) return false;
   await env.LOCALES_KV.delete(`local:${slug}`);
   if (local.stripe_subscription_id) {
     await env.LOCALES_KV.delete(`sub:${local.stripe_subscription_id}`);
-  }
-  if (local.codigo) {
-    await env.LOCALES_KV.delete(`codigo:${local.codigo}`);
   }
   return true;
 }
